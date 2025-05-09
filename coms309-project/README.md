@@ -29,11 +29,11 @@ This repo serves as a personal archive of the project with emphasis on my contri
 
 I was one of four developers and focused entirely on the frontend Android development using **Java**, **XML**, and the **Android SDK**. My specific contributions include:
 
-- **Bottom Navigation View**: Designed and implemented navigation for key screens (Home, Marketplace, Cosmetics, Leaderboard, Club Chat).
+- **Bottom Navigation View**: Designed and implemented navigation for key screens (Home, Marketplace, Cosmetics, *Leaderboard, Club Chat).
 - **Skins & Marketplace UI**: Built dynamic UI components using `RecyclerView` to display available skins and real-time market updates.
 - **Achievements Screen**: Created an achievements system with tiered progress and dynamic display logic (including Roman numeral levels and color-coded tiers).
 - **Club Chat & Global Chat**: Integrated WebSocket chat with message rendering, achievement display badges, and reporting tools.
-- **Sign-Up & Settings Flow**: Developed the sign-up activity with form validation, a hidden SSN field (Easter egg-style), and account deletion logic.
+- **Sign-Up & Settings Flow**: Developed the sign-up activity with form validation, a hidden SSN field, and account deletion logic.
 - **End-to-End Espresso Tests**: Implemented full UI testing using Espresso for features like Sign Up, Market transactions, Club Chat interactions, and Settings/account deletion.
 
 ---
@@ -43,7 +43,7 @@ I was one of four developers and focused entirely on the frontend Android develo
 Video link that gives an overview of the app's features (video credits to *Kaden Neddermeyer*):
 
 https://www.youtube.com/watch?v=oVPB8Sjmq3E&list=PL6BdlkdKLEB__zBDNSki_OcKhINyXpi2u
-
+<br><br>
 
 Screenshots:
 
