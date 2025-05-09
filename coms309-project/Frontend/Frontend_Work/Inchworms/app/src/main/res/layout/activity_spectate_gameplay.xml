@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#9d825d">
+
+    <!-- Game Board -->
+    <FrameLayout
+        android:id="@+id/game_board"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#388004"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintDimensionRatio="1:1">
+
+        <!-- Player 1 (Bottom) -->
+        <ImageView
+            android:id="@+id/player1"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:src="@drawable/cartoonworm_red"
+            android:scaleType="fitXY"
+            android:contentDescription="Player 1" />
+
+        <!-- Player 2 (Left side, rotated 90° clockwise) -->
+        <ImageView
+            android:id="@+id/player2"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical|start"
+            android:src="@drawable/cartoonworm_green"
+            android:scaleType="fitXY"
+            android:rotation="90"
+            android:contentDescription="Player 2" />
+
+        <!-- Player 3 (Top, rotated 180° clockwise) -->
+        <ImageView
+            android:id="@+id/player3"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="top|center_horizontal"
+            android:src="@drawable/cartoonworm_pink"
+            android:scaleType="fitXY"
+            android:rotation="180"
+            android:contentDescription="Player 3" />
+
+        <!-- Player 4 (Right side, rotated 270° clockwise) -->
+        <ImageView
+            android:id="@+id/player4"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical|end"
+            android:src="@drawable/cartoonworm_blue"
+            android:scaleType="fitXY"
+            android:rotation="270"
+            android:contentDescription="Player 4" />
+            </FrameLayout>
+
+    <!-- Percipitation Weather gif -->
+    <ImageView
+        android:id="@+id/weather_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center" />
+
+    <!-- Cloudy Image at the Top, hidden unless weather is cloudy -->
+    <FrameLayout
+        android:id="@+id/cloud_container"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="-100dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Time Remaining TextView -->
+    <TextView
+        android:id="@+id/time_remaining"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Time Left: 0s"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        android:padding="8dp"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+        
+    <!-- Scores TextView -->
+    <TextView
+        android:id="@+id/scores"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Scores:\nPlayer1: 0\nPlayer2: 0\nPlayer3: 0\nPlayer4: 0"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        android:padding="8dp"
+        android:gravity="start"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Bet Details TextView -->
+    <TextView
+        android:id="@+id/bet_details_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="No bets placed yet."
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        android:padding="8dp"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Betting Button -->
+    <Button
+        android:id="@+id/place_bet_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:text="Place Bet"
+        android:textSize="18sp"
+        android:backgroundTint="#FF5722"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

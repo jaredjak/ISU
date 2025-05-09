@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ClubFragment"
+    android:orientation="vertical"
+    android:background="#9d825d"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/club_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CLUBS"
+        android:layout_gravity="top|center_horizontal"
+        android:textSize="45sp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="6dp"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="12dp"
+        android:textStyle="bold"
+        android:text="__________________________________________________________"
+        android:textSize="14sp"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/club_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center"
+        android:layout_marginTop="10dp"
+        android:text="Club Name"
+        android:textSize="20dp"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/club_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:text="Join Club"
+        android:backgroundTint="#8b7c99"
+        android:visibility="visible"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/members_btn"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:text="Club Info"
+            android:backgroundTint="#8b7c99"
+            android:visibility="visible"/>
+
+        <Button
+            android:id="@+id/leave_btn"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:text="Leave Club"
+            android:backgroundTint="#8B0000"
+            android:visibility="visible"/>
+
+        <Button
+            android:id="@+id/clubgame_btn"
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:text="Play Game"
+            android:backgroundTint="#8b7c99"
+            android:visibility="visible"/>
+    </LinearLayout>
+
+
+<!--    <Button-->
+<!--        android:id="@+id/leave_btn"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:text="Leave Club"-->
+<!--        android:visibility="visible"/>-->
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat_msg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="20dp"
+        android:paddingBottom="50dp"
+        android:background="@drawable/recycler_border"
+        android:scrollbars="vertical"
+        tools:listitem="@layout/chat_item"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/chat_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chat:"
+            android:textSize="20sp"/>
+
+        <EditText
+            android:id="@+id/chat_input"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:hint="Type a Message!"/>
+
+        <Button
+            android:id="@+id/send_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#6c91c2"
+            android:text="Send"/>
+    </LinearLayout>
+
+</LinearLayout>

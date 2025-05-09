@@ -1,0 +1,205 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Cosmetics</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">backendTables.Cosmetics</a>
+</div>
+
+<h1>Coverage Summary for Class: Cosmetics (backendTables.Cosmetics)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Cosmetics</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    92.9%
+  </span>
+  <span class="absValue">
+    (13/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    91.7%
+  </span>
+  <span class="absValue">
+    (22/24)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package backendTables.Cosmetics;
+&nbsp;import javax.persistence.*;
+&nbsp;
+&nbsp;import backendTables.Users.User;
+&nbsp;
+&nbsp;import java.util.ArrayList;
+&nbsp;
+&nbsp;
+&nbsp;@Entity
+&nbsp;public class Cosmetics {
+<b class="nc">&nbsp;    public Cosmetics() {</b>
+&nbsp;
+&nbsp;    }
+&nbsp;    //TODO Add selected attribute
+&nbsp;    @GeneratedValue(strategy = GenerationType.IDENTITY)
+&nbsp;    @Id
+&nbsp;    private int id;
+&nbsp;    private String username;
+&nbsp;    private String selected;
+&nbsp;    private double wormBucks;
+&nbsp;    @OneToOne (cascade = CascadeType.ALL)
+&nbsp;    @JoinColumn(name = &quot;wormbox_id&quot;)
+&nbsp;    private Wormbox w;
+<b class="fc">&nbsp;    private double previousBet = 0;</b>
+<b class="fc">&nbsp;    public Cosmetics (User user) {</b>
+<b class="fc">&nbsp;        this.id = user.getId();</b>
+<b class="fc">&nbsp;        this.username = user.getUsername();</b>
+<b class="fc">&nbsp;        this.wormBucks = 1000;</b>
+<b class="fc">&nbsp;        this.selected = &quot;Beige&quot;;</b>
+<b class="fc">&nbsp;        this.w = new Wormbox(this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public Wormbox getWormbox() {
+<b class="fc">&nbsp;        return w;</b>
+&nbsp;    }
+&nbsp;    public void addWorm(String s) {
+<b class="fc">&nbsp;        w.addWorm(s);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void removeWorm(String s) {
+<b class="fc">&nbsp;        w.removeWorm(s);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String viewSkin(String color) {
+<b class="fc">&nbsp;        return w.getWorm(color);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int[] getCounts() {
+<b class="fc">&nbsp;        return w.getCounts();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void adjustBalance(double amount) {
+<b class="fc">&nbsp;        if (wormBucks + amount &lt; 0) wormBucks = 0;</b>
+&nbsp;        else {
+<b class="fc">&nbsp;            wormBucks += amount;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public double getBalance() {
+<b class="fc">&nbsp;        return wormBucks;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getId() {
+<b class="fc">&nbsp;        return this.id;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public double getPrevBet() {
+<b class="fc">&nbsp;        return this.previousBet;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setPrevBet(double i) {
+<b class="nc">&nbsp;        this.previousBet = i;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public boolean select(String worm) {
+<b class="fc">&nbsp;        if (w.contains(worm)) {</b>
+<b class="fc">&nbsp;            this.selected = worm;</b>
+<b class="fc">&nbsp;            return true;</b>
+&nbsp;        }
+<b class="fc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String getSelected() {
+<b class="fc">&nbsp;        return this.selected;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+&nbsp;
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-20 19:15</div>
+</div>
+</body>
+</html>

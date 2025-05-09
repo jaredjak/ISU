@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.example.androidexample</a> &gt; <span class="el_source">AdminActivity.java</span></div><h1>AdminActivity.java</h1><pre class="source lang-java linenums">package com.example.androidexample;
+
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
+import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L32">public class AdminActivity extends AppCompatActivity {</span>
+
+    private RecyclerView chatsRecyclerView, reportsRecyclerView;
+    private EditText chatSearchEditText, clubSearchEditText, adminSearchEditText, suspendTimeEditText;
+    private TextView reportDetailsUser, reportDetailsExplanation, reportDetailsMessage, reportDetailsTimestamp, reportDetailsReporter;
+    private Button searchChatBtn, searchClubBtn, banBtn, suspendBtn, exitBtn;
+
+<span class="nc" id="L39">    private List&lt;ChatMessage&gt; chatList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L40">    private List&lt;AdminReport&gt; reportList = new ArrayList&lt;&gt;();</span>
+
+    private AdminUserChatAdapter adminUserChatAdapter;
+    private AdminReportAdapter adminReportAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L47">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L48">        setContentView(R.layout.admin_activity);</span>
+
+        // Variable initialization
+<span class="nc" id="L51">        chatsRecyclerView = findViewById(R.id.chatsRecyclerView);</span>
+<span class="nc" id="L52">        reportsRecyclerView = findViewById(R.id.reportsRecyclerView);</span>
+
+<span class="nc" id="L54">        chatSearchEditText = findViewById(R.id.chatSearchEditText);</span>
+<span class="nc" id="L55">        clubSearchEditText = findViewById(R.id.clubSearchEditText);</span>
+<span class="nc" id="L56">        adminSearchEditText = findViewById(R.id.adminSearchEditText);</span>
+<span class="nc" id="L57">        suspendTimeEditText = findViewById(R.id.suspendTimeEditText);</span>
+
+<span class="nc" id="L59">        reportDetailsUser = findViewById(R.id.reportDetailsUser);</span>
+<span class="nc" id="L60">        reportDetailsExplanation = findViewById(R.id.reportDetailsExplanation);</span>
+<span class="nc" id="L61">        reportDetailsMessage = findViewById(R.id.reportDetailsMessage);</span>
+<span class="nc" id="L62">        reportDetailsTimestamp = findViewById(R.id.reportDetailsTimestamp);</span>
+<span class="nc" id="L63">        reportDetailsReporter = findViewById(R.id.reportDetailsReporter);</span>
+
+<span class="nc" id="L65">        searchChatBtn = findViewById(R.id.searchChats);</span>
+<span class="nc" id="L66">        searchClubBtn = findViewById(R.id.searchClub);</span>
+<span class="nc" id="L67">        banBtn = findViewById(R.id.banButton);</span>
+<span class="nc" id="L68">        suspendBtn = findViewById(R.id.suspendButton);</span>
+<span class="nc" id="L69">        exitBtn = findViewById(R.id.exitButton);</span>
+
+        // RecyclerView setup
+<span class="nc" id="L72">        chatsRecyclerView.setLayoutManager(new LinearLayoutManager(this));</span>
+<span class="nc" id="L73">        adminUserChatAdapter = new AdminUserChatAdapter(chatList);</span>
+<span class="nc" id="L74">        chatsRecyclerView.setAdapter(adminUserChatAdapter);</span>
+
+        //Hard-coded test report
+//        hardCodedReport();
+
+<span class="nc" id="L79">        reportsRecyclerView.setLayoutManager(new LinearLayoutManager(this));</span>
+<span class="nc" id="L80">        adminReportAdapter = new AdminReportAdapter(reportList, new AdminReportAdapter.OnReportClickListener() {</span>
+            @Override
+            public void onDetailsClick(AdminReport report) {
+<span class="nc" id="L83">                reportDetailsUser.setText(&quot;Reported User: &quot; + report.getReportedUser());</span>
+<span class="nc" id="L84">                reportDetailsReporter.setText(&quot;Reporting User: &quot; + report.getReportingUser());</span>
+<span class="nc" id="L85">                reportDetailsExplanation.setText(&quot;Explanation: &quot; + report.getExplanation());</span>
+<span class="nc" id="L86">                reportDetailsMessage.setText(&quot;Message: &quot; + report.getMessage());</span>
+<span class="nc" id="L87">                reportDetailsTimestamp.setText(&quot;Timestamp: &quot; + report.getTimestamp());</span>
+<span class="nc" id="L88">            }</span>
+
+            @Override
+            public void onDismissClick(AdminReport report) {
+                //TODO
+<span class="nc" id="L93">            }</span>
+        });
+
+<span class="nc" id="L96">        reportsRecyclerView.setAdapter(adminReportAdapter);</span>
+        // Get the reports to fill in the recycler view
+<span class="nc" id="L98">        getReports();</span>
+
+        // Click listener for search chat button
+<span class="nc" id="L101">        searchChatBtn.setOnClickListener(v -&gt; {</span>
+<span class="nc" id="L102">            String username = chatSearchEditText.getText().toString().trim();</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (username.isEmpty()) {</span>
+<span class="nc" id="L105">                Toast.makeText(this, &quot;Please enter username&quot;, Toast.LENGTH_SHORT).show();</span>
+            }
+
+<span class="nc" id="L108">            String chatHistoryURL = &quot;http://coms-3090-013.class.las.iastate.edu:8080/admin/chat/history/&quot; + username;</span>
+
+<span class="nc" id="L110">            JsonArrayRequest chatRequest = new JsonArrayRequest(Request.Method.GET, chatHistoryURL, null, response -&gt; {</span>
+                try {
+<span class="nc" id="L112">                    chatList.clear();</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                    for (int i = 0; i &lt; response.length(); i++) {</span>
+<span class="nc" id="L115">                        JSONObject obj = response.getJSONObject(i);</span>
+<span class="nc" id="L116">                        String message = obj.getString(&quot;message&quot;);</span>
+<span class="nc" id="L117">                        String sender = obj.getString(&quot;senderUsername&quot;);</span>
+<span class="nc" id="L118">                        String timestamp = obj.getString(&quot;timestamp&quot;);</span>
+
+<span class="nc" id="L120">                        chatList.add(new ChatMessage(message, sender, timestamp, null));</span>
+                    }
+
+<span class="nc" id="L123">                    adminUserChatAdapter.updateMessages(chatList);</span>
+<span class="nc" id="L124">                } catch (JSONException e) {</span>
+<span class="nc" id="L125">                    e.printStackTrace();</span>
+<span class="nc" id="L126">                    Toast.makeText(this, &quot;Error parsing chat history&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L127">                }</span>
+<span class="nc" id="L128">            },</span>
+            error -&gt; {
+<span class="nc" id="L130">                error.printStackTrace();</span>
+<span class="nc" id="L131">                Toast.makeText(this, &quot;Failed to load chat history&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L132">            });</span>
+
+<span class="nc" id="L134">            RequestQueue queue = Volley.newRequestQueue(this);</span>
+<span class="nc" id="L135">            queue.add(chatRequest);</span>
+<span class="nc" id="L136">        });</span>
+
+        // Click listener for ban button
+<span class="nc" id="L139">        banBtn.setOnClickListener(view -&gt; {</span>
+<span class="nc" id="L140">            String username = adminSearchEditText.getText().toString().trim();</span>
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (username.isEmpty()) {</span>
+<span class="nc" id="L143">                Toast.makeText(this, &quot;Please enter username to ban&quot;, Toast.LENGTH_SHORT).show();</span>
+            }
+
+<span class="nc" id="L146">            String banURL = &quot;http://coms-3090-013.class.las.iastate.edu:8080/admin/ban/&quot; + username;</span>
+
+<span class="nc" id="L148">            StringRequest banRequest = new StringRequest(Request.Method.PUT, banURL, response -&gt; {</span>
+<span class="nc" id="L149">                Log.d(&quot;Ban  Response&quot;, response.toString());</span>
+<span class="nc" id="L150">                Toast.makeText(this, &quot;User '&quot; + username + &quot;' has been banned.&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L151">            },</span>
+            error -&gt; {
+<span class="nc" id="L153">                Toast.makeText(this, &quot;Failed to ban user:&quot; + username, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L154">            }</span>
+            );
+
+<span class="nc" id="L157">            RequestQueue queue = Volley.newRequestQueue(this);</span>
+<span class="nc" id="L158">            queue.add(banRequest);</span>
+<span class="nc" id="L159">        });</span>
+
+
+        // Click listener for suspend button
+<span class="nc" id="L163">        suspendBtn.setOnClickListener(view -&gt; {</span>
+<span class="nc" id="L164">            String username = adminSearchEditText.getText().toString().trim();</span>
+<span class="nc" id="L165">            String minutesStr = suspendTimeEditText.getText().toString().trim();</span>
+
+<span class="nc bnc" id="L167" title="All 2 branches missed.">            if (username.isEmpty()) {</span>
+<span class="nc" id="L168">                Toast.makeText(this, &quot;Please enter username to ban&quot;, Toast.LENGTH_SHORT).show();</span>
+            }
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">            if (minutesStr.isEmpty()) {</span>
+<span class="nc" id="L172">                Toast.makeText(this, &quot;Please enter suspend time&quot;, Toast.LENGTH_SHORT).show();</span>
+            }
+
+<span class="nc" id="L175">            int minutes = 0;</span>
+            try {
+<span class="nc" id="L177">                minutes = Integer.parseInt(minutesStr);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                if (minutes &lt;= 0) throw new NumberFormatException();</span>
+<span class="nc" id="L179">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L180">                Toast.makeText(this, &quot;Please enter valid number of minutes&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L181">            }</span>
+
+<span class="nc" id="L183">            String suspendURL = &quot;http://coms-3090-013.class.las.iastate.edu:8080/admin/suspend/&quot; + username + &quot;/&quot; + minutes;</span>
+<span class="nc" id="L184">            int finalMinutes = minutes; //Got an error without this (idk why)</span>
+
+<span class="nc" id="L186">            StringRequest suspendRequest = new StringRequest(Request.Method.PUT, suspendURL, response -&gt; {</span>
+<span class="nc" id="L187">                Log.d(&quot;Suspend  Response&quot;, response.toString());</span>
+<span class="nc" id="L188">                Toast.makeText(this, &quot;User '&quot; + username + &quot;' has been suspended for &quot; + finalMinutes + &quot; minutes.&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L189">            },</span>
+                    error -&gt; {
+<span class="nc" id="L191">                        Toast.makeText(this, &quot;Failed to ban user:&quot; + username, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L192">                    }</span>
+            );
+
+<span class="nc" id="L195">            RequestQueue queue = Volley.newRequestQueue(this);</span>
+<span class="nc" id="L196">            queue.add(suspendRequest);</span>
+<span class="nc" id="L197">        });</span>
+
+
+        // Click listener for exit button
+<span class="nc" id="L201">        exitBtn.setOnClickListener(view -&gt; {</span>
+<span class="nc" id="L202">            Intent intent = new Intent(AdminActivity.this, HomeActivity.class);</span>
+<span class="nc" id="L203">            startActivity(intent);</span>
+<span class="nc" id="L204">        });</span>
+<span class="nc" id="L205">    }</span>
+
+    /* Gets the reports stored in the backend */
+    private void getReports() {
+<span class="nc" id="L209">        String reportsURL = &quot;http://coms-3090-013.class.las.iastate.edu:8080/reports/all&quot;;</span>
+
+<span class="nc" id="L211">        Log.d(&quot;GET_REPORTS&quot;, &quot;Attempting to fetch reports from: &quot; + reportsURL);</span>
+
+<span class="nc" id="L213">        JsonArrayRequest reportRequest = new JsonArrayRequest(Request.Method.GET, reportsURL, null, response -&gt; {</span>
+            try {
+<span class="nc" id="L215">                Log.d(&quot;GET_REPORTS&quot;, &quot;Response received: &quot; + response.toString());</span>
+
+<span class="nc" id="L217">                reportList.clear();</span>
+
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                for (int i = 0; i &lt; response.length(); i++) {</span>
+<span class="nc" id="L220">                    Log.d(&quot;Report Response&quot;, &quot;Response:&quot; + response);</span>
+<span class="nc" id="L221">                    JSONObject obj = response.getJSONObject(i);</span>
+
+<span class="nc" id="L223">                    Log.d(&quot;Object&quot;, obj.toString());</span>
+
+<span class="nc" id="L225">                    JSONObject reportedUserObj = obj.getJSONObject(&quot;reportedUser&quot;);</span>
+
+<span class="nc" id="L227">                    Log.d(&quot;Check&quot;, &quot;check&quot;);</span>
+
+<span class="nc" id="L229">                    JSONObject reportingUserObj = obj.getJSONObject(&quot;reportingUser&quot;);</span>
+
+//                    String reportedUser = reportedUserObj.getString(&quot;reportedUser&quot;);
+//                    String reportingUser = reportingUserObj.getString(&quot;reportingUser&quot;);
+<span class="nc" id="L233">                    String reportedUser = reportedUserObj.getString(&quot;username&quot;);</span>
+<span class="nc" id="L234">                    String reportingUser = reportingUserObj.getString(&quot;username&quot;);</span>
+<span class="nc" id="L235">                    String explanation = obj.getString(&quot;explanation&quot;);</span>
+//                    String message = obj.getString(&quot;message&quot;);
+<span class="nc" id="L237">                    String message = obj.optString(&quot;reportedMessage&quot;, &quot;No message provided&quot;);</span>
+<span class="nc" id="L238">                    String timestamp = obj.getString(&quot;timestamp&quot;);</span>
+
+<span class="nc" id="L240">                    reportList.add(new AdminReport(reportedUser, reportingUser, message, explanation, timestamp));</span>
+                }
+
+<span class="nc" id="L243">                adminReportAdapter.notifyDataSetChanged();</span>
+<span class="nc" id="L244">            } catch (JSONException e) {</span>
+<span class="nc" id="L245">                Log.e(&quot;GET_REPORTS&quot;, &quot;JSON Parsing error: &quot; + e.getMessage());</span>
+<span class="nc" id="L246">                e.printStackTrace();</span>
+<span class="nc" id="L247">                Toast.makeText(this, &quot;Error parsing reports&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L248">            }</span>
+<span class="nc" id="L249">        }, error -&gt; {</span>
+<span class="nc" id="L250">            Log.e(&quot;GET_REPORTS&quot;, &quot;Volley error: &quot; + error.toString());</span>
+<span class="nc" id="L251">            error.printStackTrace();</span>
+<span class="nc" id="L252">            Toast.makeText(this, &quot;Failed to load reports&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L253">        });</span>
+
+<span class="nc" id="L255">        RequestQueue queue = Volley.newRequestQueue(this);</span>
+<span class="nc" id="L256">        queue.add(reportRequest);</span>
+<span class="nc" id="L257">    }</span>
+
+    /* Temporary hard-coded report */
+//    private void hardCodedReport() {
+//        String url = &quot;http://coms-3090-013.class.las.iastate.edu:8080/reports?reportingUsername=OneUser1&amp;reportedUsername=ThreeUser3&amp;explanation=bad&quot;;
+//
+//        //&quot;&amp;messageId=&quot; + message.getId() + // goes before explanation
+//
+//        StringRequest request = new StringRequest(Request.Method.POST, url,
+//                response -&gt; Toast.makeText(this, &quot;Report submitted.&quot;, Toast.LENGTH_SHORT).show(),
+//                error -&gt; Toast.makeText(this, &quot;Error submitting report.&quot;, Toast.LENGTH_SHORT).show());
+//
+//        RequestQueue queue = Volley.newRequestQueue(this);
+//        queue.add(request);
+//    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span>Generated by the Android Gradle plugin 8.8.0</div></body></html>

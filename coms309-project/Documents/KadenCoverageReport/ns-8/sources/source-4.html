@@ -1,0 +1,474 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GameBoard</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">backendTables.Game</a>
+</div>
+
+<h1>Coverage Summary for Class: GameBoard (backendTables.Game)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameBoard</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/26)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/86)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/149)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">GameBoard$GameState</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/27)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/86)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/150)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package backendTables.Game;
+&nbsp;
+&nbsp;import java.util.*;
+&nbsp;import java.util.concurrent.ConcurrentHashMap;
+&nbsp;import java.util.concurrent.CopyOnWriteArrayList;
+&nbsp;import java.util.stream.Collectors;
+&nbsp;
+&nbsp;import backendTables.Leaderboard.Leaderboard;
+&nbsp;import backendTables.Leaderboard.LeaderboardRepository;
+&nbsp;import backendTables.Users.User;
+&nbsp;import backendTables.Users.UserRepository;
+&nbsp;import backendTables.Bets.*;
+&nbsp;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.scheduling.annotation.Scheduled;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import javax.annotation.PostConstruct;
+&nbsp;
+&nbsp;@Service
+<b class="nc">&nbsp;public class GameBoard {</b>
+&nbsp;
+<b class="nc">&nbsp;    public enum GameState { LOBBY, COUNTDOWN, RUNNING, FINISHED }</b>
+&nbsp;
+<b class="nc">&nbsp;    private GameState state = GameState.LOBBY;</b>
+<b class="nc">&nbsp;    private List&lt;GamePlayer&gt; players = new CopyOnWriteArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;    private List&lt;Ball&gt; balls = new CopyOnWriteArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;    private static final Map&lt;String, Long&gt; playerLastHitTime = new ConcurrentHashMap&lt;&gt;();</b>
+&nbsp;    private static final long hitCooldownMillis = 1500;
+&nbsp;
+<b class="nc">&nbsp;    private final int boardWidth = 1000;</b>
+<b class="nc">&nbsp;    private final int boardHeight = 1000;</b>
+<b class="nc">&nbsp;    private final long gameDurationMillis = 60000;</b>
+<b class="nc">&nbsp;    private long gameStartTime = 0;</b>
+<b class="nc">&nbsp;    private long gameEndTime = 0;</b>
+&nbsp;
+&nbsp;
+<b class="nc">&nbsp;    private final Random random = new Random();</b>
+<b class="nc">&nbsp;    private long lastBallSpawnTime = 0;</b>
+<b class="nc">&nbsp;    private final long ballSpawnIntervalMillis = 5000;</b>
+&nbsp;
+&nbsp;
+&nbsp;    @Autowired private BetService betService;
+&nbsp;    @Autowired private UserRepository userRepository;
+&nbsp;    @Autowired private LeaderboardRepository leaderboardRepository;
+&nbsp;
+&nbsp;    public synchronized boolean addPlayer(GamePlayer player) {
+<b class="nc">&nbsp;        if (state != GameState.LOBBY) return false;</b>
+&nbsp;
+<b class="nc">&nbsp;        if (players.size() &lt; 4) {</b>
+<b class="nc">&nbsp;            String identifier = &quot;player&quot; + (players.size() + 1);</b>
+<b class="nc">&nbsp;            player.setPlayerIdentifier(identifier);</b>
+<b class="nc">&nbsp;            players.add(player);</b>
+<b class="nc">&nbsp;            if (players.size() == 4) startCountdown();</b>
+<b class="nc">&nbsp;            return true;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return false;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void startCountdown() {
+<b class="nc">&nbsp;        state = GameState.COUNTDOWN;</b>
+&nbsp;
+&nbsp;        // Countdown delay in ms
+<b class="nc">&nbsp;        final int countdownDuration = 10000;  // 10 seconds</b>
+<b class="nc">&nbsp;        final int broadcastTime = 6000;       // broadcast at 6s</b>
+&nbsp;
+&nbsp;        // Broadcast assignments after 6 seconds
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                Thread.sleep(broadcastTime);</b>
+&nbsp;            } catch (InterruptedException e) {
+<b class="nc">&nbsp;                Thread.currentThread().interrupt();</b>
+&nbsp;            }
+<b class="nc">&nbsp;            broadcastCurrentAssignments();</b>
+<b class="nc">&nbsp;        }).start();</b>
+&nbsp;
+&nbsp;        // Start game after 10 seconds
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                Thread.sleep(countdownDuration);</b>
+&nbsp;            } catch (InterruptedException e) {
+<b class="nc">&nbsp;                Thread.currentThread().interrupt();</b>
+&nbsp;            }
+<b class="nc">&nbsp;            startGame();</b>
+<b class="nc">&nbsp;        }).start();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void broadcastCurrentAssignments() {
+<b class="nc">&nbsp;        Map&lt;String, String&gt; assignments = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (GamePlayer player : players) {</b>
+<b class="nc">&nbsp;            String username = player.getUsername();</b>
+<b class="nc">&nbsp;            assignments.put(player.getPlayerIdentifier(), username);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        GameSocket.broadcastPlayerAssignments(assignments);</b>
+<b class="nc">&nbsp;        SpectatorSocket.broadcastPlayerAssignments(assignments);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private synchronized void startGame() {
+<b class="nc">&nbsp;        state = GameState.RUNNING;</b>
+<b class="nc">&nbsp;        gameStartTime = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;        lastBallSpawnTime = gameStartTime;</b>
+&nbsp;
+&nbsp;        // Re-send assignments to catch late-connecting clients
+<b class="nc">&nbsp;        broadcastCurrentAssignments();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;BallState&gt; getBallStates() {
+<b class="nc">&nbsp;        return balls.stream()</b>
+<b class="nc">&nbsp;                .map(b -&gt; new BallState(b.getX(), b.getY()))</b>
+<b class="nc">&nbsp;                .collect(Collectors.toList());</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Scheduled(fixedRate = 200)
+&nbsp;    public void updateGame() {
+<b class="nc">&nbsp;        if (state != GameState.RUNNING) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        for (Ball ball : balls) {</b>
+<b class="nc">&nbsp;            ball.updatePosition();</b>
+<b class="nc">&nbsp;            checkBoundaryCollision(ball);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        long now = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;        if (now - lastBallSpawnTime &gt;= ballSpawnIntervalMillis) {</b>
+<b class="nc">&nbsp;            spawnBalls();</b>
+<b class="nc">&nbsp;            lastBallSpawnTime = now;</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        if (now - gameStartTime &gt;= gameDurationMillis) {</b>
+<b class="nc">&nbsp;            endGame();</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        List&lt;BallState&gt; ballStates = getBallStates();</b>
+<b class="nc">&nbsp;        GameSocket.broadcastBallPositions();</b>
+<b class="nc">&nbsp;        SpectatorSocket.broadcastBallPositions(ballStates);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private void checkBoundaryCollision(Ball ball) {
+<b class="nc">&nbsp;        if (ball.getX() &lt;= 0 || ball.getX() &gt;= boardWidth) {</b>
+<b class="nc">&nbsp;            ball.reverseXVelocity();</b>
+&nbsp;        }
+<b class="nc">&nbsp;        if (ball.getY() &lt;= 0 || ball.getY() &gt;= boardHeight) {</b>
+<b class="nc">&nbsp;            ball.reverseYVelocity();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void spawnBalls() {
+<b class="nc">&nbsp;        for (int i = 0; i &lt; 50; i++) {</b>
+<b class="nc">&nbsp;            Ball ball = new Ball(boardWidth / 2.0, boardHeight / 2.0);</b>
+<b class="nc">&nbsp;            ball.setRandomVelocity(random);</b>
+<b class="nc">&nbsp;            balls.add(ball);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public int checkAndRemoveBallsInHitbox(String playerIdentifier) {
+<b class="nc">&nbsp;        List&lt;Ball&gt; ballsToRemove = new ArrayList&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;        for (Ball b : balls) {</b>
+<b class="nc">&nbsp;            if (withinHitbox(b.getX(), b.getY(), playerIdentifier)) {</b>
+<b class="nc">&nbsp;                ballsToRemove.add(b);</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        int ballsHit = ballsToRemove.size();</b>
+<b class="nc">&nbsp;        balls.removeAll(ballsToRemove);</b>
+<b class="nc">&nbsp;        return ballsHit;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private boolean withinHitbox(double x, double y, String playerIdentifier) {
+<b class="nc">&nbsp;        double width = 350, height = 400;</b>
+<b class="nc">&nbsp;        switch (playerIdentifier) {</b>
+&nbsp;            case &quot;player1&quot;:
+<b class="nc">&nbsp;                return x &gt;= (boardWidth - width) / 2.0 &amp;&amp; x &lt;= (boardWidth + width) / 2.0 &amp;&amp;</b>
+&nbsp;                        y &gt;= 0 &amp;&amp; y &lt;= height;
+&nbsp;            case &quot;player2&quot;:
+<b class="nc">&nbsp;                return x &gt;= boardWidth - height &amp;&amp; x &lt;= boardWidth &amp;&amp;</b>
+&nbsp;                        y &gt;= (boardHeight - width) / 2.0 &amp;&amp; y &lt;= (boardHeight + width) / 2.0;
+&nbsp;            case &quot;player3&quot;:
+<b class="nc">&nbsp;                return x &gt;= (boardWidth - width) / 2.0 &amp;&amp; x &lt;= (boardWidth + width) / 2.0 &amp;&amp;</b>
+&nbsp;                        y &gt;= boardHeight - height &amp;&amp; y &lt;= boardHeight;
+&nbsp;            case &quot;player4&quot;:
+<b class="nc">&nbsp;                return x &gt;= 0 &amp;&amp; x &lt;= height &amp;&amp;</b>
+&nbsp;                        y &gt;= (boardHeight - width) / 2.0 &amp;&amp; y &lt;= (boardHeight + width) / 2.0;
+&nbsp;            default:
+<b class="nc">&nbsp;                return false;</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public GameSnapshot generateSnapshot() {
+<b class="nc">&nbsp;        List&lt;GameSnapshot.PlayerScore&gt; scoreList = players.stream()</b>
+<b class="nc">&nbsp;                .map(p -&gt; new GameSnapshot.PlayerScore(p.getPlayerIdentifier(), p.getScore()))</b>
+<b class="nc">&nbsp;                .collect(Collectors.toList());</b>
+<b class="nc">&nbsp;        return new GameSnapshot(scoreList);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Scheduled(fixedRate = 500)
+&nbsp;    public void broadcastRemainingTime() {
+<b class="nc">&nbsp;        if (state != GameState.RUNNING) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        long now = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;        long timeRemaining = Math.max(0, gameDurationMillis - (now - gameStartTime));</b>
+&nbsp;
+<b class="nc">&nbsp;        GameSocket.broadcastTimeRemaining(timeRemaining);</b>
+<b class="nc">&nbsp;        SpectatorSocket.broadcastTimeRemaining(timeRemaining);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    private synchronized void endGame() {
+<b class="nc">&nbsp;        state = GameState.FINISHED;</b>
+<b class="nc">&nbsp;        balls.clear();</b>
+<b class="nc">&nbsp;        gameEndTime = System.currentTimeMillis(); // Track when game finished</b>
+&nbsp;
+<b class="nc">&nbsp;        int highestScore = players.stream()</b>
+<b class="nc">&nbsp;                .mapToInt(GamePlayer::getScore)</b>
+<b class="nc">&nbsp;                .max()</b>
+<b class="nc">&nbsp;                .orElse(0);</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;GamePlayer&gt; winners = players.stream()</b>
+<b class="nc">&nbsp;                .filter(p -&gt; p.getScore() == highestScore)</b>
+<b class="nc">&nbsp;                .collect(Collectors.toList());</b>
+&nbsp;
+<b class="nc">&nbsp;        List&lt;Map&lt;String, Object&gt;&gt; finalResults = new ArrayList&lt;&gt;();</b>
+<b class="nc">&nbsp;        for (GamePlayer player : players) {</b>
+<b class="nc">&nbsp;            User user = userRepository.findById(player.getUserId());</b>
+<b class="nc">&nbsp;            if (user == null) continue;</b>
+&nbsp;
+<b class="nc">&nbsp;            Leaderboard entry = leaderboardRepository.findByUserId(user.getId());</b>
+<b class="nc">&nbsp;            if (entry == null) {</b>
+<b class="nc">&nbsp;                entry = new Leaderboard(user, player.getScore(), 0);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            if (player.getScore() &gt; entry.getScore()) {</b>
+<b class="nc">&nbsp;                entry.setScore(player.getScore());</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            if (winners.contains(player)) {</b>
+<b class="nc">&nbsp;                entry.setWinStreak(entry.getWinStreak() + 1);</b>
+&nbsp;            } else {
+<b class="nc">&nbsp;                entry.setWinStreak(0);</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            leaderboardRepository.save(entry);</b>
+&nbsp;
+<b class="nc">&nbsp;            Map&lt;String, Object&gt; playerResult = new HashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;            playerResult.put(&quot;username&quot;, player.getUsername());</b>
+<b class="nc">&nbsp;            playerResult.put(&quot;score&quot;, player.getScore());</b>
+<b class="nc">&nbsp;            playerResult.put(&quot;isWinner&quot;, winners.contains(player));</b>
+<b class="nc">&nbsp;            finalResults.add(playerResult);</b>
+&nbsp;        }
+&nbsp;
+&nbsp;
+&nbsp;        //Performs bet check for who won this round
+<b class="nc">&nbsp;        this.betService.payoutAllBets(winners);</b>
+&nbsp;
+&nbsp;        //new thread delays posting of final results, hopefully resolving issues
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                Thread.sleep(200); // ⏱️ Delay for 200ms (adjust as needed)</b>
+&nbsp;            } catch (InterruptedException e) {
+<b class="nc">&nbsp;                Thread.currentThread().interrupt();</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            GameSocket.broadcastFinalResults(finalResults);</b>
+<b class="nc">&nbsp;            SpectatorSocket.broadcastFinalResults(finalResults);</b>
+<b class="nc">&nbsp;        }).start();;</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    @Scheduled(fixedRate = 1000)
+&nbsp;    public void checkForAutoReset() {
+<b class="nc">&nbsp;        if (state == GameState.FINISHED) {</b>
+<b class="nc">&nbsp;            long now = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;            if (now - gameEndTime &gt;= 60000) { // 60 seconds</b>
+<b class="nc">&nbsp;                resetGameToLobby();</b>
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private synchronized void resetGameToLobby() {
+<b class="nc">&nbsp;        state = GameState.LOBBY;</b>
+<b class="nc">&nbsp;        players.clear();</b>
+<b class="nc">&nbsp;        balls.clear();</b>
+<b class="nc">&nbsp;        gameStartTime = 0;</b>
+<b class="nc">&nbsp;        gameEndTime = 0;</b>
+<b class="nc">&nbsp;        lastBallSpawnTime = 0;</b>
+<b class="nc">&nbsp;        System.out.println(&quot;Game reset to LOBBY state.&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @PostConstruct
+&nbsp;    public void initSpectatorSocket() {
+<b class="nc">&nbsp;        SpectatorSocket.registerGameBoard(this);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public synchronized void removePlayerByUsername(String username) {
+<b class="nc">&nbsp;        players.removeIf(p -&gt; username.equals(p.getUsername()));</b>
+<b class="nc">&nbsp;        if (players.isEmpty()) {</b>
+<b class="nc">&nbsp;            resetGame();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void resetGame() {
+<b class="nc">&nbsp;        state = GameState.LOBBY;</b>
+<b class="nc">&nbsp;        balls.clear();</b>
+<b class="nc">&nbsp;        gameStartTime = 0;</b>
+<b class="nc">&nbsp;        lastBallSpawnTime = 0;</b>
+<b class="nc">&nbsp;        System.out.println(&quot;Game has been reset to LOBBY.&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    public GameState getState() {
+<b class="nc">&nbsp;        return state;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;GamePlayer&gt; getPlayers() {
+<b class="nc">&nbsp;        return players;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public List&lt;Ball&gt; getBalls() {
+<b class="nc">&nbsp;        return balls;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-20 19:15</div>
+</div>
+</body>
+</html>
