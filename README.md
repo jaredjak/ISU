@@ -17,3 +17,7 @@ This repo serves as a place to store all of my coursework at Iowa State Universi
 - Coms 309
 
 - Coms 311
+
+**Cybersecurity**
+
+- Cybe 230
