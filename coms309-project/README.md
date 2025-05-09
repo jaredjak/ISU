@@ -16,6 +16,15 @@ This repo serves as a personal archive of the project with emphasis on my contri
 
 ---
 
+## Team Members
+
+- Jared Krug – Frontend Development
+- Emmet Stuart – Frontend Development
+- Kaden Neddermeyer – Backend Development and Database
+- Carter Hauschildt – Backend Development
+
+---
+
 ## My Role: Frontend Developer
 
 I was one of four developers and focused entirely on the frontend Android development using **Java**, **XML**, and the **Android SDK**. My specific contributions include:
@@ -28,3 +37,10 @@ I was one of four developers and focused entirely on the frontend Android develo
 - **End-to-End Espresso Tests**: Implemented full UI testing using Espresso for features like Sign Up, Market transactions, Club Chat interactions, and Settings/account deletion.
 
 ---
+
+## Contact
+
+Feel free to reach out to me if you have any questions:
+
+- GitHub: jaredjak (https://github.com/jaredjak)
+- Email: jared.krug10@gmail.com
