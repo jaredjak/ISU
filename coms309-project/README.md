@@ -38,6 +38,15 @@ I was one of four developers and focused entirely on the frontend Android develo
 
 ---
 
+## Video/Trailer + Screenshots
+
+Video link that gives an overview of the app's features (video credits to *Kaden Neddermeyer*):
+https://www.youtube.com/watch?v=oVPB8Sjmq3E&list=PL6BdlkdKLEB__zBDNSki_OcKhINyXpi2u
+
+Screenshots:
+
+---
+
 ## Contact
 
 Feel free to reach out to me if you have any questions:
