@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameplayActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.example.androidexample</a> &gt; <span class="el_source">GameplayActivity.java</span></div><h1>GameplayActivity.java</h1><pre class="source lang-java linenums">package com.example.androidexample;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+<span class="nc" id="L27">public class GameplayActivity extends AppCompatActivity {</span>
+
+    private ImageView player1; // Reference to the player1 image in XML
+    protected FrameLayout gameBoard; // Changed from private to protected
+    private FrameLayout.LayoutParams player1LayoutParams; // To dynamically adjust player1's height
+    protected TextView timeRemainingTextView; // Changed from private to protected
+    protected TextView scoreTextView; // Changed from private to protected
+<span class="nc" id="L34">    private boolean isExtending = false;</span>
+<span class="nc" id="L35">    private int extensionLength = 0;</span>
+<span class="nc" id="L36">    private final int maxExtension = 400;</span>
+<span class="nc" id="L37">    protected final CopyOnWriteArrayList&lt;Ball&gt; balls = new CopyOnWriteArrayList&lt;&gt;(); // Changed to CopyOnWriteArrayList</span>
+<span class="nc" id="L38">    private final int backendBoardWidth = 1000; // Backend game board width</span>
+<span class="nc" id="L39">    private final int backendBoardHeight = 1000; // Backend game board height</span>
+    private GameplayWebSocketManager webSocketManager;
+<span class="nc" id="L41">    private String username = &quot;did not work&quot;; // Default username</span>
+<span class="nc" id="L42">    private String playerIdentifier = null; // Default player identifier</span>
+<span class="nc" id="L43">    private final HashMap&lt;String, String&gt; playerNameMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L44">    private JSONArray cachedScores = null; // Cache scores if received before players</span>
+
+    @SuppressLint(&quot;ClickableViewAccessibility&quot;)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L49">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L50">        setContentView(R.layout.activity_gameplay);</span>
+
+        // Retrieve the username from the intent
+<span class="nc" id="L53">        username = getIntent().getStringExtra(&quot;username&quot;);</span>
+
+        // Reference the player1 image, game board, and other UI elements from the XML
+<span class="nc" id="L56">        player1 = findViewById(R.id.player1);</span>
+<span class="nc" id="L57">        gameBoard = findViewById(R.id.game_board);</span>
+<span class="nc" id="L58">        timeRemainingTextView = findViewById(R.id.time_remaining);</span>
+<span class="nc" id="L59">        scoreTextView = findViewById(R.id.scores);</span>
+<span class="nc" id="L60">        player1LayoutParams = (FrameLayout.LayoutParams) player1.getLayoutParams();</span>
+
+        // Add the custom GameplayView programmatically to the FrameLayout
+<span class="nc" id="L63">        GameplayView gameplayView = new GameplayView(this);</span>
+<span class="nc" id="L64">        gameBoard.addView(gameplayView); // Add the custom view to the FrameLayout</span>
+
+        // Reuse the WebSocket Manager from LobbyActivity
+<span class="nc" id="L67">        webSocketManager = GameplayWebSocketManager.getInstance();</span>
+<span class="nc" id="L68">        webSocketManager.setWebSocketListener(new GameplayWebSocketListener() {</span>
+            @Override
+            public void onWebSocketOpen(org.java_websocket.handshake.ServerHandshake handshakedata) {
+<span class="nc" id="L71">                Log.d(&quot;GameplayActivity&quot;, &quot;WebSocket connection reused&quot;);</span>
+<span class="nc" id="L72">            }</span>
+
+            @Override
+            public void onWebSocketMessage(String message) {
+<span class="nc" id="L76">                handleWebSocketMessage(message, gameplayView, username);</span>
+<span class="nc" id="L77">            }</span>
+
+            @Override
+            public void onWebSocketClose(int code, String reason, boolean remote) {
+<span class="nc" id="L81">                Log.d(&quot;GameplayActivity&quot;, &quot;WebSocket closed: &quot; + reason);</span>
+<span class="nc" id="L82">            }</span>
+
+            @Override
+            public void onWebSocketError(Exception ex) {
+<span class="nc" id="L86">                Log.e(&quot;GameplayActivity&quot;, &quot;WebSocket error&quot;, ex);</span>
+<span class="nc" id="L87">            }</span>
+        });
+
+        // Set touch listener for extending the bar
+<span class="nc" id="L91">        gameBoard.setOnTouchListener((v, event) -&gt; {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (event.getAction() == MotionEvent.ACTION_DOWN) {</span>
+                // Send &quot;hit {username}&quot; message to the backend
+                //webSocketManager.sendMessage(&quot;hit &quot; + username);
+<span class="nc" id="L95">                webSocketManager.sendMessage(&quot;hit&quot;);</span>
+                
+                // Extend the bar
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (!isExtending) {</span>
+<span class="nc" id="L99">                    isExtending = true;</span>
+<span class="nc" id="L100">                    extensionLength = 0;</span>
+<span class="nc" id="L101">                    new Thread(() -&gt; {</span>
+                        // Extend the bar
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                        while (extensionLength &lt; maxExtension) {</span>
+<span class="nc" id="L104">                            extensionLength += 20;</span>
+<span class="nc" id="L105">                            runOnUiThread(this::updatePlayer1Height);</span>
+                            try {
+<span class="nc" id="L107">                                Thread.sleep(20);</span>
+<span class="nc" id="L108">                            } catch (InterruptedException e) {</span>
+<span class="nc" id="L109">                                e.printStackTrace();</span>
+<span class="nc" id="L110">                            }</span>
+                        }
+
+                        // Pause at the top
+                        try {
+<span class="nc" id="L115">                            Thread.sleep(400); // Pause for 400ms</span>
+<span class="nc" id="L116">                        } catch (InterruptedException e) {</span>
+<span class="nc" id="L117">                            e.printStackTrace();</span>
+<span class="nc" id="L118">                        }</span>
+
+                        // Contract the bar
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                        while (extensionLength &gt; 60) {</span>
+<span class="nc" id="L122">                            extensionLength -= 20;</span>
+<span class="nc" id="L123">                            runOnUiThread(this::updatePlayer1Height);</span>
+                            try {
+<span class="nc" id="L125">                                Thread.sleep(20);</span>
+<span class="nc" id="L126">                            } catch (InterruptedException e) {</span>
+<span class="nc" id="L127">                                e.printStackTrace();</span>
+<span class="nc" id="L128">                            }</span>
+                        }
+
+<span class="nc" id="L131">                        isExtending = false;</span>
+<span class="nc" id="L132">                    }).start();</span>
+                }
+            }
+<span class="nc" id="L135">            return true;</span>
+        });
+<span class="nc" id="L137">    }</span>
+
+    private void handleWebSocketMessage(String message, GameplayView gameplayView, String username) {
+        try {
+<span class="nc" id="L141">            JSONObject jsonObject = new JSONObject(message);</span>
+
+            // Handle player assignments
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            if (jsonObject.has(&quot;players&quot;)) {</span>
+<span class="nc" id="L145">                JSONObject playersObject = jsonObject.getJSONObject(&quot;players&quot;);</span>
+<span class="nc" id="L146">                playerIdentifier = null;</span>
+
+                // Determine the player's identifier and load avatars (load avatars will be done in Demo 4)
+<span class="nc bnc" id="L149" title="All 2 branches missed.">                for (Iterator&lt;String&gt; it = playersObject.keys(); it.hasNext(); ) {</span>
+<span class="nc" id="L150">                    String key = it.next();</span>
+<span class="nc" id="L151">                    JSONObject playerData = playersObject.getJSONObject(key);</span>
+<span class="nc" id="L152">                    String assignedUsername = playerData.getString(&quot;username&quot;);</span>
+                    //String avatarUrl = playerData.getString(&quot;avatarUrl&quot;);
+
+                    // Load avatar for each player
+                    //loadAvatar(key, avatarUrl);
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">                    if (assignedUsername.equals(username)) {</span>
+<span class="nc" id="L159">                        playerIdentifier = key;</span>
+                    }
+<span class="nc" id="L161">                }</span>
+
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                if (playerIdentifier != null) {</span>
+<span class="nc" id="L164">                    Log.d(&quot;GameplayActivity&quot;, &quot;Player Identifier: &quot; + playerIdentifier);</span>
+<span class="nc" id="L165">                    orientGameBoard(playerIdentifier);</span>
+                }
+            }
+
+            // Handle ball updates
+<span class="nc bnc" id="L170" title="All 2 branches missed.">            if (jsonObject.has(&quot;balls&quot;)) {</span>
+<span class="nc" id="L171">                JSONArray ballsArray = jsonObject.getJSONArray(&quot;balls&quot;);</span>
+<span class="nc" id="L172">                balls.clear();</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                for (int i = 0; i &lt; ballsArray.length(); i++) {</span>
+<span class="nc" id="L174">                    JSONObject ballObject = ballsArray.getJSONObject(i);</span>
+<span class="nc" id="L175">                    double x = ballObject.getDouble(&quot;x&quot;);</span>
+<span class="nc" id="L176">                    double y = ballObject.getDouble(&quot;y&quot;);</span>
+<span class="nc" id="L177">                    balls.add(new Ball(x, y));</span>
+                }
+<span class="nc" id="L179">                runOnUiThread(gameplayView::invalidate); // Redraw the game board</span>
+            }
+
+            // Handle scores
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            if (jsonObject.has(&quot;scores&quot;)) {</span>
+<span class="nc" id="L184">                JSONArray scoresArray = jsonObject.getJSONArray(&quot;scores&quot;);</span>
+<span class="nc" id="L185">                StringBuilder scoresText = new StringBuilder(&quot;Scores:\n&quot;);</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                for (int i = 0; i &lt; scoresArray.length(); i++) {</span>
+<span class="nc" id="L187">                    JSONObject scoreObject = scoresArray.getJSONObject(i);</span>
+<span class="nc" id="L188">                    String playerIdentifier = scoreObject.getString(&quot;playerIdentifier&quot;);</span>
+<span class="nc" id="L189">                    int score = scoreObject.getInt(&quot;score&quot;);</span>
+<span class="nc" id="L190">                    scoresText.append(playerIdentifier).append(&quot;: &quot;).append(score).append(&quot;\n&quot;);</span>
+                }
+<span class="nc" id="L192">                runOnUiThread(() -&gt; scoreTextView.setText(scoresText.toString()));</span>
+            }
+
+            // Handle time remaining
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            if (jsonObject.has(&quot;timeRemainingMillis&quot;)) {</span>
+<span class="nc" id="L197">                long timeRemaining = jsonObject.getLong(&quot;timeRemainingMillis&quot;);</span>
+<span class="nc" id="L198">                runOnUiThread(() -&gt; timeRemainingTextView.setText(&quot;Time Remaining: &quot; + timeRemaining / 1000 + &quot;s&quot;));</span>
+            }
+
+            // Handle player hit
+<span class="nc bnc" id="L202" title="All 4 branches missed.">            if (jsonObject.has(&quot;event&quot;) &amp;&amp; jsonObject.getString(&quot;event&quot;).equals(&quot;playerHit&quot;)) {</span>
+<span class="nc" id="L203">                String playerIdentifier = jsonObject.getString(&quot;playerIdentifier&quot;);</span>
+<span class="nc" id="L204">                runOnUiThread(() -&gt; extendPlayerAvatar(playerIdentifier));</span>
+            }
+
+            // Handle final results
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            if (jsonObject.has(&quot;finalResults&quot;)) {</span>
+<span class="nc" id="L209">                Log.d(&quot;GameplayActivity&quot;, &quot;Final Results received: &quot; + message);</span>
+
+                // Transition to GameEndActivity
+<span class="nc" id="L212">                Intent intent = new Intent(GameplayActivity.this, GameEndActivity.class);</span>
+<span class="nc" id="L213">                intent.putExtra(&quot;finalResults&quot;, message); // Pass the final results JSON</span>
+<span class="nc" id="L214">                intent.putExtra(&quot;username&quot;, username); // Pass the username</span>
+<span class="nc" id="L215">                startActivity(intent);</span>
+<span class="nc" id="L216">                finish(); // Close GameplayActivity</span>
+            }
+
+<span class="nc" id="L219">        } catch (JSONException e) {</span>
+<span class="nc" id="L220">            e.printStackTrace();</span>
+<span class="nc" id="L221">        }</span>
+<span class="nc" id="L222">    }</span>
+
+    private void extendPlayerAvatar(String playerIdentifier) {
+        // Find the corresponding player's avatar
+        ImageView playerAvatar;
+<span class="nc bnc" id="L227" title="All 5 branches missed.">        switch (playerIdentifier) {</span>
+            case &quot;player1&quot;: // Bottom player (extends vertically)
+<span class="nc" id="L229">                playerAvatar = findViewById(R.id.player1);</span>
+<span class="nc" id="L230">                break;</span>
+            case &quot;player2&quot;: // Left player (extends horizontally)
+<span class="nc" id="L232">                playerAvatar = findViewById(R.id.player2);</span>
+<span class="nc" id="L233">                break;</span>
+            case &quot;player3&quot;: // Top player (extends vertically)
+<span class="nc" id="L235">                playerAvatar = findViewById(R.id.player3);</span>
+<span class="nc" id="L236">                break;</span>
+            case &quot;player4&quot;: // Right player (extends horizontally)
+<span class="nc" id="L238">                playerAvatar = findViewById(R.id.player4);</span>
+<span class="nc" id="L239">                break;</span>
+            default:
+<span class="nc" id="L241">                Log.e(&quot;SpectateGameplayActivity&quot;, &quot;Unknown player identifier: &quot; + playerIdentifier);</span>
+<span class="nc" id="L242">                return;</span>
+        }
+
+        // Get the player's layout parameters
+<span class="nc" id="L246">        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) playerAvatar.getLayoutParams();</span>
+
+        // Extend the player's avatar
+<span class="nc" id="L249">        new Thread(() -&gt; {</span>
+<span class="nc" id="L250">            int extensionLength = 0;</span>
+<span class="nc" id="L251">            int maxExtension = 400;</span>
+
+            // Extend the avatar
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            while (extensionLength &lt; maxExtension) {</span>
+<span class="nc" id="L255">                extensionLength += 20;</span>
+<span class="nc" id="L256">                int finalExtensionLength = extensionLength;</span>
+<span class="nc" id="L257">                runOnUiThread(() -&gt; {</span>
+<span class="nc bnc" id="L258" title="All 4 branches missed.">                    if (playerIdentifier.equals(&quot;player2&quot;) || playerIdentifier.equals(&quot;player4&quot;)) {</span>
+                        // Extend horizontally for players at 3 and 9 o'clock
+<span class="nc" id="L260">                        layoutParams.width = 80 + finalExtensionLength; // Base width + extension</span>
+                    } else {
+                        // Extend vertically for players at 12 and 6 o'clock
+<span class="nc" id="L263">                        layoutParams.height = 80 + finalExtensionLength; // Base height + extension</span>
+                    }
+<span class="nc" id="L265">                    playerAvatar.setLayoutParams(layoutParams);</span>
+<span class="nc" id="L266">                });</span>
+                try {
+<span class="nc" id="L268">                    Thread.sleep(20);</span>
+<span class="nc" id="L269">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L270">                    e.printStackTrace();</span>
+<span class="nc" id="L271">                }</span>
+<span class="nc" id="L272">            }</span>
+
+            // Pause at the maximum extension
+            try {
+<span class="nc" id="L276">                Thread.sleep(400); // Pause for 400ms</span>
+<span class="nc" id="L277">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L278">                e.printStackTrace();</span>
+<span class="nc" id="L279">            }</span>
+
+            // Contract the avatar
+<span class="nc bnc" id="L282" title="All 2 branches missed.">            while (extensionLength &gt; 0) {</span>
+<span class="nc" id="L283">                extensionLength -= 20;</span>
+<span class="nc" id="L284">                int finalExtensionLength = extensionLength;</span>
+<span class="nc" id="L285">                runOnUiThread(() -&gt; {</span>
+<span class="nc bnc" id="L286" title="All 4 branches missed.">                    if (playerIdentifier.equals(&quot;player2&quot;) || playerIdentifier.equals(&quot;player4&quot;)) {</span>
+                        // Contract horizontally for players at 3 and 9 o'clock
+<span class="nc" id="L288">                        layoutParams.width = 80 + finalExtensionLength; // Base width + extension</span>
+                    } else {
+                        // Contract vertically for players at 12 and 6 o'clock
+<span class="nc" id="L291">                        layoutParams.height = 80 + finalExtensionLength; // Base height + extension</span>
+                    }
+<span class="nc" id="L293">                    playerAvatar.setLayoutParams(layoutParams);</span>
+<span class="nc" id="L294">                });</span>
+                try {
+<span class="nc" id="L296">                    Thread.sleep(20);</span>
+<span class="nc" id="L297">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L298">                    e.printStackTrace();</span>
+<span class="nc" id="L299">                }</span>
+<span class="nc" id="L300">            }</span>
+<span class="nc" id="L301">        }).start();</span>
+<span class="nc" id="L302">    }</span>
+
+    private void updatePlayer1Height() {
+        // Dynamically adjust the height of player1 to simulate extension/contraction
+<span class="nc" id="L306">        player1LayoutParams.height = 80 + extensionLength; // Base height + extension</span>
+<span class="nc" id="L307">        player1.setLayoutParams(player1LayoutParams);</span>
+<span class="nc" id="L308">    }</span>
+
+    private class GameplayView extends View {
+<span class="nc" id="L311">        private final Paint paint = new Paint();</span>
+
+<span class="nc" id="L313">        public GameplayView(Context context) {</span>
+<span class="nc" id="L314">            super(context);</span>
+<span class="nc" id="L315">        }</span>
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+<span class="nc" id="L319">            super.onDraw(canvas);</span>
+
+            // Draw background
+<span class="nc" id="L322">            canvas.drawColor(Color.TRANSPARENT); // Keep the FrameLayout's background</span>
+
+            // Scale factor to map backend board size to frontend board size
+<span class="nc" id="L325">            float scaleX = (float) gameBoard.getWidth() / backendBoardWidth;</span>
+<span class="nc" id="L326">            float scaleY = (float) gameBoard.getHeight() / backendBoardHeight;</span>
+
+            // Draw balls
+<span class="nc" id="L329">            paint.setColor(Color.RED);</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">            for (Ball ball : balls) {</span>
+<span class="nc" id="L331">                float scaledX = (float) ball.x * scaleX;</span>
+<span class="nc" id="L332">                float scaledY = (float) ball.y * scaleY;</span>
+<span class="nc" id="L333">                canvas.drawCircle(scaledX, scaledY, 10, paint); // Draw scaled ball</span>
+<span class="nc" id="L334">            }</span>
+<span class="nc" id="L335">        }</span>
+    }
+
+    private static class Ball {
+        double x, y;
+
+<span class="nc" id="L341">        Ball(double x, double y) {</span>
+<span class="nc" id="L342">            this.x = x;</span>
+<span class="nc" id="L343">            this.y = y;</span>
+<span class="nc" id="L344">        }</span>
+    }
+
+    private void loadAvatar(String playerIdentifier, String avatarUrl) {
+        // Logic to load avatar for the player
+<span class="nc" id="L349">        Log.d(&quot;GameplayActivity&quot;, &quot;Loading avatar for player: &quot; + playerIdentifier + &quot;, URL: &quot; + avatarUrl);</span>
+<span class="nc" id="L350">    }</span>
+
+    private void orientGameBoard(String playerIdentifier) {
+        // Logic to orient the game board based on the player's identifier
+<span class="nc" id="L354">        Log.d(&quot;GameplayActivity&quot;, &quot;Orienting game board for player: &quot; + playerIdentifier);</span>
+<span class="nc" id="L355">    }</span>
+
+    private void updateScoreboardWithDefaultScores() {
+<span class="nc" id="L358">        StringBuilder scoresText = new StringBuilder(&quot;Scores:\n&quot;);</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">        for (String playerIdentifier : playerNameMap.keySet()) {</span>
+<span class="nc" id="L360">            String playerUsername = playerNameMap.get(playerIdentifier);</span>
+<span class="nc" id="L361">            scoresText.append(playerUsername).append(&quot;: 0\n&quot;); // Default score is 0</span>
+<span class="nc" id="L362">        }</span>
+<span class="nc" id="L363">        runOnUiThread(() -&gt; scoreTextView.setText(scoresText.toString()));</span>
+<span class="nc" id="L364">    }</span>
+
+    private void updateScoreboardWithScores(JSONArray scoresArray) {
+        try {
+<span class="nc" id="L368">            StringBuilder scoresText = new StringBuilder(&quot;Scores:\n&quot;);</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">            for (int i = 0; i &lt; scoresArray.length(); i++) {</span>
+<span class="nc" id="L370">                JSONObject scoreObject = scoresArray.getJSONObject(i);</span>
+<span class="nc" id="L371">                String playerIdentifier = scoreObject.getString(&quot;playerIdentifier&quot;);</span>
+<span class="nc" id="L372">                int score = scoreObject.getInt(&quot;score&quot;);</span>
+
+                // Get the username associated with the playerIdentifier
+<span class="nc" id="L375">                String playerUsername = playerNameMap.getOrDefault(playerIdentifier, &quot;Unknown&quot;);</span>
+<span class="nc" id="L376">                scoresText.append(playerUsername).append(&quot;: &quot;).append(score).append(&quot;\n&quot;);</span>
+            }
+<span class="nc" id="L378">            runOnUiThread(() -&gt; scoreTextView.setText(scoresText.toString()));</span>
+<span class="nc" id="L379">        } catch (JSONException e) {</span>
+<span class="nc" id="L380">            e.printStackTrace();</span>
+<span class="nc" id="L381">        }</span>
+<span class="nc" id="L382">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span>Generated by the Android Gradle plugin 8.8.0</div></body></html>

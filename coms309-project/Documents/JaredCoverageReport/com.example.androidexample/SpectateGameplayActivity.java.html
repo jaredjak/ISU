@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpectateGameplayActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.example.androidexample</a> &gt; <span class="el_source">SpectateGameplayActivity.java</span></div><h1>SpectateGameplayActivity.java</h1><pre class="source lang-java linenums">package com.example.androidexample;
+
+import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+<span class="nc" id="L31">public class SpectateGameplayActivity extends AppCompatActivity {</span>
+
+    private String spectatorUsername;
+    private GameplayWebSocketManager webSocketManager;
+    private TextView timeRemainingTextView;
+    private TextView scoreTextView;
+    private FrameLayout gameBoard;
+<span class="nc" id="L38">    private final CopyOnWriteArrayList&lt;Ball&gt; balls = new CopyOnWriteArrayList&lt;&gt;();</span>
+<span class="nc" id="L39">    private final int backendBoardWidth = 1000; // Backend game board width</span>
+<span class="nc" id="L40">    private final int backendBoardHeight = 1000; // Backend game board height</span>
+<span class="nc" id="L41">    private long timeRemainingMillis = 0;</span>
+    private TextView betDetailsTextView; // TextView to display bet details
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L46">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L47">        setContentView(R.layout.activity_spectate_gameplay);</span>
+
+        // Get the spectator's username from the Intent
+<span class="nc" id="L50">        spectatorUsername = getIntent().getStringExtra(&quot;username&quot;);</span>
+
+        // Reference UI elements
+<span class="nc" id="L53">        timeRemainingTextView = findViewById(R.id.time_remaining);</span>
+<span class="nc" id="L54">        scoreTextView = findViewById(R.id.scores);</span>
+<span class="nc" id="L55">        gameBoard = findViewById(R.id.game_board);</span>
+
+        // Initialize the bet details TextView
+<span class="nc" id="L58">        betDetailsTextView = findViewById(R.id.bet_details_text_view);</span>
+
+        // Add the custom GameplayView programmatically to the FrameLayout
+<span class="nc" id="L61">        GameplayView gameplayView = new GameplayView(this);</span>
+<span class="nc" id="L62">        gameBoard.addView(gameplayView);</span>
+
+        // Add &quot;Place Bet&quot; button functionality
+<span class="nc" id="L65">        Button placeBetButton = findViewById(R.id.place_bet_button);</span>
+<span class="nc" id="L66">        placeBetButton.setOnClickListener(v -&gt; openBetDialog());</span>
+
+        // Reuse the WebSocket Manager from the lobby
+<span class="nc" id="L69">        webSocketManager = GameplayWebSocketManager.getInstance();</span>
+<span class="nc" id="L70">        webSocketManager.setWebSocketListener(new GameplayWebSocketListener() {</span>
+            @Override
+            public void onWebSocketOpen(org.java_websocket.handshake.ServerHandshake handshakedata) {
+<span class="nc" id="L73">                Log.d(&quot;SpectateGameplayActivity&quot;, &quot;Reusing WebSocket connection&quot;);</span>
+<span class="nc" id="L74">            }</span>
+
+            @Override
+            public void onWebSocketMessage(String message) {
+<span class="nc" id="L78">                handleWebSocketMessage(message, gameplayView);</span>
+<span class="nc" id="L79">            }</span>
+
+            @Override
+            public void onWebSocketClose(int code, String reason, boolean remote) {
+<span class="nc" id="L83">                Log.d(&quot;SpectateGameplayActivity&quot;, &quot;WebSocket closed: &quot; + reason);</span>
+<span class="nc" id="L84">            }</span>
+
+            @Override
+            public void onWebSocketError(Exception ex) {
+<span class="nc" id="L88">                Log.e(&quot;SpectateGameplayActivity&quot;, &quot;WebSocket error: &quot; + ex.getMessage());</span>
+<span class="nc" id="L89">            }</span>
+        });
+<span class="nc" id="L91">    }</span>
+
+    private void openBetDialog() {
+<span class="nc" id="L94">        AlertDialog.Builder builder = new AlertDialog.Builder(this);</span>
+<span class="nc" id="L95">        builder.setTitle(&quot;Place Bet&quot;);</span>
+
+        // Create a custom layout for the dialog
+<span class="nc" id="L98">        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_place_bet, null);</span>
+<span class="nc" id="L99">        builder.setView(customLayout);</span>
+
+<span class="nc" id="L101">        builder.setPositiveButton(&quot;Place Bet&quot;, (dialog, which) -&gt; {</span>
+            // Get the input values
+<span class="nc" id="L103">            EditText betAmountInput = customLayout.findViewById(R.id.bet_amount_input);</span>
+<span class="nc" id="L104">            EditText playerPositionInput = customLayout.findViewById(R.id.player_position_input);</span>
+
+            try {
+<span class="nc" id="L107">                int betAmount = Integer.parseInt(betAmountInput.getText().toString());</span>
+<span class="nc" id="L108">                String playerPosition = playerPositionInput.getText().toString();</span>
+
+                // Send the validated bet
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (betAmount &gt; 0) {</span>
+<span class="nc" id="L112">                    sendBet(betAmount, playerPosition);</span>
+                } else {
+                    // Don't know what this does, but vsCode suggested it
+<span class="nc" id="L115">                    Toast.makeText(this, &quot;Bet amount must be greater than 0&quot;, Toast.LENGTH_SHORT).show();</span>
+                }   
+<span class="nc" id="L117">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L118">                Toast.makeText(this, &quot;Invalid bet amount&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L119">            }</span>
+<span class="nc" id="L120">        });</span>
+
+<span class="nc" id="L122">        builder.setNegativeButton(&quot;Cancel&quot;, (dialog, which) -&gt; dialog.dismiss());</span>
+
+        // Show the dialog
+<span class="nc" id="L125">        builder.create().show();</span>
+<span class="nc" id="L126">    }</span>
+
+    private void sendBet(int betAmount, String playerPosition) {
+<span class="nc" id="L129">        String url = &quot;http://coms-3090-013.class.las.iastate.edu:8080/placeBet&quot;;</span>
+
+<span class="nc" id="L131">        JSONObject betDetails = new JSONObject();</span>
+        try {
+<span class="nc" id="L133">            betDetails.put(&quot;username&quot;, spectatorUsername); // Spectator's username</span>
+<span class="nc" id="L134">            betDetails.put(&quot;amount&quot;, betAmount); // Bet amount</span>
+<span class="nc" id="L135">            betDetails.put(&quot;mult&quot;, timeRemainingMillis / 1000.00); // Convert time remaining long to seconds long</span>
+<span class="nc" id="L136">            betDetails.put(&quot;positionBet&quot;, playerPosition); // Player position (e.g., &quot;player1&quot;)</span>
+<span class="nc" id="L137">        } catch (JSONException e) {</span>
+<span class="nc" id="L138">            e.printStackTrace();</span>
+<span class="nc" id="L139">            Toast.makeText(this, &quot;Error creating bet request&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L140">            return;</span>
+<span class="nc" id="L141">        }</span>
+
+<span class="nc" id="L143">        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url, betDetails,</span>
+                response -&gt; {
+                    try {
+                        // Parse the response
+<span class="nc" id="L147">                        int id = response.getInt(&quot;id&quot;);</span>
+<span class="nc" id="L148">                        double amount = response.getDouble(&quot;amount&quot;);</span>
+<span class="nc" id="L149">                        String positionBet = response.getString(&quot;positionBet&quot;);</span>
+<span class="nc" id="L150">                        double mult = response.getDouble(&quot;mult&quot;);</span>
+<span class="nc" id="L151">                        String username = response.getString(&quot;username&quot;);</span>
+<span class="nc" id="L152">                        int betStreak = response.getInt(&quot;betStreak&quot;);</span>
+
+                        // Display success message
+<span class="nc" id="L155">                        String successMessage = String.format(</span>
+                                &quot;Bet placed successfully!\nID: %d\nAmount: %.2f\nPosition: %s\nMultiplier: %.2f\nBet Streak: %d&quot;,
+<span class="nc" id="L157">                                id, amount, positionBet, mult, betStreak</span>
+                        );
+
+                        // Update the bet details TextView
+<span class="nc" id="L161">                        String betDetailsText = String.format(</span>
+                                &quot;Bet Placed: $%.2f on %s &quot;,
+<span class="nc" id="L163">                                amount, positionBet</span>
+                        );
+<span class="nc" id="L165">                        runOnUiThread(() -&gt; betDetailsTextView.setText(betDetailsText));</span>
+<span class="nc" id="L166">                        Toast.makeText(this, successMessage, Toast.LENGTH_LONG).show();</span>
+<span class="nc" id="L167">                    } catch (JSONException e) {</span>
+<span class="nc" id="L168">                        e.printStackTrace();</span>
+<span class="nc" id="L169">                        Toast.makeText(this, &quot;Error parsing response&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L170">                    }</span>
+<span class="nc" id="L171">                },</span>
+                error -&gt; {
+<span class="nc" id="L173">                    Log.e(&quot;BetResponse&quot;, &quot;POST Error: &quot; + error.toString());</span>
+<span class="nc bnc" id="L174" title="All 4 branches missed.">                    if (error.networkResponse != null &amp;&amp; error.networkResponse.statusCode == 500) {</span>
+<span class="nc" id="L175">                        Toast.makeText(this, &quot;Invalid player position or server error. Please try again.&quot;, Toast.LENGTH_SHORT).show();</span>
+                    } else {
+<span class="nc" id="L177">                        Toast.makeText(this, &quot;Failed to place bet. Please try again.&quot;, Toast.LENGTH_SHORT).show();</span>
+                    }
+<span class="nc" id="L179">                });</span>
+
+<span class="nc" id="L181">        Volley.newRequestQueue(this).add(postRequest);</span>
+<span class="nc" id="L182">    }</span>
+
+    private void handleWebSocketMessage(String message, GameplayView gameplayView) {
+        try {
+<span class="nc" id="L186">            JSONObject jsonObject = new JSONObject(message);</span>
+
+            // Handle player assignments
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            if (jsonObject.has(&quot;players&quot;)) {</span>
+<span class="nc" id="L190">                JSONObject playersObject = jsonObject.getJSONObject(&quot;players&quot;);</span>
+<span class="nc" id="L191">                StringBuilder scoresText = new StringBuilder(&quot;Scores:\n&quot;);</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">                for (Iterator&lt;String&gt; it = playersObject.keys(); it.hasNext(); ) {</span>
+<span class="nc" id="L193">                    String key = it.next();</span>
+<span class="nc" id="L194">                    String username = playersObject.getString(key);</span>
+<span class="nc" id="L195">                    scoresText.append(username).append(&quot;: 0\n&quot;); // Default score is 0 initially</span>
+<span class="nc" id="L196">                }</span>
+<span class="nc" id="L197">                runOnUiThread(() -&gt; scoreTextView.setText(scoresText.toString()));</span>
+            }
+
+
+            // Handle ball updates
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            if (jsonObject.has(&quot;balls&quot;)) {</span>
+<span class="nc" id="L203">                JSONArray ballsArray = jsonObject.getJSONArray(&quot;balls&quot;);</span>
+<span class="nc" id="L204">                balls.clear();</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">                for (int i = 0; i &lt; ballsArray.length(); i++) {</span>
+<span class="nc" id="L206">                    JSONObject ballObject = ballsArray.getJSONObject(i);</span>
+<span class="nc" id="L207">                    double x = ballObject.getDouble(&quot;x&quot;);</span>
+<span class="nc" id="L208">                    double y = ballObject.getDouble(&quot;y&quot;);</span>
+<span class="nc" id="L209">                    balls.add(new Ball(x, y));</span>
+                }
+<span class="nc" id="L211">                runOnUiThread(gameplayView::invalidate); // Redraw the game board</span>
+            }
+
+            // Handle scores
+<span class="nc bnc" id="L215" title="All 2 branches missed.">            if (jsonObject.has(&quot;scores&quot;)) {</span>
+<span class="nc" id="L216">                JSONArray scoresArray = jsonObject.getJSONArray(&quot;scores&quot;);</span>
+<span class="nc" id="L217">                StringBuilder scoresText = new StringBuilder(&quot;Scores:\n&quot;);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">                for (int i = 0; i &lt; scoresArray.length(); i++) {</span>
+<span class="nc" id="L219">                    JSONObject scoreObject = scoresArray.getJSONObject(i);</span>
+<span class="nc" id="L220">                    String username = scoreObject.getString(&quot;playerIdentifier&quot;);</span>
+<span class="nc" id="L221">                    int score = scoreObject.getInt(&quot;score&quot;);</span>
+<span class="nc" id="L222">                    scoresText.append(username).append(&quot;: &quot;).append(score).append(&quot;\n&quot;);</span>
+                }
+<span class="nc" id="L224">                runOnUiThread(() -&gt; scoreTextView.setText(scoresText.toString()));</span>
+            }
+
+            // Handle time remaining
+<span class="nc bnc" id="L228" title="All 2 branches missed.">            if (jsonObject.has(&quot;timeRemainingMillis&quot;)) {</span>
+<span class="nc" id="L229">                long timeRemainingMillis = jsonObject.getLong(&quot;timeRemainingMillis&quot;);</span>
+<span class="nc" id="L230">                runOnUiThread(() -&gt; timeRemainingTextView.setText(&quot;Time Left: &quot; + timeRemainingMillis / 1000 + &quot;s&quot;));</span>
+            }
+
+            // Handle player hit
+<span class="nc bnc" id="L234" title="All 4 branches missed.">            if (jsonObject.has(&quot;event&quot;) &amp;&amp; jsonObject.getString(&quot;event&quot;).equals(&quot;playerHit&quot;)) {</span>
+<span class="nc" id="L235">                String playerIdentifier = jsonObject.getString(&quot;playerIdentifier&quot;);</span>
+<span class="nc" id="L236">                runOnUiThread(() -&gt; extendPlayerAvatar(playerIdentifier));</span>
+            }
+
+            // Handle final results
+<span class="nc bnc" id="L240" title="All 2 branches missed.">            if (jsonObject.has(&quot;finalResults&quot;)) {</span>
+<span class="nc" id="L241">                Log.d(&quot;SpectateGameplayActivity&quot;, &quot;Final Results received: &quot; + message);</span>
+
+                // Parse the final results to determine the winner
+<span class="nc" id="L244">                JSONArray finalResultsArray = jsonObject.getJSONArray(&quot;finalResults&quot;);</span>
+<span class="nc" id="L245">                String winningPlayer = null;</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">                for (int i = 0; i &lt; finalResultsArray.length(); i++) {</span>
+<span class="nc" id="L247">                    JSONObject playerResult = finalResultsArray.getJSONObject(i);</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">                    if (playerResult.getBoolean(&quot;isWinner&quot;)) {</span>
+<span class="nc" id="L249">                        winningPlayer = playerResult.getString(&quot;username&quot;);</span>
+<span class="nc" id="L250">                        break;</span>
+                    }
+                }
+
+                // bet cashout is handled by backend - this was for testing
+                // if (winningPlayer != null) {
+                //     // Trigger bet cashout for the winning player
+                //     cashoutBets(winningPlayer);
+                // }
+
+                // Transition to GameEndActivity
+<span class="nc" id="L261">                Intent intent = new Intent(SpectateGameplayActivity.this, GameEndActivity.class);</span>
+<span class="nc" id="L262">                intent.putExtra(&quot;finalResults&quot;, message); // Pass the final results JSON</span>
+<span class="nc" id="L263">                intent.putExtra(&quot;username&quot;, spectatorUsername); // Pass the spectator's username</span>
+<span class="nc" id="L264">                startActivity(intent);</span>
+<span class="nc" id="L265">                finish(); // Close SpectateGameplayActivity</span>
+            }
+
+<span class="nc" id="L268">        } catch (JSONException e) {</span>
+<span class="nc" id="L269">            Log.e(&quot;SpectateGameplayActivity&quot;, &quot;Error parsing WebSocket message&quot;, e);</span>
+<span class="nc" id="L270">        }</span>
+<span class="nc" id="L271">    }</span>
+
+    private void extendPlayerAvatar(String playerIdentifier) {
+        // Find the corresponding player's avatar
+        ImageView playerAvatar;
+<span class="nc bnc" id="L276" title="All 5 branches missed.">        switch (playerIdentifier) {</span>
+            case &quot;player1&quot;: // Bottom player (extends vertically)
+<span class="nc" id="L278">                playerAvatar = findViewById(R.id.player1);</span>
+<span class="nc" id="L279">                break;</span>
+            case &quot;player2&quot;: // Left player (extends horizontally)
+<span class="nc" id="L281">                playerAvatar = findViewById(R.id.player2);</span>
+<span class="nc" id="L282">                break;</span>
+            case &quot;player3&quot;: // Top player (extends vertically)
+<span class="nc" id="L284">                playerAvatar = findViewById(R.id.player3);</span>
+<span class="nc" id="L285">                break;</span>
+            case &quot;player4&quot;: // Right player (extends horizontally)
+<span class="nc" id="L287">                playerAvatar = findViewById(R.id.player4);</span>
+<span class="nc" id="L288">                break;</span>
+            default:
+<span class="nc" id="L290">                Log.e(&quot;SpectateGameplayActivity&quot;, &quot;Unknown player identifier: &quot; + playerIdentifier);</span>
+<span class="nc" id="L291">                return;</span>
+        }
+
+        // Get the player's layout parameters
+<span class="nc" id="L295">        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) playerAvatar.getLayoutParams();</span>
+
+        // Extend the player's avatar
+<span class="nc" id="L298">        new Thread(() -&gt; {</span>
+<span class="nc" id="L299">            int extensionLength = 0;</span>
+<span class="nc" id="L300">            int maxExtension = 400;</span>
+
+            // Extend the avatar
+<span class="nc bnc" id="L303" title="All 2 branches missed.">            while (extensionLength &lt; maxExtension) {</span>
+<span class="nc" id="L304">                extensionLength += 20;</span>
+<span class="nc" id="L305">                int finalExtensionLength = extensionLength;</span>
+<span class="nc" id="L306">                runOnUiThread(() -&gt; {</span>
+<span class="nc bnc" id="L307" title="All 4 branches missed.">                    if (playerIdentifier.equals(&quot;player2&quot;) || playerIdentifier.equals(&quot;player4&quot;)) {</span>
+                        // Extend horizontally for players at 3 and 9 o'clock
+<span class="nc" id="L309">                        layoutParams.width = 80 + finalExtensionLength; // Base width + extension</span>
+                    } else {
+                        // Extend vertically for players at 12 and 6 o'clock
+<span class="nc" id="L312">                        layoutParams.height = 80 + finalExtensionLength; // Base height + extension</span>
+                    }
+<span class="nc" id="L314">                    playerAvatar.setLayoutParams(layoutParams);</span>
+<span class="nc" id="L315">                });</span>
+                try {
+<span class="nc" id="L317">                    Thread.sleep(20);</span>
+<span class="nc" id="L318">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L319">                    e.printStackTrace();</span>
+<span class="nc" id="L320">                }</span>
+<span class="nc" id="L321">            }</span>
+
+            // Pause at the maximum extension
+            try {
+<span class="nc" id="L325">                Thread.sleep(400); // Pause for 400ms</span>
+<span class="nc" id="L326">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L327">                e.printStackTrace();</span>
+<span class="nc" id="L328">            }</span>
+
+            // Contract the avatar
+<span class="nc bnc" id="L331" title="All 2 branches missed.">            while (extensionLength &gt; 0) {</span>
+<span class="nc" id="L332">                extensionLength -= 20;</span>
+<span class="nc" id="L333">                int finalExtensionLength = extensionLength;</span>
+<span class="nc" id="L334">                runOnUiThread(() -&gt; {</span>
+<span class="nc bnc" id="L335" title="All 4 branches missed.">                    if (playerIdentifier.equals(&quot;player2&quot;) || playerIdentifier.equals(&quot;player4&quot;)) {</span>
+                        // Contract horizontally for players at 3 and 9 o'clock
+<span class="nc" id="L337">                        layoutParams.width = 80 + finalExtensionLength; // Base width + extension</span>
+                    } else {
+                        // Contract vertically for players at 12 and 6 o'clock
+<span class="nc" id="L340">                        layoutParams.height = 80 + finalExtensionLength; // Base height + extension</span>
+                    }
+<span class="nc" id="L342">                    playerAvatar.setLayoutParams(layoutParams);</span>
+<span class="nc" id="L343">                });</span>
+                try {
+<span class="nc" id="L345">                    Thread.sleep(20);</span>
+<span class="nc" id="L346">                } catch (InterruptedException e) {</span>
+<span class="nc" id="L347">                    e.printStackTrace();</span>
+<span class="nc" id="L348">                }</span>
+<span class="nc" id="L349">            }</span>
+<span class="nc" id="L350">        }).start();</span>
+<span class="nc" id="L351">    }</span>
+
+    private void cashoutBets(String winningPlayer) {
+<span class="nc" id="L354">        String url = &quot;http://coms-3090-013.class.las.iastate.edu:8080/cashoutBets/&quot; + winningPlayer;</span>
+    
+<span class="nc" id="L356">        JsonObjectRequest deleteRequest = new JsonObjectRequest(Request.Method.DELETE, url, null,</span>
+<span class="nc" id="L357">                response -&gt; Log.d(&quot;CashoutBets&quot;, &quot;Bets cashed out successfully for: &quot; + winningPlayer),</span>
+<span class="nc" id="L358">                error -&gt; Log.e(&quot;CashoutBets&quot;, &quot;Error cashing out bets: &quot; + error.toString()));</span>
+    
+<span class="nc" id="L360">        Volley.newRequestQueue(this).add(deleteRequest);</span>
+<span class="nc" id="L361">    }</span>
+
+    private class GameplayView extends View {
+<span class="nc" id="L364">        private final Paint paint = new Paint();</span>
+
+<span class="nc" id="L366">        public GameplayView(SpectateGameplayActivity context) {</span>
+<span class="nc" id="L367">            super(context);</span>
+<span class="nc" id="L368">        }</span>
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+<span class="nc" id="L372">            super.onDraw(canvas);</span>
+
+            // Draw background
+<span class="nc" id="L375">            canvas.drawColor(Color.TRANSPARENT); // Keep the FrameLayout's background</span>
+
+            // Scale factor to map backend board size to frontend board size
+<span class="nc" id="L378">            float scaleX = (float) gameBoard.getWidth() / backendBoardWidth;</span>
+<span class="nc" id="L379">            float scaleY = (float) gameBoard.getHeight() / backendBoardHeight;</span>
+
+            // Draw balls
+<span class="nc" id="L382">            paint.setColor(Color.RED);</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">            for (Ball ball : balls) {</span>
+<span class="nc" id="L384">                float scaledX = (float) ball.x * scaleX;</span>
+<span class="nc" id="L385">                float scaledY = (float) ball.y * scaleY;</span>
+<span class="nc" id="L386">                canvas.drawCircle(scaledX, scaledY, 10, paint); // Draw scaled ball</span>
+<span class="nc" id="L387">            }</span>
+<span class="nc" id="L388">        }</span>
+    }
+
+    private static class Ball {
+        double x, y;
+
+<span class="nc" id="L394">        Ball(double x, double y) {</span>
+<span class="nc" id="L395">            this.x = x;</span>
+<span class="nc" id="L396">            this.y = y;</span>
+<span class="nc" id="L397">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span>Generated by the Android Gradle plugin 8.8.0</div></body></html>

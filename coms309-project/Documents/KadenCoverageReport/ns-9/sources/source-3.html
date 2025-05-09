@@ -1,0 +1,103 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > LeaderboardRepository</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">backendTables.Leaderboard</a>
+</div>
+
+<h1>Coverage Summary for Class: LeaderboardRepository (backendTables.Leaderboard)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">LeaderboardRepository</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package backendTables.Leaderboard;
+&nbsp;
+&nbsp;import org.springframework.data.jpa.repository.JpaRepository;
+&nbsp;import org.springframework.data.jpa.repository.Query;
+&nbsp;import org.springframework.data.repository.query.Param;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;/**
+&nbsp; * 
+&nbsp; * @author Carter Hauschildt
+&nbsp; * 
+&nbsp; */ 
+&nbsp;
+&nbsp;public interface LeaderboardRepository extends JpaRepository&lt;backendTables.Leaderboard.Leaderboard, Long&gt; {
+&nbsp;
+&nbsp;    // Finds a leaderboard entry based on the associated user&#39;s id.
+&nbsp;    Leaderboard findByUserId(int userId);
+&nbsp;
+&nbsp;    // Finds a leaderboard entry based on the associated user&#39;s username.
+&nbsp;    Leaderboard findByUserUsername(String username);
+&nbsp;
+&nbsp;    // Returns the rank for a given score.
+&nbsp;    @Query(&quot;SELECT COUNT(l) + 1 FROM Leaderboard l WHERE l.score &gt; :score&quot;)
+&nbsp;    int getRankForUser(@Param(&quot;score&quot;) int score);
+&nbsp;
+&nbsp;    // Finds the top 10 users with the highest scores
+&nbsp;    List&lt;Leaderboard&gt; findTop10ByOrderByScoreDesc();
+&nbsp;
+&nbsp;    //finds the bottom 10 users with the lowest scores
+&nbsp;    List&lt;Leaderboard&gt; findBottom10ByOrderByScoreAsc();
+&nbsp;
+&nbsp;    // Finds the top 10 users with the highest win streak.
+&nbsp;    List&lt;Leaderboard&gt; findTop10ByOrderByWinStreakDesc();
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-20 19:15</div>
+</div>
+</body>
+</html>

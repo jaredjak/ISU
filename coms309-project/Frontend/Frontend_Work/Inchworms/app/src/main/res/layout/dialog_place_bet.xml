@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Bet Amount Input -->
+    <EditText
+        android:id="@+id/bet_amount_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Bet Amount"
+        android:inputType="number" />
+
+    <!-- Player Position Input -->
+    <EditText
+        android:id="@+id/player_position_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Player Position (e.g., player1)"
+        android:inputType="text" />
+</LinearLayout>

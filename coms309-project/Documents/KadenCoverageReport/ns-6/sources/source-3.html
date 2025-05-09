@@ -1,0 +1,222 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > Marketplace</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">backendTables.Cosmetics</a>
+</div>
+
+<h1>Coverage Summary for Class: Marketplace (backendTables.Cosmetics)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">Marketplace</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    69.2%
+  </span>
+  <span class="absValue">
+    (9/13)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    50%
+  </span>
+  <span class="absValue">
+    (7/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    74.4%
+  </span>
+  <span class="absValue">
+    (29/39)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package backendTables.Cosmetics;
+&nbsp;import javax.persistence.*;
+&nbsp;import java.util.ArrayList;
+&nbsp;import java.util.Arrays;
+&nbsp;import java.lang.Math;
+&nbsp;
+&nbsp;
+&nbsp;@Entity
+&nbsp;public class Marketplace {
+&nbsp;
+<b class="fc">&nbsp;    @GeneratedValue(strategy = GenerationType.IDENTITY)</b>
+&nbsp;    @Id
+&nbsp;    private int id = 1;
+&nbsp;
+<b class="fc">&nbsp;    private final String[] skins = {&quot;Red&quot;, &quot;Orange&quot;, &quot;Yellow&quot;, &quot;Green&quot;,</b>
+&nbsp;            &quot;Blue&quot;, &quot;Purple&quot;, &quot;Gold&quot;, &quot;Beige&quot;, &quot;Black&quot;, &quot;Walter&quot;, &quot;bullWorm&quot;, &quot;House&quot;};
+<b class="fc">&nbsp;    private double[] prices = {250, 500, 250, 750, 10000, 20000, 100000, 400, 1100, 1000000, 900000, 500000};</b>
+<b class="fc">&nbsp;    private int[] available = {100, 100,100, 100, 100, 100, 100, 100, 100, 100, 100, 100};</b>
+<b class="fc">&nbsp;    private final double[] basePrices = {250.0 /1150, 500.0/1150, 250.0/1150, 750.0/1150, 10000.0/1150, 20000.0/1150,</b>
+&nbsp;            10000.0/1150, 400.0/1150, 1100.0/1150, 1000000.0/1150, 900000.0/1150, 500000.0/1150};
+<b class="fc">&nbsp;    public Marketplace() {</b>
+<b class="fc">&nbsp;        setPrices();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public double[] getPrices() {
+<b class="nc">&nbsp;        return prices;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public void setPrices() {
+<b class="fc">&nbsp;        for (int i = 0; i &lt; prices.length; i++) {</b>
+<b class="fc">&nbsp;            prices[i] = Math.round(priceFunc(i, available[i]));</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public double priceFunc(int i, int count) {
+<b class="fc">&nbsp;        return basePrices[i] * Math.pow(Math.log(101-count) + 2,4);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getId() {
+<b class="fc">&nbsp;        return id;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private void setPrice(int i) {
+<b class="fc">&nbsp;        prices[i] = Math.round(priceFunc(i, available[i]));</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    public double buySkin(String color) {
+<b class="fc">&nbsp;        int id = getIndex(color);</b>
+<b class="pc">&nbsp;        if (available[id] &lt; 1) return 0;</b>
+<b class="fc">&nbsp;        double p =  prices[id];</b>
+<b class="fc">&nbsp;        available[id] -= 1;</b>
+<b class="fc">&nbsp;        setPrice(id);</b>
+<b class="fc">&nbsp;        return (Math.round(p));</b>
+&nbsp;
+&nbsp;    }
+&nbsp;
+&nbsp;    public double sellSkin(String color) {
+<b class="fc">&nbsp;        int id = getIndex(color);</b>
+<b class="pc">&nbsp;        if (available[id] &gt; 1000) return 0;</b>
+<b class="fc">&nbsp;        available[id] += 1;</b>
+<b class="fc">&nbsp;        setPrice(id);</b>
+<b class="fc">&nbsp;        double p =  prices[id];</b>
+<b class="fc">&nbsp;        return (Math.round(p));</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int getIndex(String color) {
+<b class="pc">&nbsp;        for (int i = 0; i &lt; skins.length; i++) {</b>
+<b class="fc">&nbsp;            if (skins[i].equals(color)) {</b>
+<b class="fc">&nbsp;                return i;</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return -1;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public double getPrice(String color) {
+<b class="fc">&nbsp;        int i = getIndex(color);</b>
+<b class="fc">&nbsp;        return Math.round(prices[i]);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public double[] getSellPrices() {
+<b class="nc">&nbsp;        int len = this.getPrices().length;</b>
+<b class="nc">&nbsp;        double[] prices = new double[len];</b>
+<b class="nc">&nbsp;        for (int i = 0; i &lt; len; i++) {</b>
+<b class="nc">&nbsp;            if (available[i] &lt; 100) prices[i] = Math.round(this.priceFunc(i, available[i] + 1));</b>
+&nbsp;            else {
+<b class="nc">&nbsp;                prices[i] = Math.round(this.priceFunc(i, available[i]));</b>
+&nbsp;            }
+&nbsp;        }
+<b class="nc">&nbsp;        return prices;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public String[] getSkins() {
+<b class="nc">&nbsp;        return skins;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public int[] getAvailable() {
+<b class="nc">&nbsp;        return available;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-20 19:15</div>
+</div>
+</body>
+</html>

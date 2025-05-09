@@ -1,0 +1,6 @@
+Screens
+
+Jared: Cosmetics, Sign in
+Kaden: Marketplace, Sign up
+Emmet: Gameplay, delete profile
+Carter: Leaderboard, settings

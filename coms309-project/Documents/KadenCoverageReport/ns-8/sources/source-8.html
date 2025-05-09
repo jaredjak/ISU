@@ -1,0 +1,358 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > GameSocket</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">backendTables.Game</a>
+</div>
+
+<h1>Coverage Summary for Class: GameSocket (backendTables.Game)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">GameSocket</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/17)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/42)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/90)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package backendTables.Game;
+&nbsp;
+&nbsp;import javax.websocket.*;
+&nbsp;import javax.websocket.server.*;
+&nbsp;
+&nbsp;import backendTables.Users.User;
+&nbsp;import backendTables.Users.UserRepository;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.stereotype.Controller;
+&nbsp;
+&nbsp;import com.fasterxml.jackson.databind.ObjectMapper;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.List;
+&nbsp;import java.util.Map;
+&nbsp;import java.util.concurrent.ConcurrentHashMap;
+&nbsp;
+&nbsp;@Controller
+&nbsp;@ServerEndpoint(value = &quot;/gameSocket/{username}&quot;, configurator = CustomSpringConfigurator.class)
+<b class="nc">&nbsp;public class GameSocket {</b>
+&nbsp;
+&nbsp;    private static GameBoard gameBoard;
+<b class="nc">&nbsp;    private static final ObjectMapper objectMapper = new ObjectMapper();</b>
+&nbsp;
+<b class="nc">&nbsp;    private static final Map&lt;Session, String&gt; sessionUsernameMap = new ConcurrentHashMap&lt;&gt;();</b>
+<b class="nc">&nbsp;    private static final Map&lt;String, Long&gt; playerLastHitTime = new ConcurrentHashMap&lt;&gt;();</b>
+&nbsp;    private static final long hitCooldownMillis = 1500; // 1.5 seconds
+&nbsp;
+<b class="nc">&nbsp;    private static final Map&lt;Session, Boolean&gt; spectatorMap = new ConcurrentHashMap&lt;&gt;();</b>
+&nbsp;
+&nbsp;    private static UserRepository userRepository;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    public void setUserRepository(UserRepository repository) {
+<b class="nc">&nbsp;        GameSocket.userRepository = repository;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    public void setGameBoard(GameBoard board) {
+<b class="nc">&nbsp;        GameSocket.gameBoard = board;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    @OnOpen
+&nbsp;    public void onOpen(Session session, @PathParam(&quot;username&quot;) String username) throws IOException {
+<b class="nc">&nbsp;        User user = userRepository.findByUsername(username);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (user == null) {</b>
+<b class="nc">&nbsp;            session.getBasicRemote().sendText(&quot;{\&quot;error\&quot;:\&quot;User not found\&quot;}&quot;);</b>
+&nbsp;            session.close();
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        GamePlayer player = new GamePlayer(user.getId(), username);</b>
+<b class="nc">&nbsp;        boolean joined = gameBoard.addPlayer(player);</b>
+&nbsp;
+<b class="nc">&nbsp;        if (!joined) {</b>
+<b class="nc">&nbsp;            session.getBasicRemote().sendText(&quot;{\&quot;error\&quot;:\&quot;Game is full\&quot;}&quot;);</b>
+&nbsp;            session.close();
+&nbsp;            return;
+&nbsp;        }
+&nbsp;
+&nbsp;        //Only track the session after successful join
+<b class="nc">&nbsp;        sessionUsernameMap.put(session, username);</b>
+<b class="nc">&nbsp;        broadcast(&quot;User &quot; + username + &quot; joined the game.&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @OnMessage
+&nbsp;    public void onMessage(Session session, String message) throws IOException {
+<b class="nc">&nbsp;        String username = sessionUsernameMap.get(session);</b>
+<b class="nc">&nbsp;        if (username == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;        if (&quot;hit&quot;.equalsIgnoreCase(message.trim())) {</b>
+<b class="nc">&nbsp;            String playerIdentifier = gameBoard.getPlayers().stream()</b>
+<b class="nc">&nbsp;                    .filter(p -&gt; username.equals(p.getUsername()))</b>
+<b class="nc">&nbsp;                    .map(GamePlayer::getPlayerIdentifier)</b>
+<b class="nc">&nbsp;                    .findFirst()</b>
+<b class="nc">&nbsp;                    .orElse(null);</b>
+&nbsp;
+<b class="nc">&nbsp;            if (playerIdentifier == null) return;</b>
+&nbsp;
+<b class="nc">&nbsp;            long now = System.currentTimeMillis();</b>
+<b class="nc">&nbsp;            long lastHit = playerLastHitTime.getOrDefault(playerIdentifier, 0L);</b>
+<b class="nc">&nbsp;            if (now - lastHit &lt; hitCooldownMillis) {</b>
+<b class="nc">&nbsp;                session.getBasicRemote().sendText(&quot;{\&quot;error\&quot;:\&quot;Hit on cooldown\&quot;}&quot;);</b>
+&nbsp;                return;
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            playerLastHitTime.put(playerIdentifier, now);</b>
+<b class="nc">&nbsp;            broadcastPlayerHit(playerIdentifier);</b>
+<b class="nc">&nbsp;            scheduleHitAction(playerIdentifier);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    @OnClose
+&nbsp;    public void onClose(Session session) throws IOException {
+<b class="nc">&nbsp;        String username = sessionUsernameMap.remove(session);</b>
+<b class="nc">&nbsp;        if (username != null) {</b>
+<b class="nc">&nbsp;            gameBoard.removePlayerByUsername(username);</b>
+<b class="nc">&nbsp;            broadcast(&quot;User &quot; + username + &quot; left the game.&quot;);</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    @OnError
+&nbsp;    public void onError(Session session, Throwable throwable) {
+<b class="nc">&nbsp;        throwable.printStackTrace();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void broadcastPlayerAssignments(Map&lt;String, String&gt; assignments) {
+&nbsp;        try {
+<b class="nc">&nbsp;            String json = objectMapper.writeValueAsString(Map.of(&quot;players&quot;, assignments));</b>
+<b class="nc">&nbsp;            for (Session session : sessionUsernameMap.keySet()) {</b>
+<b class="nc">&nbsp;                if (session.isOpen()) {</b>
+<b class="nc">&nbsp;                    session.getBasicRemote().sendText(json);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void broadcastTimeRemaining(long millisRemaining) {
+&nbsp;        try {
+<b class="nc">&nbsp;            String json = objectMapper.writeValueAsString(Map.of(&quot;timeRemainingMillis&quot;, millisRemaining));</b>
+<b class="nc">&nbsp;            for (Session session : sessionUsernameMap.keySet()) {</b>
+<b class="nc">&nbsp;                if (session.isOpen()) {</b>
+<b class="nc">&nbsp;                    session.getBasicRemote().sendText(json);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    private static void broadcast(String message) {
+<b class="nc">&nbsp;        for (Session s : sessionUsernameMap.keySet()) {</b>
+<b class="nc">&nbsp;            if (s.isOpen()) {</b>
+&nbsp;                try {
+<b class="nc">&nbsp;                    s.getBasicRemote().sendText(message);</b>
+&nbsp;                } catch (IOException e) {
+<b class="nc">&nbsp;                    e.printStackTrace();</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private void scheduleHitAction(String playerIdentifier) {
+<b class="nc">&nbsp;        new Thread(() -&gt; {</b>
+&nbsp;            try {
+<b class="nc">&nbsp;                Thread.sleep(500); // 0.5 second delay before munching</b>
+&nbsp;            } catch (InterruptedException e) {
+<b class="nc">&nbsp;                Thread.currentThread().interrupt();</b>
+&nbsp;            }
+&nbsp;
+<b class="nc">&nbsp;            synchronized (gameBoard) {</b>
+<b class="nc">&nbsp;                int ballsHit = gameBoard.checkAndRemoveBallsInHitbox(playerIdentifier);</b>
+&nbsp;
+<b class="nc">&nbsp;                gameBoard.getPlayers().stream()</b>
+<b class="nc">&nbsp;                        .filter(p -&gt; p.getPlayerIdentifier().equals(playerIdentifier))</b>
+<b class="nc">&nbsp;                        .findFirst()</b>
+<b class="nc">&nbsp;                        .ifPresent(p -&gt; p.incrementScoreBy(ballsHit));</b>
+<b class="nc">&nbsp;            }</b>
+&nbsp;
+<b class="nc">&nbsp;            broadcastGameState();</b>
+<b class="nc">&nbsp;            SpectatorSocket.broadcastGameSnapshot();</b>
+<b class="nc">&nbsp;        }).start();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    public static void broadcastBallPositions() {
+&nbsp;        try {
+<b class="nc">&nbsp;            List&lt;BallState&gt; ballStates = gameBoard.getBallStates();</b>
+<b class="nc">&nbsp;            String json = objectMapper.writeValueAsString(ballStates);</b>
+&nbsp;
+<b class="nc">&nbsp;            for (Session session : sessionUsernameMap.keySet()) {</b>
+<b class="nc">&nbsp;                if (session.isOpen()) {</b>
+<b class="nc">&nbsp;                    session.getBasicRemote().sendText(&quot;{\&quot;balls\&quot;:&quot; + json + &quot;}&quot;);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    // Add synchronization to broadcastGameState
+&nbsp;    private synchronized void broadcastGameState() {
+&nbsp;        try {
+<b class="nc">&nbsp;            GameSnapshot snapshot = gameBoard.generateSnapshot();</b>
+<b class="nc">&nbsp;            String json = objectMapper.writeValueAsString(snapshot);</b>
+&nbsp;
+<b class="nc">&nbsp;            for (Session session : sessionUsernameMap.keySet()) {</b>
+<b class="nc">&nbsp;                if (session.isOpen()) {</b>
+<b class="nc">&nbsp;                    synchronized (session) {</b>
+<b class="nc">&nbsp;                        session.getBasicRemote().sendText(json);</b>
+<b class="nc">&nbsp;                    }</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    public static void broadcastFinalResults(List&lt;Map&lt;String, Object&gt;&gt; results) {
+&nbsp;        try {
+<b class="nc">&nbsp;            String json = objectMapper.writeValueAsString(Map.of(&quot;finalResults&quot;, results));</b>
+<b class="nc">&nbsp;            for (Session session : sessionUsernameMap.keySet()) {</b>
+<b class="nc">&nbsp;                if (session.isOpen()) {</b>
+<b class="nc">&nbsp;                    session.getBasicRemote().sendText(json);</b>
+&nbsp;                }
+&nbsp;            }
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;    private static void broadcastPlayerHit(String playerIdentifier) {
+&nbsp;        try {
+<b class="nc">&nbsp;            String json = objectMapper.writeValueAsString(</b>
+<b class="nc">&nbsp;                    Map.of(&quot;event&quot;, &quot;playerHit&quot;, &quot;playerIdentifier&quot;, playerIdentifier)</b>
+&nbsp;            );
+<b class="nc">&nbsp;            for (Session session : sessionUsernameMap.keySet()) {</b>
+<b class="nc">&nbsp;                if (session.isOpen()) {</b>
+<b class="nc">&nbsp;                    session.getBasicRemote().sendText(json);</b>
+&nbsp;                }
+&nbsp;            }
+<b class="nc">&nbsp;            SpectatorSocket.broadcastPlayerHit(playerIdentifier);</b>
+&nbsp;
+&nbsp;
+&nbsp;        } catch (IOException e) {
+<b class="nc">&nbsp;            e.printStackTrace();</b>
+&nbsp;        }
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-20 19:15</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,243 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > UserController</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">backendTables.Users</a>
+</div>
+
+<h1>Coverage Summary for Class: UserController (backendTables.Users)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">UserController</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/10)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/28)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/51)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package backendTables.Users;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;import backendTables.Events.UserCreatedEvent;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.context.ApplicationEventPublisher;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;import org.springframework.web.bind.annotation.*;
+&nbsp;
+&nbsp;@RestController
+<b class="nc">&nbsp;public class UserController {</b>
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    UserRepository userRepository;
+&nbsp;
+&nbsp;    @Autowired
+&nbsp;    private ApplicationEventPublisher eventPublisher;
+&nbsp;
+&nbsp;    // Create a new user with uniqueness checks
+&nbsp;    @PostMapping(&quot;/users&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; createUser(@RequestBody User newUser) {
+&nbsp;        // Check if username exists
+<b class="nc">&nbsp;        if (userRepository.findByUsername(newUser.getUsername()) != null) {</b>
+<b class="nc">&nbsp;            return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;username already taken\&quot;}&quot;);</b>
+&nbsp;        }
+&nbsp;        // Check if email exists
+<b class="nc">&nbsp;        if (userRepository.findByemailId(newUser.getEmail()) != null) {</b>
+<b class="nc">&nbsp;            return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;email already in use\&quot;}&quot;);</b>
+&nbsp;        }
+&nbsp;        // Check if ssn exists
+<b class="nc">&nbsp;        if (userRepository.findByssn(newUser.getSSN()) != null) {</b>
+<b class="nc">&nbsp;            return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;identity fraud detected\&quot;}&quot;);</b>
+&nbsp;        }
+&nbsp;
+<b class="nc">&nbsp;        User createdUser = userRepository.save(newUser);</b>
+&nbsp;        // Publish the event after creating the user.
+<b class="nc">&nbsp;        eventPublisher.publishEvent(new UserCreatedEvent(createdUser));</b>
+<b class="nc">&nbsp;        return ResponseEntity.ok(createdUser);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(path = &quot;/users&quot;)
+&nbsp;    public List&lt;User&gt; getAllUsers(){
+<b class="nc">&nbsp;        return userRepository.findAll();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(path = &quot;/users/{id}&quot;)
+&nbsp;    public User getUserById(@PathVariable int id) {
+<b class="nc">&nbsp;        return userRepository.findById(id);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @GetMapping(path = &quot;/users/username/{username}&quot;)
+&nbsp;    public User getUserByUsername(@PathVariable String username) {
+<b class="nc">&nbsp;        if (username != null) {</b>
+<b class="nc">&nbsp;            return userRepository.findByUsername(username);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return null;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PutMapping(path = &quot;/users/passwordReset/{username}/{newPassword}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; resetPassword(@PathVariable String username, @PathVariable String newPassword) {
+<b class="nc">&nbsp;        if (username != null) {</b>
+<b class="nc">&nbsp;            User u = userRepository.findByUsername(username);</b>
+<b class="nc">&nbsp;            if(u == null)</b>
+<b class="nc">&nbsp;                return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;user not found\&quot;}&quot;);</b>
+<b class="nc">&nbsp;            u.setPassword(newPassword);</b>
+<b class="nc">&nbsp;            userRepository.save(u);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(u);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;username not provided\&quot;}&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PutMapping(path = &quot;/users/usernameReset/{username}/{newUsername}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; resetUsername(@PathVariable String username, @PathVariable String newUsername) {
+<b class="nc">&nbsp;        if (username != null) {</b>
+<b class="nc">&nbsp;            User u = userRepository.findByUsername(username);</b>
+<b class="nc">&nbsp;            if (u == null) {</b>
+<b class="nc">&nbsp;                return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;user not found\&quot;}&quot;);</b>
+&nbsp;            }
+&nbsp;            // Check if new username already exists
+<b class="nc">&nbsp;            if (userRepository.findByUsername(newUsername) != null) {</b>
+<b class="nc">&nbsp;                return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;username already taken\&quot;}&quot;);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            u.setUsername(newUsername);</b>
+<b class="nc">&nbsp;            userRepository.save(u);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(u);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;username not provided\&quot;}&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @PutMapping(path = &quot;/users/emailReset/{username}/{newEmail}&quot;)
+&nbsp;    public ResponseEntity&lt;?&gt; resetEmail(@PathVariable String username, @PathVariable String newEmail) {
+<b class="nc">&nbsp;        if (username != null) {</b>
+<b class="nc">&nbsp;            User u = userRepository.findByUsername(username);</b>
+<b class="nc">&nbsp;            if(u == null) {</b>
+<b class="nc">&nbsp;                return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;user not found\&quot;}&quot;);</b>
+&nbsp;            }
+&nbsp;            // Check if new email already exists
+<b class="nc">&nbsp;            if (userRepository.findByemailId(newEmail) != null) {</b>
+<b class="nc">&nbsp;                return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;email already in use\&quot;}&quot;);</b>
+&nbsp;            }
+<b class="nc">&nbsp;            u.setEmail(newEmail);</b>
+<b class="nc">&nbsp;            userRepository.save(u);</b>
+<b class="nc">&nbsp;            return ResponseEntity.ok(u);</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return ResponseEntity.badRequest().body(&quot;{\&quot;error\&quot;:\&quot;username not provided\&quot;}&quot;);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    // Delete a user by id
+&nbsp;    @DeleteMapping(&quot;/users/{id}&quot;)
+&nbsp;    public String deleteUser(@PathVariable int id) {
+<b class="nc">&nbsp;        if (userRepository.findById(id) != null) {</b>
+<b class="nc">&nbsp;            userRepository.deleteById(id);</b>
+<b class="nc">&nbsp;            return &quot;{\&quot;message\&quot;:\&quot;success\&quot;}&quot;;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return &quot;{\&quot;message\&quot;:\&quot;failure\&quot;}&quot;;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @DeleteMapping(&quot;users/username/{username}&quot;)
+&nbsp;    public String deleteUser(@PathVariable String username) {
+<b class="nc">&nbsp;        if (userRepository.findByUsername(username) != null) {</b>
+<b class="nc">&nbsp;            userRepository.deleteByUsername(username);</b>
+<b class="nc">&nbsp;            return &quot;{\&quot;message\&quot;:\&quot;success\&quot;}&quot;;</b>
+&nbsp;        }
+<b class="nc">&nbsp;        return &quot;{\&quot;message\&quot;:\&quot;failure\&quot;}&quot;;</b>
+&nbsp;    }
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-20 19:15</div>
+</div>
+</body>
+</html>

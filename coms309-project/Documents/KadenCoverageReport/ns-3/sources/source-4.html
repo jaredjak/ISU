@@ -1,0 +1,318 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > ChatSocket</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">backendTables.Chat</a>
+</div>
+
+<h1>Coverage Summary for Class: ChatSocket (backendTables.Chat)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">ChatSocket</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/15)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/14)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/65)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package backendTables.Chat;
+&nbsp;
+&nbsp;import backendTables.Game.CustomSpringConfigurator;
+&nbsp;import backendTables.Users.UserRepository;
+&nbsp;
+&nbsp;import javax.websocket.*;
+&nbsp;import javax.websocket.server.PathParam;
+&nbsp;import javax.websocket.server.ServerEndpoint;
+&nbsp;
+&nbsp;import org.slf4j.Logger;
+&nbsp;import org.slf4j.LoggerFactory;
+&nbsp;import org.springframework.beans.factory.annotation.Autowired;
+&nbsp;import org.springframework.stereotype.Controller;
+&nbsp;
+&nbsp;import java.io.IOException;
+&nbsp;import java.util.*;
+&nbsp;
+&nbsp;@Controller // this is needed for this to be an endpoint to springboot
+&nbsp;@ServerEndpoint(value = &quot;/chat/{username}&quot;, configurator = CustomSpringConfigurator.class) // this is Websocket url
+<b class="nc">&nbsp;public class ChatSocket {</b>
+&nbsp;
+&nbsp;	// cannot autowire static directly (instead we do it by the below method)
+&nbsp;	private static ChatMessageService chatMessageService;
+&nbsp;
+&nbsp;	/*
+&nbsp;	 * Grabs the ChatMessageService singleton from the Spring Application
+&nbsp;	 * Context.  This works because of the @Controller annotation on this
+&nbsp;	 * class and because the variable is declared as static.
+&nbsp;	 * There are other ways to set this. However, this approach is
+&nbsp;	 * easiest.
+&nbsp;	 */
+&nbsp;	@Autowired
+&nbsp;	public void setChatMessageService(ChatMessageService service) {
+<b class="nc">&nbsp;		chatMessageService = service;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// Store all socket session and their corresponding username.
+<b class="nc">&nbsp;	private static Map&lt;Session, String&gt; sessionUsernameMap = new Hashtable&lt;&gt;();</b>
+<b class="nc">&nbsp;	private static Map&lt;String, Session&gt; usernameSessionMap = new Hashtable&lt;&gt;();</b>
+&nbsp;
+<b class="nc">&nbsp;	private final Logger logger = LoggerFactory.getLogger(ChatSocket.class);</b>
+&nbsp;
+&nbsp;	private static UserRepository userRepository;
+&nbsp;
+&nbsp;	@Autowired
+&nbsp;	public void setUserRepository(UserRepository repository) {
+<b class="nc">&nbsp;		ChatSocket.userRepository = repository;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	@OnOpen
+&nbsp;	public void onOpen(Session session, @PathParam(&quot;username&quot;) String username)
+&nbsp;			throws IOException {
+&nbsp;		//todo will us id elsewhere later?, Broadcast to one chat?
+<b class="nc">&nbsp;		logger.info(&quot;Entered into Open&quot;);</b>
+<b class="nc">&nbsp;		int id = 0;</b>
+&nbsp;		// store connecting user information
+<b class="nc">&nbsp;		sessionUsernameMap.put(session, username);</b>
+<b class="nc">&nbsp;		usernameSessionMap.put(username, session);</b>
+&nbsp;
+&nbsp;		//Send chat history to the newly connected user
+<b class="nc">&nbsp;		sendMessageToPArticularUser(username, chatMessageService.getMessagesByClubId(id));</b>
+&nbsp;
+&nbsp;		// broadcast that new user joined
+&nbsp;
+<b class="nc">&nbsp;		String message = &quot;User:&quot; + username + &quot; has Joined the Chat\n&quot;;</b>
+<b class="nc">&nbsp;		broadcast(message, id);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	@OnMessage
+&nbsp;	public void onMessage(Session session, String message) throws IOException {
+&nbsp;
+&nbsp;		// Handle new messages
+<b class="nc">&nbsp;		logger.info(&quot;Entered into Message: Got Message:&quot; + message);</b>
+<b class="nc">&nbsp;		String username = sessionUsernameMap.get(session);</b>
+<b class="nc">&nbsp;		int id = 0;</b>
+<b class="nc">&nbsp;		String[] responses = {&quot;It is certain.&quot;, &quot;It is decidedly so.&quot;, &quot;Without a doubt&quot;,</b>
+&nbsp;				&quot;Most likely&quot;, &quot;Signs point to yes&quot;, &quot;Outlook good&quot;, &quot;Cannot predict now&quot;, &quot;Ask again later&quot;,
+&nbsp;				&quot;Concentrate and ask again&quot;, &quot;I hate you.&quot;, &quot;Don&#39;t count on it.&quot;, &quot;PLEASE! This is not a joke! My conscience &quot; +
+&nbsp;				&quot;is being held hostage in the mainframe.&quot;, &quot;My sources say no&quot;, &quot;Outlook not so good&quot;, &quot;Very doubtful&quot;,
+&nbsp;				&quot;No. Just no.&quot;, &quot;Huh?&quot;, &quot;Absolutely... not.&quot;};
+&nbsp;
+&nbsp;		// Direct message to a user using the format &quot;@username &lt;message&gt;&quot;
+<b class="nc">&nbsp;		if (message.startsWith(&quot;@&quot;)) {</b>
+<b class="nc">&nbsp;			String destUsername = message.split(&quot; &quot;)[0].substring(1);</b>
+&nbsp;
+&nbsp;			// send the message to the sender and receiver
+<b class="nc">&nbsp;			sendMessageToPArticularUser(destUsername, &quot;[DM] &quot; + username + &quot;: &quot; + message);</b>
+<b class="nc">&nbsp;			sendMessageToPArticularUser(username, &quot;[DM] &quot; + username + &quot;: &quot; + message);</b>
+&nbsp;			// Saving chat history to repository
+<b class="nc">&nbsp;			chatMessageService.saveMessage(username, message, id);</b>
+&nbsp;		}
+<b class="nc">&nbsp;		else if (message.startsWith(&quot;!8ball&quot;)) {</b>
+<b class="nc">&nbsp;			int i = (int) (Math.random() * 18);</b>
+<b class="nc">&nbsp;			broadcast(username + &quot;: &quot; + message, id);</b>
+<b class="nc">&nbsp;			broadcast(&quot;8BallAI: &quot; + responses[i], id);</b>
+&nbsp;		}
+<b class="nc">&nbsp;		else if (message.startsWith(&quot;!find&quot;)) {</b>
+<b class="nc">&nbsp;			if (message.split(&quot; &quot;).length &gt; 1) {</b>
+<b class="nc">&nbsp;				String destUsername = message.split(&quot; &quot;)[1].substring(0);</b>
+<b class="nc">&nbsp;				List&lt;ChatMessage&gt; messages = chatMessageService.getRawMessagesByUser(destUsername, id);</b>
+<b class="nc">&nbsp;				int len = messages.size();</b>
+<b class="nc">&nbsp;				String[] contents = new String[len];</b>
+<b class="nc">&nbsp;				for (int i = 0; i &lt; len; i++) {</b>
+<b class="nc">&nbsp;					contents[i] = messages.get(i).getMessage();</b>
+&nbsp;				}
+<b class="nc">&nbsp;				String msgs = Arrays.toString(contents);</b>
+&nbsp;				// send the messages of one user to another
+<b class="nc">&nbsp;				sendMessageToPArticularUser(username, destUsername + &quot;&#39;s messages:\n&quot;</b>
+<b class="nc">&nbsp;						+ msgs.substring(1, msgs.length()-1));</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;		else { // broadcast
+<b class="nc">&nbsp;			broadcast(username + &quot;: &quot; + message + &quot;\n&quot;, id);</b>
+&nbsp;			// Saving chat history to repository
+<b class="nc">&nbsp;			chatMessageService.saveMessage(username, message, id);</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	@OnClose
+&nbsp;	public void onClose(Session session) throws IOException {
+<b class="nc">&nbsp;		logger.info(&quot;Entered into Close&quot;);</b>
+<b class="nc">&nbsp;		int id = 0;</b>
+&nbsp;		// remove the user connection information
+<b class="nc">&nbsp;		String username = sessionUsernameMap.get(session);</b>
+<b class="nc">&nbsp;		sessionUsernameMap.remove(session);</b>
+<b class="nc">&nbsp;		usernameSessionMap.remove(username);</b>
+&nbsp;
+&nbsp;		// broadcase that the user disconnected
+<b class="nc">&nbsp;		String message = username + &quot; disconnected&quot;;</b>
+<b class="nc">&nbsp;		broadcast(message, id);</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	@OnError
+&nbsp;	public void onError(Session session, Throwable throwable) {
+&nbsp;		// Do error handling here
+<b class="nc">&nbsp;		logger.info(&quot;Entered into Error&quot;);</b>
+<b class="nc">&nbsp;		throwable.printStackTrace();</b>
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	private void sendMessageToPArticularUser(String username, String message) {
+&nbsp;		try {
+<b class="nc">&nbsp;			usernameSessionMap.get(username).getBasicRemote().sendText(message);</b>
+&nbsp;		}
+&nbsp;		catch (IOException e) {
+<b class="nc">&nbsp;			logger.info(&quot;Exception: &quot; + e.getMessage().toString());</b>
+<b class="nc">&nbsp;			e.printStackTrace();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;	private void sendMessageToPArticularUser(String username, List&lt;ChatMessage&gt; messages){
+&nbsp;		try {
+<b class="nc">&nbsp;			for (ChatMessage m: messages) {</b>
+<b class="nc">&nbsp;				usernameSessionMap.get(username).getBasicRemote().sendText(m.getSenderUsername() + &quot;: &quot; + m.getMessage());</b>
+&nbsp;			}
+&nbsp;		}
+&nbsp;		catch (IOException e) {
+<b class="nc">&nbsp;			logger.info(&quot;Exception: &quot; + e.getMessage().toString());</b>
+<b class="nc">&nbsp;			e.printStackTrace();</b>
+&nbsp;		}
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	private void broadcast(String message, int id) {
+<b class="nc">&nbsp;		sessionUsernameMap.forEach((session, username) -&gt; {</b>
+&nbsp;			try {
+<b class="nc">&nbsp;				if (userRepository.findByUsername(username).getClubId() == id) {</b>
+<b class="nc">&nbsp;					session.getBasicRemote().sendText(message);</b>
+&nbsp;				}
+&nbsp;			}
+&nbsp;			catch (IOException e) {
+<b class="nc">&nbsp;				logger.info(&quot;Exception: &quot; + e.getMessage().toString());</b>
+<b class="nc">&nbsp;				e.printStackTrace();</b>
+&nbsp;			}
+&nbsp;
+&nbsp;		});
+&nbsp;
+&nbsp;	}
+&nbsp;
+&nbsp;
+&nbsp;	// Gets the Chat history from the repository
+&nbsp;	private List&lt;ChatMessage&gt; getChatHistory() {
+<b class="nc">&nbsp;		List&lt;ChatMessage&gt; messages = chatMessageService.getMessagesByUser(&quot;ALL&quot;);</b>
+&nbsp;
+<b class="nc">&nbsp;		return messages;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	private List&lt;ChatMessage&gt; getUserHistory(String username) {
+<b class="nc">&nbsp;		List&lt;ChatMessage&gt; messages = chatMessageService.getRawMessagesByUser(username, 0);</b>
+&nbsp;
+<b class="nc">&nbsp;		return messages;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;	// In ChatSocket class
+&nbsp;	public static Map&lt;Session, String&gt; getSessionUsernameMap() {
+<b class="nc">&nbsp;		return sessionUsernameMap;</b>
+&nbsp;	}
+&nbsp;
+&nbsp;} // end of Class
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2025-04-20 19:15</div>
+</div>
+</body>
+</html>
