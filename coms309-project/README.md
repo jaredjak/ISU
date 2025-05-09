@@ -2,7 +2,7 @@
 
 A collaborative mobile game project built for **COMS 309: Software Development Practices** at Iowa State University.
 
-This repo serves as a personal archive of the project with emphasis on my contributions to the **frontend development**.
+This serves as a personal archive of the project with emphasis on my contributions to the **frontend development**.
 
 ---
 
