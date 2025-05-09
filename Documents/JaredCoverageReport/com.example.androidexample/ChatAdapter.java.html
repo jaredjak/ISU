@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChatAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debug</a> &gt; <a href="index.source.html" class="el_package">com.example.androidexample</a> &gt; <span class="el_source">ChatAdapter.java</span></div><h1>ChatAdapter.java</h1><pre class="source lang-java linenums">package com.example.androidexample;
+
+import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.app.AlertDialog;
+
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.List;
+
+//public class ClubChatAdapter extends RecyclerView.Adapter&lt;ClubChatAdapter.ViewHolder&gt; {
+//    private List&lt;String&gt; messages;
+//
+//    public ClubChatAdapter(List&lt;String&gt; messages) {
+//        this.messages = messages;
+//    }
+//
+//    @Override
+//    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item, parent, false);
+//        return new ViewHolder(view);
+//    }
+//
+//    @Override
+//    public void onBindViewHolder(ViewHolder holder, int position) {
+//        holder.chatText.setText(messages.get(position));
+//    }
+//
+//    @Override
+//    public int getItemCount() {
+//        return messages.size();
+//    }
+//
+//    public class ViewHolder extends RecyclerView.ViewHolder {
+//        TextView chatText;
+//
+//        public ViewHolder(View itemView) {
+//            super(itemView);
+//            chatText = itemView.findViewById(R.id.chat_text);
+//        }
+//    }
+//}
+
+public class ChatAdapter extends RecyclerView.Adapter&lt;ChatAdapter.ViewHolder&gt; {
+    private List&lt;ChatMessage&gt; messages;
+    private Context context;
+    private String currentUsername;
+
+<span class="fc" id="L61">    public ChatAdapter(Context context, List&lt;ChatMessage&gt; messages, String currentUsername) {</span>
+<span class="fc" id="L62">        this.context = context;</span>
+<span class="fc" id="L63">        this.messages = messages;</span>
+<span class="fc" id="L64">        this.currentUsername = currentUsername;</span>
+<span class="fc" id="L65">    }</span>
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+<span class="fc" id="L69">        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_item, parent, false);</span>
+<span class="fc" id="L70">        return new ViewHolder(view);</span>
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+<span class="fc" id="L75">        ChatMessage chatMessage = messages.get(position);</span>
+<span class="fc" id="L76">        holder.chatText.setText(chatMessage.getSenderUsername() + &quot;: &quot; + chatMessage.getMessage());</span>
+
+<span class="fc" id="L78">        holder.chatText.setOnClickListener(v -&gt; {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (!chatMessage.getSenderUsername().equals(currentUsername)) {</span>
+<span class="nc" id="L80">                showReportDialog(chatMessage);</span>
+            } else {
+<span class="nc" id="L82">                Toast.makeText(context, &quot;You can't report your own message.&quot;, Toast.LENGTH_SHORT).show();</span>
+            }
+<span class="nc" id="L84">        });</span>
+
+
+//        String messageText = chatMessage.getMessage();
+//        if (messageText.trim().isEmpty()) {
+//            holder.chatText.setClickable(false);
+//            holder.chatText.setFocusable(false);
+//            holder.chatText.setOnClickListener(null);
+//        } else {
+//            holder.chatText.setOnClickListener(v -&gt; {
+//                if (!chatMessage.getSenderUsername().equals(currentUsername)) {
+//                    showReportDialog(chatMessage);
+//                } else {
+//                    Toast.makeText(context, &quot;You can't report your own message.&quot;, Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//        }
+<span class="fc" id="L101">    }</span>
+
+    @Override
+    public int getItemCount() {
+<span class="fc" id="L105">        return messages.size();</span>
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView chatText;
+
+        public ViewHolder(View itemView) {
+<span class="fc" id="L112">            super(itemView);</span>
+<span class="fc" id="L113">            chatText = itemView.findViewById(R.id.chat_text);</span>
+<span class="fc" id="L114">        }</span>
+    }
+
+    private void showReportDialog(ChatMessage message) {
+<span class="nc" id="L118">        AlertDialog.Builder builder = new AlertDialog.Builder(context);</span>
+<span class="nc" id="L119">        builder.setTitle(&quot;Report Message&quot;);</span>
+
+<span class="nc" id="L121">        final EditText input = new EditText(context);</span>
+<span class="nc" id="L122">        input.setHint(&quot;Enter explanation (optional) (One word. Anymore will not be recorded)&quot;);</span>
+<span class="nc" id="L123">        builder.setView(input);</span>
+
+<span class="nc" id="L125">        builder.setPositiveButton(&quot;Report&quot;, (dialog, which) -&gt; {</span>
+<span class="nc" id="L126">            String explanation = input.getText().toString().trim();</span>
+<span class="nc" id="L127">            submitReport(message, explanation);</span>
+<span class="nc" id="L128">        });</span>
+
+<span class="nc" id="L130">        builder.setNegativeButton(&quot;Cancel&quot;, (dialog, which) -&gt; dialog.cancel());</span>
+
+<span class="nc" id="L132">        builder.show();</span>
+<span class="nc" id="L133">    }</span>
+
+    private void submitReport(ChatMessage message, String explanation) {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (message.getId() == null) {</span>
+<span class="nc" id="L137">            Toast.makeText(context, &quot;This message cannot be reported.&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L138">            return;</span>
+        }
+
+<span class="nc" id="L141">        Log.d(&quot;Checking&quot;, currentUsername);</span>
+<span class="nc" id="L142">        Log.d(&quot;Checking&quot;, message.getSenderUsername());</span>
+<span class="nc" id="L143">        Log.d(&quot;Checking&quot;, explanation);</span>
+
+<span class="nc" id="L145">        String url = &quot;http://coms-3090-013.class.las.iastate.edu:8080/reports?reportingUsername=&quot;</span>
+                + currentUsername +
+<span class="nc" id="L147">                &quot;&amp;reportedUsername=&quot; + message.getSenderUsername() +</span>
+<span class="nc" id="L148">                &quot;&amp;explanation=&quot; + Uri.encode(explanation);</span>
+
+        //&quot;&amp;messageId=&quot; + message.getId() + // goes before explanation
+
+<span class="nc" id="L152">        StringRequest request = new StringRequest(Request.Method.POST, url, response -&gt; {</span>
+<span class="nc" id="L153">            Toast.makeText(context, &quot;Report submitted.&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L154">        },</span>
+                error -&gt; {
+<span class="nc" id="L156">            Log.d(&quot;Submit Report Error&quot;, &quot;Error: &quot; + error.toString());</span>
+<span class="nc" id="L157">            Toast.makeText(context, &quot;Error submitting report.&quot;, Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L158">                });</span>
+
+<span class="nc" id="L160">        RequestQueue queue = Volley.newRequestQueue(context);</span>
+<span class="nc" id="L161">        queue.add(request);</span>
+<span class="nc" id="L162">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span>Generated by the Android Gradle plugin 8.8.0</div></body></html>
