@@ -44,7 +44,10 @@ Video link that gives an overview of the app's features (video credits to *Kaden
 
 https://www.youtube.com/watch?v=oVPB8Sjmq3E&list=PL6BdlkdKLEB__zBDNSki_OcKhINyXpi2u
 
+
 Screenshots:
+
+*Provided soon*
 
 ---
 
