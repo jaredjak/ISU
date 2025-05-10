@@ -20,10 +20,10 @@ This serves as a personal archive of the project with emphasis on my contributio
 
 ## Team Members
 
-- Jared Krug – Frontend Development
-- Emmet Stuart – Frontend Development
 - Kaden Neddermeyer – Backend Development and Database
 - Carter Hauschildt – Backend Development
+- Emmet Stuart – Frontend Development
+- Jared Krug – Frontend Development
 
 ---
 
