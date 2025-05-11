@@ -49,7 +49,7 @@ https://www.youtube.com/watch?v=oVPB8Sjmq3E&list=PL6BdlkdKLEB__zBDNSki_OcKhINyXp
 
 Screenshots:
 
-*Provided soon*
+N/A
 
 ---
 
