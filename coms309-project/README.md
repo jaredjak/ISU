@@ -1,6 +1,6 @@
 # COMS 309 Project
 
-*Honorable Mention — Best App/Project (Spring 2025, COMS 309)*
+*Honorable Mention — Best App/Project (Spring 2025, COMS 3090)*
 
 A collaborative mobile game project built for **COMS 309: Software Development Practices** at Iowa State University.
 
