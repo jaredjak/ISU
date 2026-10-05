@@ -1,0 +1,5 @@
+Student ID,Name,Total Scores,Sum of All Scores,Score Average
+['123456', 'John Smith', 5, 408, 81.6]
+['654321', 'John Smith', 8, 555, 69.375]
+['246810', 'Trevor Smith', 11, 777, 70.63636363636364]
+['135791', 'Sally Smith', 15, 953, 63.53333333333333]

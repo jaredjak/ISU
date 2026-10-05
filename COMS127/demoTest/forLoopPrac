@@ -1,0 +1,19 @@
+# Jared Krug          9/5/2023
+# for loop practice
+
+for name in ["josh", "jared", "jake", "joe", "jaquavius"]:
+    print("Hi", name, "are you going to make it to the function tonight?")
+
+print()
+print("----------------------------------------------------------------")
+print()
+
+for job in ["job", "job","job"]:
+    print("job: "+job)
+
+print("----------------------------------------------------------------")
+
+num = 5
+if (num<10):
+    num+1
+    print(num)

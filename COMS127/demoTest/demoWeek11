@@ -1,0 +1,14 @@
+# Jared Krug       10/31/2023
+# Recursion demo 1/2
+
+def countUp(n):
+    if n<=0:
+        return
+    countUp(n -1)
+    print(n)
+
+def main():
+    countUp(5)
+
+if __name__ == "__main__":
+    main()
