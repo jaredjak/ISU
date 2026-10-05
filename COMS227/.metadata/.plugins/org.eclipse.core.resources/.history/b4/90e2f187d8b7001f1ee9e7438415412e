@@ -1,0 +1,4054 @@
+DAY 2 (basics - ADT)
+Abstract data type (ADT)- example is an ArrayList
+Collections of data items together with methods that operate on the data
+Examples:
+remove()
+add()
+search()
+DoublyLinkedList
+
+The client-facing method signatures are the same, but the actual implementation, storage technique,
+and performance may differ
+
+Abstract because:
+The client is unaware of the implementation (the implementation is abstracted/unknown)
+Many implementations have the same behavior
+
+Overall, ADTs are containers of multiple items
+
+COMS 228 is about small engines that can operate on massive amounts of data
+
+How does the performance behave as we load our engine with near-infinite numbers of data items?
+—--------------------------------------------------------------------------------------------------------
+Helpful principles:
+Modularity - partitions in the codebase
+This means that working on one component, the programmer does not need to know the rest of the components
+
+Abstraction - the result of modularity
+
+Object-Oriented Programming
+Inheritance
+How we think as humans
+We group phenomena/objects according to similarity and we categorize according to differences
+Identity
+A stray dog on the street has an identity even if it has no name
+Identity for an object is its starting location in memory
+State
+The value of all object variables
+String name = “John Doe”
+Variable age = 20
+—--------------------------------------------------------------------------------------------------
+Review of what a class is:
+Instance variables are declared outside of methods. They exist from the creation of the object
+until it is garbage-collected
+
+Local variables only exist for the duration of the method call
+
+An object of a class has access to the private members of another object of the same class
+Example:
+Point B can call point A’s private method variables
+
+This keyword
+Distinguish between, e.g. parameter variables and instance variables, e.g.
+this.x = x //when x is the name of a parameter
+Being able to serve myself as a parameter to another method
+TaxCalc2024.CalculateTaxes(this)
+Where this is an object of type Employee, and the employee’s method is calling calculateTaxes().
+
+
+DAY 3 (ch3 - Inheritance)
+
+Inheritance through interfaces and abstract classes
+Reason for the existence of inheritance
+Mental model
+Removes duplication because the common traits of objects can be pulled into an ancestor
+Why is duplication bad?
+Because it is really hard to maintain over long periods of time
+Interface is an all-abstract “language feature” that is equivalent to a class
+Definition of “abstract”: unimplemented
+The job of an interface is to specify a CONTRACT for the functionality of an object
+CONTRACT here means that the code will not compile if you are implementing an interface and some piece
+is missing. This is enforced by the compiler
+
+An interface is a good tool to allocate work in team environments, but also to remind single programmers
+what they intended to accomplish
+
+Interfaces also act as bulkheads separating the implementation of different components of a system
+(aside: Java allows you to write code in interfaces in the last ~12 years)
+Before Java, the above function was performed by an abstract class with all unimplemented methods
+A class is declared abstract if it has at least one abstract method
+If it does not have an abstract method, it is a concrete class, but the word “concrete” is not used
+The reasons interfaces exist is called the Diamond Problem (C++)
+C++ allows multiple inheritance. This means a class may inherit from multiple concrete classes as its
+immediate parents
+@Override is an annotation, meaning it is not part of the functionality of a program BUT it acts to help
+the programmer with additional information
+It prevents typos when overriding
+With OVerride, java will notice that in the inheritance chain, there is no kill signature, so it will throw
+a compile-time error
+Java has no multiple inheritance
+One class can only extend one other class
+BUT we still want composition
+We can IMPLEMENT as many interfaces as we want
+Extends only applies to classes
+Implements applies to interfaces
+
+
+—-----------------------------------------------------------------------------------------------------------
+
+DAY 4 - lecture 4
+
+* implements for separate interfaces (dashed line)
+* extends for separate classes (solid line)
+
+Class hierarchies
+Collection of class/subclass relationships defines a class hierarchy, which can be represented by a class
+diagram (or UML diagram)
+Example: See page 16 of 03.pdf
+superclass/subclass relationships are indicated by arrows. 
+Dotted = implements
+Solid = extends
+Python is a scripting language - made for tiny programs
+No large projects in python
+Java is an enterprise-grade language - made for massive programs
+It is a lot harder to write a small program in Java
+In a statically typed language, when you create the memory location for a variable, you also assign what
+variable types go in there, e.g. int
+But in Java we have dynamic binding
+Two rules comprise the above:
+Any ancestor reference can accept a descendant reference or descendant object
+The opposite is not true
+If you have an Insect variable, you can put a Bee object into it
+If you have have a Bee variable, you CANNOT put an Insect object into it
+If multiple implementations of a method exist, ONLY THE MOST RECENT is used
+FOR EXAM:
+Given a code snippet and a set of classes
+Will be asked:
+Does it compile? Does it run? What is the result? If no result, is the error at compile time or at runtime?
+What error was it?
+
+Example class diagram (page 16 - 03.pdf)
+1.
+	Locomotion b; // OK because you are allowed to create abstract variables I am setting aside a location
+	in memory that will contain an address of another memory location
+Note: no “new” keyword
+
+	Locomotion b = new Locomotion(); //compile error: cannot instanitate abstract type Locomotion
+
+2.
+	b = new Grasshopper(); //OK. This is an example of dynamic binding because we accepted a concrete
+	descendant to be pointed to by b
+
+3.
+	b.move(); //print “hop”
+		//dynamically bound the move declaration in Locomotion to the latest implementation in Grasshopper
+
+4.
+	b = new Bee(); //dynamically rebound the address to a new object
+
+5. 
+	b.move(); //This is polymorphism. I use the exact same command with two different objects and get
+	different behavior. Prints “fly”
+
+Abstraction by using ancestor variables to call concrete descendant methods gives two great advantages to 
+both the client and implementer:
+To the client, it does not increase its responsibility. (The package will be moved without the client
+having to worry about how)
+To the implementer, it allows freedom to choose an implementation that is most convenient
+
+6.
+	b.makeHoney(); //compile error: method makeHoney() undefined for type Locomotion. This is a static
+	typing violation: my variable only knows the methods it came with
+
+But we can use casting to access descendant methods
+((Bee) b).makeHoney(); //prints “orange blossom”
+
+—-------------------------------------------------------------------------------------------------------
+
+Day 5 - lecture 5
+
+Java.lang.object
+Class: a blueprint for making objects
+Object: a product of a class existing in memory
+The Object Class: the top of the Java hierarchy
+Used to guarantee every class in Java conforms to Java design
+There are many fully or partially implemented methods in Object. Just their signatures suggest to a
+designer that they should exist
+ 
+toString(): prints nothing useful
+getClass(): it will tell you what object is in a reference/variable at RUNTIME
+equals(): reminds u to implement a test for equality of objects
+hashCode(): returns a “signature” of the object
+ 
+Any class you ever write, e.g/
+Public myClass{ 
+Private myMethod1();
+}
+It is actually interpreted by Java as:
+Public myClass extends Object{....
+}
+ 
+Primitive vs object types
+There are only 8 primitive types in Java
+int, short, long
+double, float
+char, boolean
+byte
+They occupy only one location in memory and have a specific encoding to each of them
+E.g. int uses 2’s complement to represent an integer by a bit string (0001010101)
+Object types have 2 locations in memory
+The reference location AND
+The object location
+Examples:
+1.
+	Locomotion l; //OK because
+			// it is an abstract ancestor and we are not making an object
+
+	Grasshopper g; //OK for the above reasons
+
+2.
+	Pollination p = new Pollination(); //compile error: cannot instantiate 
+//abstract type Pollination
+
+	Insect i = new Insect(3, “Green”); //compile error: cannot instantiate 
+//abstract type Insect
+
+	Insect i = new Grasshopper(2, “Brown”); //compile error: cannot instantiate 
+//abstract type Grasshopper
+
+3.
+	Katydid k = new Katydid(3, “Green”); //OK because Katydid is concrete
+	
+	Grasshopper g = k; //OK because by dynamic binding, we can assign a descendant
+				// to an ancestor variable
+
+	Locomotion l = new Katydid(3, “Brown”);  //OK because by dynamic binding, we can 
+						// assign a descendant to an ancestor variable
+
+l.move() will execute. Prints “hop”
+Other methods will NOT execute without coaxing the compiler by casting. This is static typing shielding
+the client code from having to know about how movement was achieved
+
+	g = l; //compile error: incompatible types
+		// (this is because locomotion is an ancestor of grasshopper so it cannot
+		// stand for it)
+
+Aside: the compiler is just a fancy “spell checker”. It does not run the program and only understands
+the static typing relationships. E.g. grasshopper is a child of locomotion
+
+	// how to fix the above issue? Use casting to tell the compiler we have a
+	// dynamically bound Katydid. It takes our word for it
+	
+	g = (Katydid) l; //OK, compiles and runs because Katydid is a child of
+			// Grasshopper, so it is OK to assign it to its ancestor
+
+		//BY contrast, the runtime KNOWS what is in l, and if we try to cast something
+		// silly, it will throw a ClassCastException EXAM INFO
+
+4.
+	Grasshopper g = new Locust(3, “Red”); //OK because we put a concrete descendant 
+						// object into an abstract ancestor reference
+
+	// Rule: cannot assing siblings to each other
+
+	Katydid k = (Katydid) g; // Compiler sees a casting attempt. The attempt is saying
+				// “There is a Katydid inside that Grasshopper wrapper”.
+				// Please assign it to a new reference
+				// 1. Compiler checks if Katydid is compatible with
+					// the container g - it is. Pass
+				// 2. Compiler checks if Katydid is compatible
+					// with assignment to the new variable. In this case
+					// they are the same, pass
+					// The above COMPILES but at runtime it will
+					// throw a ClassCastException because it sees the
+//dynamic binding is not a katydid, but a locust 
+
+	G = new Mantis(4, “Green”); //Compile error: incompatible types because siblings
+					// cannot substitute for one another
+
+—------------------------------------------------------------------------------------------------------
+
+DAY 6 - Lecture 5/6
+
+5.
+	Locomotion l = new Katydid(3, “Brown”);
+	//OK because concrete descendant
+
+	l.attack(); 	//Compile Error
+			//method attack() undefined for type Locomotion
+
+	FIX: ((KAtydid)l).attack();
+	//translation: “compiler, you don’t know it, but this is a Katydid, please use it’s method”
+	//prints “bite”
+	//rule: always AND WITHOUT FAIL execute the MOST RECENT implementation
+	//of a method; older aare not accessible. If you instantiate the older object, 
+	//the older method is used, because the object itself does not have the newer version
+
+6. 
+	Locomotion l = new Locust(2, “Black”); //OK
+
+	l.move(); //print “hop”
+
+	l = new Bee(1, “Gold”, “Hill”); //OK
+
+	l.move(); //polymorphism: same code produces different behavior
+
+7. 
+	Insect i = new katydid(2, “Green”); //OK because concrete descendant
+
+	i.attack(); //dynmically bind to the newest implementation of attack:
+		// it is in Grasshopper:
+		// print “bite”
+
+	i = new Mantis(4, “Green”); //dynamically resassing to a Mantis:
+			//OK 
+
+	i.attack(); //polymorphism. Same code executes differently because of different
+			// implementation provider
+			//print “strike”
+
+8.
+	Insect k = new Katydid(3, “Green”); //OK
+	
+	k.attack(); //print “bite”
+
+	k.antennae(); //compile error. Method antennae() undefined for type Insect
+	FIX: ((Katydid( k(.antennae();
+	//returns “long”
+
+9. 
+	Grasshopper g = new Katydid(3, “Golden”); //OK
+	
+	System.out.println(g.feedOn());
+	//dynamically executes the most recent implementation and obsucres/prevents
+	//the older implementations from executing
+	//returns “variety”
+
+10. 
+	Pollination p = new Bee(1, “Golden-Black”, “Lake”); //OK
+
+	p.getSwarm(); //compile error: method getSwarm() undefined for type Pollination
+	FIX: ((Bee) p).getSwarm();
+	//returns “Lake”
+
+11.
+	Mantis m = new Mantis(...);
+	//OK because no inheritance involved BUT we checked that Mantis is not abstract
+
+	m.move(); //prints “crawl”
+
+	Insect i = m.preyOn();
+		Grasshopper
+			|
+			Down arrow
+	Insect ⇐==   Locust object
+	//OK; assignment is valid. Now we have an Insect with a Locust object that it is
+	//pointing to
+	
+	i.move(); //compile error: method move() undefined for type Insect
+	FIX: ((Locust) i).move(); //prints “hop”
+
+12. 
+	Insect i = new Mantis(...); //OK
+		
+	((Mantis) i).move(); //prints “crawl”
+
+	((Mantis) i).preyOn().attack(); //this is called method chaining. 
+				// execute left-to-right. The result of the left method is invoked on
+				// the method to the right
+				
+	i = new Bee(...); //OK
+
+	((Bee) i).makeHoney(); //prints “Orange Blossom”
+
+13.
+	Mantis m = new Mantis(...); //OK
+
+	((Insect) m).attack(); //Upcasting to an ancestor is allowed, but
+			// it doesn’t accomplish anything because of dynamic binding
+			// using the most recent implementation.
+			// can be used to fool the compiler with another cast to a sibling
+
+—------------------------------------------------------------------------------------------
+
+DAY 7 - lecture 6
+
+Equals for objects
+AKA conceptual equivalence for arbitrary objects
+== example in 05.pdf
+i == j is true because both are 8
+p == q is NOT true because p and q are not the same object
+q == r is true because p and r point to the same object
+r == s is NOT true because they are not the same object IN MEMORY
+
+== DOES NOT TEST FOR CONCEPTUAL EQUALITY of arbitrary objects. It only returns true if the two
+variables contain the same object in memory
+Java does not allow overriding operators. In C++, you can have == mean anything
+Java cannot know what conceptual equality is for an arbitrary object
+E.g. comparing fragrances should disregard the volume of the fragrance when testing for equality
+As a result, we have to write our own equals() method for our custom objects
+equals() already exists in java.lang.Object BUT it is there as a reminder. If you call it, it returns
+the result of ==.
+Example: w/o overriding equals, we can call myBoughtFragrance.equals(fragranceSample);
+It will return true ONLY if the fragrance sample is what you bought
+
+Stack and heap
+Stack is usually the call stack, which is a specific data structure to allow recall of the program
+counter between method invocations
+It is like a stack of vinyl records
+Assume the bottommost record is main()
+While enclosed methods are executing, the stack holds primitive variable references and the exact location
+at which the method was suspended
+When “enclosed” methods finish their run, we resume the “ancestor” method from the exact instruction it
+was supposed to execute next
+Size is 1 Megabyte by default in Java
+This allows approximately 1000-10000 method calls to be suspended on top of one another
+A typical non-recursive program will have less than 70 suspended methods
+The java heap is NOT a heap structure; it is just “large memory”. Called the heap because objects are
+placed in arbitrary locations, as determined at the runtime
+
+Equals
+Let us make an equals method for our Point object
+
+
+/**
+* The parameter must be Object so we can compare against any variable. Without it being object, an 
+	incompatible variable will cause the program to terminate with an exception.
+Instead, we want to compare against ANY class, and if the class is not the same as ours, we just return 
+false (not equivalent)
+
+@ Override //to prevent mistyping the signature
+public boolean equals(Object o) {
+	if (o == null || o.getClass() != this.getClass()) {
+		return false;
+	} // if we are here, the o is of the same class as this, guaranteed
+	Point other = (Point) o;
+	//w/o the above cast, every time we want to work with a Point member
+	//(method or variable), we have to cast with ((Point) o).x
+
+	return this.x == other.x
+		&&
+		this.y == other.y;
+}
+
+
+//incorrect
+If (!(obj instanceof Point)) return false;
+
+
+—-------------------------------------------------------------------
+
+Day 8
+
+Copying, Shallow vs deep copy
+
+Method 1: Copy constructor
+A constructor that takes as parameter an object of the same type
+
+public Point(Point, other) {
+	this.x = other.x;
+this.y = other.y;
+}
+USAGE:
+Point p = new Point(1,2);
+Point q = p; //only creates a second reference to the same object
+Point r = new Point (q); //duplicates the object
+
+
+
+Method 2: Custom copy method
+
+public Point makeCopy() {
+	Point result = new Point();
+result.x = x;
+result.y = y;
+	return result;
+}
+USAGE: 
+Point p = new Point(1,2);
+Point q = p.makeCopy();
+
+
+Method 3: clone()
+
+clone() is defined in java.lang.Object
+If you call it, it will throw a CloneNotSupportedException();
+
+How to unlock:
+Lock 1. Make the class implement Cloneable
+
+public Point implements Cloneable{ // Lock 1
+
+	/**
+* Allowed to change the return type to a compatible type, in this case a descendant,
+* to avoid casting by the client
+**/
+	@Override
+	public Point clone() { // Lock 2 is the override itself
+		
+		try {
+			result = (Point) super.clone();
+		} catch (CloneNotSupportedException) {
+			//no handling code necessary
+			//the existence of this try-catch prevents the exception from being thrown
+			// Lock 3 is try-catch
+		}
+		return result;
+	}
+}
+USAGE:
+Point p = new Point(1,2);
+Point q = p.clone();
+- - at the above command, java calls a “native method” which means a method provided by the operating 
+	system that bitwise copies a region in memory (Exact bit-to-bit duplication to a new memory location)
+- - This method of copying is called a shallow copy because it only works for primitive variables
+- - This will not work correctly with nested objects
+
+
+
+
+Shallow vs Deep Copy
+IntVector	~ int Point in several dimensions
+E.g. 3
+
+
+Takeaway: a complex object with multiple levels of nested objects inside (such as Employee in a human
+resources software) requires custom coding to recursively deep-copy all necessary objects
+
+—--------------------------------------------------------------------------------------------------
+
+Day 9
+
+Exceptions
+
+1. Why do they exist?
+Before the existence of exceptions:
+
+Every potential had to be handled with an if statement in the method where it occurred. Otherwise,
+the program terminates
+
+With OOP, we could handle an error in any method on the stack
+
+If main does not catch it, the program terminates
+
+1.1 mechanism of exceptions:
+	When an error occurs, we stop execution and create an Exception object which has
+	As much relevant information as we desire about the error. This object is “thrown”
+- meaning it is passed to ancestor methods on the stack, including the current method
+- this is called the “Exception flow” of the program
+
+- If the current method does not have a try-catch statement, the method is terminated,
+And the ancestor to the next method is unsuspended from the stack
+- If main() does not handle it, we have a program termination
+
+We call them exceptions instead of errors BECAUSE they may just be “exceptional
+States” that we may be able to recover from
+
+The word “error” in the Java design philosophy is an unrecoverable event
+
+There are hundreds or more named exceptions in Java, but only about eight errors
+	E.g., ThreadDeathError
+
+2. Example of catching an exception
+
+public static void main(String[] args) {
+InputStream istream;
+File inputFile;
+try {
+inputFile = new File(args[0]);
+// the constructor method throws an exception
+istream = new InputStream(inputFile);
+}
+catch (FileNotFoundException ex) {
+Syso(“file “ + args[0] + “ not found”);
+}
+}
+
+3. General syntax for catching exceptions:
+
+try-catch-catch-finally
+
+One try clause
+You can have as many lines of code as desired and may throw as many potential exceptions as desired
+The first exception thrown immediately terminates the execution of the code in the try clause,
+jumping instead to the catch clauses
+
+As many catch clauses as you desire
+An Exception object will linearly try each statement in turn until it finds one that matches it.
+Then it is consumed by the first matching catch
+Ancestor exception clauses consume descendant exceptio objects
+This means that if you have
+} catch (Exception e) {
+	// this code will process any exception type that is thrown
+} catch (FileNotFoundException e) {
+	// will not execute
+}
+This means ancestor exceptions should be placed further down the list of try clauses. More
+specific handlers will be obscured otherwise
+
+An option finally
+	finally {
+		//executes regardless of whether an exception was raised
+		//Used to recover resources such as open files, database connections, or
+		//internet connections
+}
+
+Exception vs CustomException
+Exception can catch all exception classes that exist
+This leads to some extremely lazy design in the real world
+This is the reason we get internet messages such as
+“Oops, something happened”
+Imagine you have to construct a webpage with 300 widgets on it. All of them throw an exception
+The laziest way to handle exceptions is to have a generic exception handler:
+try {
+		constructUIPage();
+		//throws 300 possible exceptions
+} catch (Exception e){
+		Syso(“Oops, something happened”);
+
+
+
+4. Checked vs Unchecked exceptions
+With checked exceptions, the compiler forces the designer to create handlers, or the program
+does not compile and run
+“Checked” means “The compiler checks if an exception MAY arise and blocks compilation”
+
+Unchecked exceptions do not block compilation.
+All the RunTimeException descendants:
+IndexOutOfBoundsException
+NullPointerException
+ClasscastException
+(and others)
+DO NOT require a try-catch statement
+You COULD put a try statement if you wanted, but the compiler does not force you
+This is because these exceptions are almost always the result of programmer error
+They arose from bugs - the programmer did not understand completely what they wrote
+The correct action is NOT to recover from a runtime exception, but rather to terminate the
+program, fix the code, and roll out the new version
+
+5. Exception class hierarchy (08.pdf, p. 13)
+Checked exceptions are a boon; the cost is they look ugly
+
+6. Creating custom exceptions:
+Many exceptions already exist, but having your own custom exception with a descriptive name is
+really helpful when debugging or recovering. You do not need fancy information dumps inside to 
+recover, in many cases.
+You are encouraged to use the most specific exception that you can, and write your own as necessary
+To make a custom exception, all you have to do is write two custom constructors which may just
+call their Exception super()
+Make a default constructor
+Make a string constructor
+
+- - the compiler enforces the “rough patches” in the code execution path where potentially
+	abnormal conditions may occur.
+	- - this means the designer does not have to worry about having handled difficult
+	     situations.
+
+“throws” and “throw” keywords allow us to set up exception areas
+
+7. Throwing exceptions
+If you are making a method where you anticipate an abnormal condition, throw an exception if
+																					it occurs
+
+public class Stack {
+	// other methods
+	public VinylRecord pop() throws EmptyStackException
+	{
+		If (empty())  // check if size == 0
+			throw new EmptyStackException();
+		// . . . other code
+	}
+}
+
+The above code forces the client code of the stack to unclude:
+try  { 
+	result = mystack.pop();
+} catch (EmptyStackException e) {. . .}
+A variation of the above concept is when you absolutely DO NOT want to handle an exception but
+still want to call a method
+
+public void printRecordLabel (Stack<VinylRecord> myPlayingRecord) throws EmptyStackException {
+	VinylRecord result;
+
+	result = myPlayingRecords.pop();
+	Syso(result.getLabel());
+{
+
+—-----------------------------------------------------------------------------------------------
+
+Day 10
+
+Rules of Overriding
+
+You cannot change the method’s name or parameter types
+You can change the return type, as long as the new type is compatible with the original
+You can change a method from protected to public, but you cannot make the access more restrictive
+You can omit a throws declaration, but you cannot add a throws declaration
+
+Class AKA static variables
+
+We also have static methods
+
+Historically, languages prior to Java had a “global” keyword
+Anything declared “global” is visible anywhere in the program
+“global” is great at piercing encapsulation and producing spaghetti code
+“go to” is another such keyword
+Java has limited globals that it uses the static keyword for
+When a variable is static, it is  not considered part of the runtime or in memory
+When using static variables on methods, our on-memory universe becomes a Platonic universe
+A static variable is considered a part of the Class, the blueprint
+All objects of the same class share one copy of this static variable. It is a “global variable”
+																	to the members of this class
+
+Variable categories:
+method vs local		each pair means the same
+object vs instance
+class vs static
+
+Method variables live while a method is executing
+Object variables live while an object remains in memory
+Class variables live while the program is running, regardless of how many objects exist of this
+class
+
+Example:
+public class Person {
+	int age;
+	String name;
+	static int numberOfPersons;
+
+	Person(int age, String name) {
+		this.age = age;
+this.name = name;
+numberOfPersons++;
+	}
+}
+
+Usage:
+We start the program, and we can write:
+
+Syso(Person.numberOfPersons);
+// there is currently no object of type Person in memory
+// prints “0”
+
+Before any objects have been created, static variables exist
+They are extremely useful because they allow sharing of information between objects of a class
+
+Person p = new Person(20, “John Doe”);
+Syso(person.numberOfPersons);
+// prints “1”
+
+Person q = new Person(21, “Jane Doe”);
+Syso(q.numberOfPersons);
+// prints”2”
+	BUT
+Is considered an incorrect way to use static variables
+
+By convention, you call static variables on the class name, not on the object name, even though it
+will work
+- - because you are obscuring the nature of the variable from other people using this code
+
+Static methods cannot access non-static methods directly:
+	If you try to, you get a compiler error:
+		“Cannot access non-static member myMethod1 from static method main”
+
+When you call a non-static method in a static method the program actually can’t see it
+
+One of the biggest sources of difficult bugs is “side effects”
+What is a side effect:
+It is code that accomplishes something not listed in the method name
+E.g. remove() method in an ArrayList iterator
+If, after we deleted an element we also advanced the deletion target, the name should have
+																	been removeAndAdvance()
+Side effects promote spaghetti code
+
+Static variables and methods have a much lower chance of having side effects
+Inside a static method, we can only see other static methods
+
+John Carmack said “Ideally, your object-oriented code would be made only of static members and
+constants”
+
+
+Two ways to get around the compiler error.
+(less useful) make the called method static. But then you are just kicking the can down the road
+Create an object and call a non-static method on it
+
+Static methods can work with non-static objects provided
+They were passed as parameters
+The static method created the objects
+
+
+—-----------------------------------------------------------------------------------------
+
+Day 11
+
+Comparing algorithms
+
+Speed (processing time)
+Amount of memory
+Amount of network bandwidth use
+Ease of implementation (how hard did you have to think to come up with the algorithm)
+Adaptability for reuse
+
+Measure speed with a timer?
+Could be hardware and software environment-dependent, so we cannot compare algorithms on two
+different platforms
+
+Assumes algorithm is cheap to implement
+Does not tell us how the algorithm scales
+With a bigger input size
+With a more powerful computer
+
+
+Big O
+
+Abstract hardware and software environment
+Measure (count) Execution in steps as a function of input size, e.g.
+To process n integers, I need n computer instructions
+A correct count of steps can be done by just reading the code on a piece of paper
+
+Example:
+Search:
+Find a value v in an array a (array.length == n)
+Assume the array is unsorted
+
+T(n) i the exact count of steps given an input of size n (for example, n integers)
+
+How does T(n) evolve a n → infinity?
+n is 1000
+n is 1,000,000,000
+n is 10^18
+
+In English: “How does the amount of work for the processor grow as the input array grows?”
+
+For guesstimation purposes, a modern single core can perform approximately 4 billion operations
+in 1 second
+
+i = 0;					1 step
+while i < n				n + 1 repetitions
+	if A[i] == v		1 step
+		return true		1 step per program
+	i++					1 step
+	return false		1 step per program
+
+In the worst case scenario (the most work), we never find the number
+Then, the work is:
+T(n) = 1 + n(1 + 1 + 1) + 1 + 1 =
+	= 3n + 3 tickets of the computer in the WORST CASE scenario. Aka O(n)
+
+
+Count the steps that the processor will perform
+What can a processor do in one tick?
+
+Addition, subtraction, modulo, division, multiplication all take ONE step on most processors
+We call this O(1), and it means an exact number of countable steps, e.g. 311 steps
+
+Anything that is not a loop is considered to execute immediately (1 atomic step)
+
+----------------------------------------------------------------------------------------------
+
+Day 12
+
+Big-O (again)
+
+
+Finding a number in an unsorted array:
+T(n) = 3n + 3
+
+O(n) is T(n) with all less significant terms stripped and all constants stripped
+
+Then 
+O(n) = n
+
+Because, as n -> infinity, less powers of n and constants become insignificant
+
+Definition:
+	T(n) <= c*f(n) where T(n) is the exact count of computer steps, c is a constant f(n) is logn,
+																					n, n^2, ...
+	
+The above can be understood as T(n) is in the growth envelope of f(n) == logn or n or nlogn or n^2
+
+All the logn algorithms are in the logn class
+
+This class does logn work +/- some constants
+
+The whole point of O(n) is that if you are in one class, you do less work than any algorithm of
+the above classes as n approaches infinity
+
+When n is a very large number, your large constant is irrelevant, because it's finite
+
+In practical terms, if you calculate T(n), you can drop all lesser terms and all constants, and the
+result is the class of the algorithm
+
+A very practical outcomes is that we only care about loops when determining Big-O, and we don't
+have to count every step meticulously
+
+Her is a simple algorithm to determine Big-O:
+1. Is the method recursive?
+2. What are the loops?
+3. Anything that is not a loop is not relevant, while nested loops are most likely to determine
+   the final answer in terms of Big-O
+   
+What is big-O?
+One way to measure growth in work as input grows without bounds
+
+
+** Exam potential **
+Example: finding if all elements of one array are in another array == determine array equality
+
+Both arrays a and b are of size n
+
+Solution:
+Go through all elements in the first array O(n)
+	For each element in first array, check in the second array
+		If not found, return false
+Return true
+
+
+Worst case:
+Find all elements except for the last one.
+Then, on average, the inner loop will execute n/2. We can drop the 1/2 constant.
+
+Overall, multiply the big-0 result for each nested loop.
+
+0(n) * 0(n) == 0(n^2)
+
+i = 0							1
+while i < n						n reps
+	found = false				1
+	j = 0						1
+	while j < n					n reps max, n/2 avg
+		if a[i] == b[j]			1
+			found = true		once per inner loop
+			break				once per inner loop
+		++j						1
+	if !found					once per loop
+		return false			once per program
+		++i						1
+return true
+
+T(n) = 1 + n(1+1+1+1+(n/2)(1+1)) + 2(n-1) + 1 = 
+= 1 + 4n + 2n^2 + 2n-1 + 1 = n^2 + 6n + 2
+which is in 0(n^2)
+
+
+Example 2:
+
+BNARY SEARCH (A, v) // A must be sorted
+
+n = A.size
+left = 0
+right = n - 1
+while left <= right
+	mid = (left + right)/2
+	if A[mid] == v
+		return true
+	if v < A[mid]
+		right = mid - 1
+	else
+		left = mid + 1
+return false
+
+
+How to find 0(n)
+1. recursive - no
+2. loop - examine end conditions and step sizes
+3. not a loop - then we do not care
+
+
+Rule of thumb
+# repetitions is logn WHENEVER we removes a fraction of the original input size at each iteration
+
+How many times does the loop execute in binary search?
+
+Starting with n numbers, our final window is of size 1.
+We divide the window by 2 k times to get 1
+n/2/2/2/..... = 1
+n/(2*2*2...) = 1
+n/2^k = 1
+n = 2^k
+k = logn by definition of what logarithm is
+
+
+Example 03:
+
+void foo(int n)
+{ 
+	while (n > 1) {
+		n = n / 3;
+	}
+}
+
+starting with n, we are going towards 
+
+n/3/3/3/3/3... = 1
+3^k = n
+k = log3(n)
+
+Logarithm conversion from arbitrary base b to base2:
+log2(n) = logb(n)/logb(2)
+
+
+Example 04: Subset sum
+
+Input: An array A with n elements and a number K
+Question: Does A contain a subset of elements that adds up to exactly K?
+
+E.g target number is 117
+my leather pouch contains
+	2,5,13,15,19,27,35,39
+
+Brute force is the only way to find this today. Nobody has proved that an alternative exists
+or does not exist
+
+We enumerate all the different subsets and add them
+	We can use a bit string to represent the inclusion/exclusion
+	
+	0 0 0 0 0 0 0 0
+	0 0 0 0 0 0 0 1
+				1 0
+				1 1
+			  1 0 0
+
+Count the number of states of this bit string that is exactly a byte in our case
+
+256 subsets
+2^n subsets
+Adding each subset is on average n/2 elements 
+Final runtime is 0(n*2^n)
+
+------------------------------------------------------------------------------------
+
+Day 13
+
+No Lecture
+
+-----------------------------------------------------------------------------------------
+
+Day 14
+
+Selection sort intuition:
+	Pluck the smallest available number and drop it in the index closest to 0.
+	Smallest number goes in 0, 2nd smallest number goes in index 1, etc
+	
+	
+Array: 4 3 2 1
+
+
+1st pass: 1
+
+1 3 2 4
+
+1 2 3 4
+
+1 2 3 4
+
+On average, the inner loop runs for n/2
+Total performance 0(n) * 0(n/2) = 0(n^2)
+	
+Code:
+public static void selectionSort(int[] arr) {
+	for (int i = 0; i < arr.length - 1; ++i) {
+		int minIndex = i;
+		for (int j = i+1; j < arr.length; ++j) {
+			if (arr[j] < arr[minIndex]) {
+				minIndex = j;
+			}
+		}
+		int temp = arr[i];
+		arr[i] = arr[minIndex];
+		arr[minIndex] = temp;
+	}
+}
+
+- - - - - - - - --  -- 
+
+
+Insertion Sort
+
+Intuition:
+Starting at index 1, insert the current element int its correct place among the previous indices
+
+Example:
+
+4 3 2 1
+
+3 4 2 1
+
+2 3 4 1
+
+1 2 3 4
+
+
+Code:
+InsertionSort(int [] A)
+n = A.length
+for (i = 1; i < n; i++)
+	target = A[i]
+	j = i - 1
+	while j >= 0 && target < A[j]
+		A[j+1] = A[j]
+		--j
+	A[j+1] = target
+	
+Worst-case scenario: reverse sorted array: all indices have to propogate to the beginning.
+No early termination of inner iteration. On average, n/2 per inner iteration.
+O(n)*O(n/2) == O(n)*O(n) = O(n^2)
+
+Best-case: sorted or nearly sorted array: Inner loop terminates immediately every time
+O(n)*O(1) = O(n)
+
+
+Comparison
+1. both have the same wors-case performance: O(n^2)
+2. selection sort is easier to comprehend/implement
+3. Selection sort always operates at the worst case performance, while insertion sort can
+terminate early for nearly sorted arrays
+
+Of the two, insertion sort is a better algorithm, because real-world data is frequently
+nearly sorted.
+
+- - - - - - - - ---  -- - - -  - - 
+
+Exam Review
+
+Interface, abstract classes, polymorphism, dynamic binding -> 1st question
+
+overriding of java default methods and equals -> @Override (need object parameter)
+
+cloning and deep copying -> 
+
+static variables and exceptions -> know the different types of exceptions
+
+big-O Runtime Analysis -> know how to read programs to find Big-O (look for tricks)
+
+Selection Sort -> Know how to write it and know how it works (be able to write out the steps)
+
+Insertion Sort -> Know how to write it and know how it works (be able to write out the steps)
+
+
+Day 15
+
+
+Day 16
+
+"How to sort arbitrary objects?"
+
+Imagine selectionSort
+
+Sorting doubles:
+
+Basically just selectionSort but take in a double[] and make temp a double
+Considered overloading
+
+
+How to sort arbitrary objects?
+ - Comparable and Comparator
+ 	- Comparable - sorts on a single "predominant" trait
+ 		- Strings are an example of a class where one trait is most important
+ 			- Alphabetical ordering (lexicographical order)
+ 		- Since this trait is the primary comparison axis, the object is supposed to know
+ 		  how it ranks according to it
+ 		  
+ 		- That is why:
+ 		
+ 		  /**
+ 		  * Must implement a compareTo() method to conform to the contract of Comparable
+ 		  */
+ 		  public class String implements Comparable<String> {
+ 		  
+ 		  	/**
+ 		  	* rhs = right-hand side
+ 		  	* lhs = left-hand side
+ 		  	*/
+ 		  	public int compareTo(String rhs) {
+ 		  		//Already implemented in Java
+ 		  		//returns < 0 if current string (lhs is smaller than rhs (the paramter))
+ 		  		//returns > 0 if lhs > rhs
+ 		  		//returns 0 if lhs == rhs
+ 		  	}
+ 		  }
+ 		  
+ 		  String name1 = "John Doe";
+ 		  String name2 = "Jane Doe";
+ 		  
+ 		  if (name1.compareTo(name2) < 0) {
+ 		  	Syso(name1)
+ 		  	Syso(name2);
+ 		  }
+ 		  else if (name1.compareTo(name2) > 0) {
+ 		  	Syso(name2);
+ 		  	Syso(name1);
+ 		  	
+ 		  }
+ 		  else {
+ 		  	//compareTo() returns 0, so the two strings must be the exact same string
+ 		  }
+ 		  
+ 		  
+ 		- Ordering objects may happen by magnitude or by rank order (or order of precedence)
+ 		  or order of preference
+ 		- For example, consumer preferences in economics are rank orders: 
+ 		  Somebody likes apples better than bananas.
+ 		  For one client, bananas > apples
+ 		  But for another, apples > bananas
+ 		  
+ 		  Comparable can be used in this sense as well
+ 		  
+ 		- Results from the method:
+ 		  x.compareTo(y) < 0 ~~ x < y		this < param
+ 		  x.compareTo(y) = 0 ~~ x == y		this == param
+ 		  x.compareTo(y) > 0 ~~ x > y		this > param
+ 		  
+ 		  
+ 		- A small problem: hard to find real-world objects that have a dominant trait
+ 		- Comparable should be used for objects that have a NATURAL ordering, such as strings.
+ 		  The comparison is implemented in the object, but these classes are few in number
+ 		------------
+ 		- But what about all the complex classes that have multiple criteria?
+ 		------------
+ 		- For these we have a Comparator<T>
+ 		  
+ 	- Comparator
+ 		- T is a type parameter, meaning a type name goes into this parameter.
+ 		  It may accept many different classes
+ 		  
+ 		  
+ 		  	/**
+ 		  	* Use for objects which have many criteria they can be compared on
+ 		  	*/
+ 		  	interface Comparator<T> {
+ 		  	
+ 		  		/**
+ 		  		* Takes two objects of the type we want to compare
+ 		  		*/
+ 		  		int compare( T lhs, T rhs)
+ 		  	}
+ 		  	
+ 		- A comparator is a "Judge" objects
+ 			- the job of the object is to compare two other object on some axis
+ 			- Example: employee is a cornerstone object for HRM (human resource management)
+ 				- We can compare employees on two different criteria,
+ 				  for example:
+ 				  - salary
+ 				  - tenure (years with company)
+ 				  
+ 				    public class SalaryComparator implements Comparator<Employee> {
+ 				    
+ 				    	@Override
+ 				    	public int compare(Employee lhs, Employee rhs) {
+ 				    		return lhs.getSalary() - rhs.getSalary();
+ 				    	}
+ 				    }
+ 				    
+ 				    // aside: T is now Employee. Everywhere in the object that declared T
+ 				    // to be Employee, T will be replaced with Employee by the Comparaotr
+
+
+Day 17
+
+Merge sort
+
+Advantage of selection sort: low cost
+Advantage of insertion sort: amazingly fast for nearly sorted data sets
+
+Remaining sorts for 2280:
+Merge sort - great for sorting data sets larger than memory (database)
+Quick sort - great for sorting data in memory
+Heap sort - also good for sorting in memory
+
+The above three are used interchangeably
+All 3 are O(nlogn)
+
+Intuition of merge sort:
+1. It is a "lazy" algorithm, which is a a compliment in the world of algorithms because
+   it burdens the processor less.
+   
+   What makes an algorithm lazy?
+   Avoiding or deferring work.
+   
+
+
+MERGESORT(A)
+	n = A.length
+	
+	//Step 0 is a recursive algorithm should always be the termination condition
+	
+	if n <= 1 return A
+	m = n/2
+	B = [A_0.....A_m]
+	C = [A_m+1.....A_n-1]	
+	B = MERGESORT(N)		O(1)
+	C = MERGESORT(C)		O(1)
+	A = MERGE(B, C)			? = O(n)
+	return A
+	
+merge() intuition
+	String a necklace from green and red beads in two separate mounds, but pick them
+	in order of size, and not color
+	
+	
+	D=MERGE(B,C)
+		p = B.length, q = C.length
+		create an empty array D of length p+q
+		i = 0, j =0, k=0
+		while i < p && j < q		//(O(n)
+			if B[i] <= C[j]			  // b/n n/2 and n-1
+				D[k] = B[i]
+				i++
+				k++
+			else
+				D[k] = C[j]
+				j++
+				k++
+				
+		if i >= p							//at most n/2 is O(n)
+			//append C[i],...,C[q-1] to D
+			while (j < q)
+				D[k] = C[j];
+				j++;
+		else
+			while (i < p)
+				D[k] = B[i];
+				i++
+		return D
+		
+Total work in merge is O(n)
+		
+	
+Big-O Analysis
+1. Recursive method, so we have to count invocations or total work somehow
+2. Check for loops in one invocation
+
+
+Day 18
+
+Quicksort: recursive, in-place sorting. lazy again
+
+Merge sort is used for larger-than-memory sorting, most prominently in databases.
+Quick sort is used for in-memory sorting
+
+<T>
+<K, V>
+
+1. Lazy (like Merge sort)
+   - It only sorts one element per invocation
+2. Recursive
+
+Intuition of partition()
+
+Sort a pre-selected element in place (PIVOT):
+Select by always picking last index.
+
+ALL the numbers smaller than the pivot will be moved to the beginning of the array.
+ALL the numbers larger will move to the end of the array, in arbitrary order.
+
+After we have moved all the smaller numbers IF we have kept count of them, we can put
+the pivot at that location.
+
+
+Precondition: 0 <= first <= last <= arr.length-1
+
+Postcondition: 
+
+[...][ elements <=
+
+
+
+public static void quickSort(int[] arr) {
+	//calls recursive version
+	quickSortRec(arr, 0, arr.length-1); // first and last indices
+}
+
+private static void quickSortRec (int[] arr, int first, int last) {
+	//Ending condition - size 1 or less
+	if (first >= last) return;
+	
+	// return the index of one correctly sorted element;
+	// that is p
+	// the sorted element was called the pivot
+	int p = partition(arr, first, last);
+	
+	quickSortRec(arr, first, p - 1);
+	quickSortRec(arr, p + 1, last);
+   
+   
+ Partition example: 
+ Example with picking p to be the LAST index:
+ pivot is the element at arr[p] == arr[last]
+ 
+ 				4 9 1 5 2 3
+ 			   /     |     \
+ 			 1 2     3     5 9 4
+ 			/  |
+ 		   1   2
+ 			 
+ 			 
+ 			 
+ 			 
+ PARTITION (arr,first,last)
+ 	//select pivot index somehow: here
+ 	// it is the last index
+ 	pivot = arr[last]
+ 	// this is the small number counter
+ 	i = first - 1
+ 	
+ 	for (j = first; j < last; j++)
+ 		if (arr[j] <= pivot)
+ 			i++
+ 			swap arr[j] and arr[i]
+ 	
+ 	// glue the pivot to the right side of the small numbers subarray
+ 	swap arr[i+1] and arr[last]
+ 	// return index of the correctly sorted number
+ 	return i + 1
+ 	
+ 	
+ 	
+Examples:
+i	<- - i counts smaller numbers we found
+	j
+	0 1 2 3 4 5 6 7	< - - indices of the array
+
+
+i
+	j
+	44 33 17 9 8 0 90  24
+	
+	i
+		   j
+	17 33 44 9 8 0 90 | 24
+	
+	...
+	
+	       i
+	    	       j
+	17 9 8 0 44 33 90 | 24
+	
+		   i
+		   		   j
+	17 9 8 0 |24| 33 44 90
+	
+	
+Performance (Big-O):
+1. Check for recursive: Yes
+2. Check for nested loops: No
+
+Takeaway: 
+Figure out
+1. performance of partition) - O(n)
+2. number of quickSortRec() calls
+
+Best-case scenario:
+k = logn because it i the exact same as the case for Merge Sort
+Merge Sort ALWAYS splits in half
+
+IF we are splitting the array, it will be logarithmic.
+
+Worst-case scenario:
+Fully sorted array or reverse-sorted array:
+	
+1 2 3 |4
+1 2 | 3
+1 | 2
+1
+	
+ If we pick last, we NEVER split the array.
+ O(n) depth of invocation.
+ O(n) work on average per depth of recursion
+ and we have O(n) depth
+  
+ So worst-case is O(n^2)
+   
+   
+How do we adjust the pivot to handle the worst case?
+
+Pivot selection:
+1. Pick the pivot at random. -- then we no longer worry about sorted arrays
+
+2. Pick 3 or 5 numbers at random and select the median number as pivot.
+   This guarantees the sequence will always be split.
+   
+   Makes it theoretically possible to hit the worst case, but it is much harder than
+   winning the lottery
+   
+
+DAY 19
+
+Sorting stability
+-----------------
+Sorting when multiple variables are present.
+Sorting on one variable, but another one is also there.
+
+Alice	20
+Bob		19
+Cindy	22
+Dan		19
+
+We sort the above on age.
+
+
+Two possibilites:
+Stable:
+Bob Dan Alice Cindy
+or
+Not stable:
+Dan Bob Alice Cindy
+
+A stable sorted order is one where the original duplicates' order is preserved
+
+
+Sorting with generic type arguments:
+
+Sorting in the 90s - up to Comparator<t>
+	- for each object type you wanted to sort, you gave to have a separate method
+	
+Around 2003, Java introduced Generics, which allow us to use "any" object
+
+e.g
+ArrayList<Bee>()
+
+Generics are what is called "type variables"
+
+- - accepts an interface or a class as its value
+
+If you have a type variable, it is declared in angle brackets before the return type
+or a method OR after the name of a class/interface.
+
+e.g.
+public static <T> void selectionSort(T[] arr, Comparator<t> comp) {
+	regular selection sort
+	
+	// String is changed to T
+	T temp = arr[i]
+	arr[i] = arr[minIndex]
+	arr[minIndex] = temp
+	}
+}
+
+Usage of a generic method does not cause a burden on the client:
+
+selectionSort(myEmployees, new SalaryComparator);
+(same as if we had selectionSort(Employee[] arr, Comparator<Employee> comp)
+
+
+What is the mechanism of using these generic methods?
+
+The compiler mass-replaces all instance of a type variable with the first parameter that
+it saw in the client code. 
+In the above example, T is replaced everywhere with Employee method.
+
+The Java runtime does not understand Generics.
+
+In ~2003   ---   we already have billions of dollars in Java code and 12 years of legacy code
+
+To protect the legacy code, Generics remained unknown to the runtime
+
+How to use generics with a class/interface?
+
+Put the generic variable after the type name. It will be replace everywhere in the class
+eg.
+interface Comparator<T>{
+
+	int compare(T lhs, T rhs);
+	
+}
+
+Usage:
+
+public class SalaryComparator extends Comparator<Employee>{
+	@Override
+	int compare(Employee lhs, Employee rhs) {
+		//Implementation
+	}
+}
+-----------------------------------------------
+Another example:
+
+ArrayList<Bee> myBees = new ArrayList<>();
+// all elements in myBees are now Bee
+----------------------------------------------
+You can write anything as the label of your type variable, such as "clientClass"
+but by convention, e use sinle-letter upper case variable names.
+
+Common names and what they mean:
+T - type
+K - key
+V - value
+E - element
+
+MyArrayListImplementation<E>
+  - - the "E" reminds that the generic data is the element.
+
+
+-----------------------------
+What is the meaning of the below idioms?
+<? super T>
+<T extends <? super T>
+-----------------------------
+
+<?> = wild card
+<?> means "Any type goes here" or "Accept all objects"
+
+The reason the complex idioms exist is because the runtime does not understand generics, 
+and the compiler does not run the program, so it only understands the static relationships
+inside the brackets, and because of mass-replace.
+
+<? super T> means "T AND Any object that is an ancestor of T"
+
+Why do we need it? So sorting behaves exactly as we want.
+Trying to make the method for sorting without it:
+
+public static <T> void selectionSort(T[] arr, Comparator<T> comp{...}
+
+This will accept all objects which have comparators defined on themselves.
+
+But what if Comparator was defined on an ancestor object?
+
+Inheritance interacts with generics in strange ways because generics are at the compile level.
+
+Example:
+Assume Bee has an InsectComparator.
+It compares on size and color.
+Works normally without generics.
+
+WITH GENERICS:
+selectionSort(myBees, new InsectComparator());
+
+will cause a compile error. Translated into English, the compiler is saying:
+"But sir/madam, you told me to accept objects that have Comparator defined on them.
+You did not pass me a Comparator<Bee>"
+
+This is because the compiler mass-replace T with Bee as soon as it say myBees, therefore
+creating the code
+
+public static void (Bee[] arr, Comparator<Bee> comp);
+
+You cannot pass Comparator<Insect> to that method,
+
+Horse-whispering to the compiler:
+"OK, accept all objects that have Comparators defined on themselves or any ancestor"
+
+This is:
+public static <T> void selectionSort(T[] arr, Comparator<? super T? comp)
+
+"super" means "ancestor of"
+--------------------------------------
+
+What about:
+<T extends <? super T>
+-------------------------------------
+
+This is used with comparable-requiring sorts for the same reason as above
+
+Assume Bees are Comparable in Insect.
+Insect is Comparable, and Bee inherits that
+
+Trying to write a correct generic method
+Attempt 1:
+public static <T> void selectionSort(T[] arr);
+Usage:
+selectionSort(myBees);
+	- throws a compile error
+	"But sir, you said you need a compareTo() method yet you expect me to allow any object.
+	 These two requirements do not match."
+	 
+	"Ok, Ok, accept only objects tha have compareTo() defined"
+	
+Attempt 2
+public static <T extends Comparable<t>> void selectionSort(T[] arr)
+Usage:
+selectionSort (myBees);
+	- throws a compile error:
+	"But sir, you asked me to allow objects which have Comparable on themselves.
+	 Bees do not have comparable on themselves"
+	 
+	 Response:
+	 "OK, then accept objects that have implemented Comparable either themselves or in an ancestor"
+	 
+Attempt 3:
+public static <T extends Comparable<? super T>> void selectionSort(T[] arr, Comparator<? super T> 
+																							comp)
+
+
+
+DAY 20
+
+--------------------
+Generics and erasure
+--------------------
+
+Last time, we discussed the compiler being the sole owner of generic-related functionality.
+We would have liked the runtime to be used, but it was not affordable.
+
+
+Preliminary:
+instanceof is a keyword meaning:
+	"A object of or a descendant of a class"
+	- - asymmetric comparison
+	getClass() with equality works, because it is symmetric
+
+Code before generics:
+
+ArrayList arr = new ArrayList();
+arr.add(new Bee(1, "yellow","hill"));
+arr.add(new Locust(1, "brown"));
+for (int i = 0; i < arr.size(); ++i) {
+	Bee b = (Bee) arr.get(i); // need downcast
+	b.makeHoney(); // Will cause a ClassCastException on the second iteration for the second
+				   // element in the arraylist because the cast is incompatible	
+}
+
+With Generics:
+
+ArrayList<Bee> arr = new ArrayList<Bee>();
+arr.add(new Bee(1, "yellow","hill"));
+arr.add(new Locust(1, "brown")); // error is now caught at compile time
+for (int i = 0; i < arr.size(); ++i) {
+	Bee b = arr.get(i); // no downcast
+	b.makeHoney();
+}
+
+
+Erasure: type variables disappear in compiled code; (anything in angle brackets)
+Only the upper bound of the class type is kept.
+e.g. Object or Comparable
+
+
+With Generics:
+public Class genTest {
+	public static void main(String[] args) {
+		ArrayList<String> arr1 = new ArrayList<String>();
+		ArrayList<Insect> arr2 = new ArrayList<Insect>();
+		
+		arr1.add("Hello, world!");
+		arr2.add(new Mantis(1, "green"));
+		String 2 = arr1.get(0);
+		Insect p = arr2.get(0);
+		
+		Syso(s); // Hello, World!
+		Syso(p.getColor()); //green
+		Syso(arr1.getClass() == arr2.getClass()); // TRUE
+												  // they are converted to Object-storing
+												     arraylists
+												  									  
+No generics:
+public Class genTest {
+	public static void main(String[] args) {
+		ArrayList arr1 = new ArrayList();
+		ArrayList arr2 = new ArrayList();
+		
+		arr1.add("Hello, world!");
+		arr2.add(new Mantis(1, "green"));
+		String 2 = (String)arr1.get(0);
+		Insect p = (Insect)arr2.get(0);
+		
+		Syso(s); // Hello, World!
+		Syso(p.getColor()); //green
+		Syso(arr1.getClass() == arr2.getClass());
+
+
+
+The overarching practical result is that the runtime is blind when it comes to generics - they do
+not exist at its level. Instead, it has a reference of the upper bound of the generic, usually
+Object but may be an interface like Comparable (if you used <T extends Comparable<? super T>>)
+									(inside angle brackets, extends is used for implements as well)
+										
+Because of erasure:
+You cannot perform runtime checks or operations that involve knowing the class of the generic
+
+new T(),		//rewritten as Object()
+new T[],
+x instanceof T	//will be TRUE always because T is most likely Object
+
+will not compile.
+Because T will be Object at runtime
+
+Casting to a generic is meaningless:
+E myObject = (E) other; //meaningless because casting to object
+
+Object myObject = (Object) other; //translation from above
+
+
+Creating a generic array:
+
+E[] arr = )E[]) new Object[10];
+
+-- will cause a warning but will be allowed because it is necessary to create a generic array
+-- the above will not work without casts inserted downcast to the specific object type, which
+   is unknown at runtime (done by compiler)
+
+---------------------------------
+
+---Collections-------------------
+
+Java word for ADT (abstract data types)
+
+Abstract data type - some contained of elements of the same type.
+The actual storage mechanism may be missing and is unavailable to the client (which is why
+the data type us abstract)
+
+The contained also comes with methods to retrieve and store elements
+
+This is what we mean by "data structures"
+array is not an ADT but it is a data structure
+	ADTs have methods and array is not supposed to (but it does in Java, so technically it is
+	an ADT)
+
+All containers in Java inherit from Collection, which is an Interface.
+	-- it specifies how the simplest possible container should work
+	-- an example is a tote bag or a bucket or a flour sack
+		-- array is more complicated because it has numbered elements
+			-- more like a bandolier
+			-- or a slotted belt
+
+Absolute minimum number of Methods required:
+
+Collection:
+-----------
+
+boolean add(E item)
+int size()
+boolean contains(Object obj)
+boolean remove(Object obj)
+Iterator<E> iterator() //Java finessing the architecture for fancy programs
+
+Comparator is a judge object
+
+Iterator is a traversal object whose duty is to present all elements of a container in a single
+sequence,
+each element participating exactly once
+It creates a sequence out of the collection.
+
+Including iterator is an architectural decision that makes it easier to work with very complicated
+data structures
+Iterator hinders beginner students because it adds unnecessary complexity
+
+Iterator: - you have to get it from the Collection with iterator(), which returns an Iterator
+(it is an interface that you have to make a class for)
+----------
+boolean hasNext() //true if there are still elements we haven't traversed to
+				  //false if we have served every element exactly once
+E next()		  //serves one element to the client
+void remove()	  //deletes the last-served element (cannot be called if next() has not been
+					called.
+				  //cannot call it twice in a row either)
+
+foreach loops
+
+
+
+DAY 21
+
+stub method = not abstract but only announces some functionality, e.g. "LoadFile called"
+
+ArrayList vs linked list
+List vs list - storing data in
+|				arbitrary locations
+sequential with indices
+
+---Collections-------------- (more elementary than an array)
+	- bucket or sack in the real world
+	- what are the necessary methods to use
+
+Collection<E>:
+ E stands for element
+ boolean add(E item)
+ int size()
+ boolean contains(Object obj)
+ boolean remove(Object obj)
+ Iterator<E> iterator() - also has a remove() method
+ 
+Iterator is what we use if we need a linear sequence of all elements
+ 
+Getting an iterator can only be done by asking the host collection
+ 
+
+Iterator<Employee> iter = myEmployees.iterator();
+while(iter.hasNext()) {
+	//next returns a pay load, in this case an Employee object, which does not need
+	//to be paid attention to if we do not need that pay load
+	Employee emp = iter.next();
+	Syso(emp.getSalary());
+}
+ 
+//iter.next() by itself just offers one pay load and moves to the next
+ 
+ 
+ 
+ ---Iterator-------------
+  boolean hasNext()
+  E next()
+  void remove()
+  
+  
+  
+Collection is an interface, and the implementation is left to us.
+We can have an ArrayCollection
+a LinkedListCollection
+a TreeCollection
+  
+foreach loops
+ - simplest loops in Java and can be called on any object that has an Iterator,
+   which is all containers/ADTs, They are just a syntactic tool making it a more
+   pleasant to work with container
+ 
+The above employee code can be rewritten as:
+		        "in"
+for (Employee emp : myEmployees) {
+	Syso(emp.getSalary());  
+}
+
+When the compiler sees this, they compile it to:
+
+Iterator<Employee> iter = myEmployees.iterator();
+while (iter.hasNext()) {
+	Employee emp = iter.next();
+	Syso(emp.getSalary());
+}
+
+// a rewrite of the nicer syntax to use iterator explicitly for the runtime
+
+Collection has no notion of order. Neither would a bucket
+
+If you need indexing for elements, you need a descendant o Collection, which is List.
+  
+
+DAY 22
+- TEACH SKIPPED
+
+
+DAY 23
+
+Collection is an interface
+Abstractcollection . . .
+
+Concept: 
+primitive version of Java's ArrayList without all the nice utility features
+
+Core methods vs utility methods
+- core methods are methods that add new functionality that is not duplicated elsewhere.
+  if the core method is missing, its objective cannot be achieved.
+- utility methods are convenient combinations of core methods.
+  if a utility method is missing, the client can still accomplish the utility method's job by
+  by invoking a sequence of core methods.
+
+
+int size
+array of elements
+
+public class firstCollection<E> extends AbstractCollection<E> {
+	private static final int DEFAULT_SIZE = 10;
+	private E[] data;
+	private int size;
+	
+	/**
+	* Default constructor; need another one
+	*/
+	public FirstCollection() {
+		this(DEFAULT_SIZE);
+	}
+	
+	/**
+	* Parameterized constructor
+	*/
+	public FirstCollection(int intitialCapacity) {
+		data = (E []) new Object[initialCapacity];
+		size = 0;
+	}
+	
+	@Override
+	public int getSize() {
+		return size;
+	}
+	
+	@Override
+	public boolean add(E item) {
+		/* Implementation details:
+			the number of inserted elements is size. We can insert a new element at data[size].
+			If data[size] does not exist, we should copy over all elements into a new, larger
+			array. Say 2* larger size.
+		*/
+		
+		checkCapacity(); //private helper method that doubles the array size if necessary
+		data[size] = item;
+		size++;
+		return true; // if it was false, outOfMemory error
+	}
+	
+	@Override
+	public Iterator<E> iterator() {
+		return new MyIteraator();
+	}
+	
+	/**
+	* Ensures that the backing array has space to store at least one additional element
+	*/
+	private void checkCapacity() {
+		if (size == data.length) {
+			data = Arrays.copyOf(data, data.length * 2);
+			
+			
+			/*alternatively*/
+			E[] newData = (E[]) new Object[data.length*2];
+			for (int i=0; i < data.length; i++) {
+				newData[i] = data[i];
+			}
+			data = newData;
+		}
+	}
+	
+
+CheckCapacity Big-O: O(n)???
+
+It is O(n) per invocation BUT these invocations are rate enough that the overall cost of insertion
+O(!)* read
+"O(1) amortized" meaning, inserting n elements costs O(n) even if a single element may take longer.
+
+Elements copied while inserting n elements:
+
+Starting with initial size 1.
+
+Inserting a second element:
+Copy one element over.
+
+Inserting a third element:
+Copy two elements over
+
+etc...
+
+Overall, assume we have an array of size 2^p for some integer p.
+We copied 
+1+2+4+8+...+2^(p-1) elements to get to this size
+
+To insert n elements, we perform up to n - 1 additional copy operations, which means
+the total cost is O(n)
+the per-insertion cost is O(1)*
+
+This means the insertion algorithm is efficient. (Even if the client has to wait every now and 
+then)
+
+-----Iterator---------------------
+
+Inner class for firstCollection so it can see the private items
+
+hasNext()
+next()
+remove()
+
+Iterator concept/intuition:
+need a cursor variable that will be pointing to the index of the next element to be served
+
+We need a boolean canRemove, because remove() only allows deletion AFTER a next()
+
+Cannot call remove() twice in a row
+
+If we COULD, we would have the side effect of advancing through the data collection
+
+a side effect is defined as "any functionality not mentioned in the method name"
+
+Side effects are the reason why large projects proceed slowly.
+
+
+DAY 24
+
+List is an array-like INTERFACE
+list (linked list) is an array storage alternative
+
+---FirstCollection Iterator--------------
+
+Inner class for FirstCollection so it can see the private items
+
+/* cursor always sits on the index of the most unserved element. 
+   At the beginning of iteration, it will be 0. It will be 1 after one next().*/
+boolean hasNext()  {return cursor < size; }
+E next()
+
+public-private-public
+ -- access idiom (restricts access to the nested class. 
+    The constructor is invisible outside of the enclosing class.)
+    	The only way to receive access is to ask the enclosing class through iterator().
+    	Once access is granted, the client can use the public members.
+    	
+The fact that Iterator is a private class means it has access to all private embers of Collection.
+It can manipulate it at will. But the access granted is constrained by the public members of
+the inner class
+
+remove() by contract (by what the interface requires) is only usable after a next() has happened
+Cannot call remove() twice in a row
+
+That's because remove() deletes the last element served by the iterator with next()
+(cursor - 1)
+
+It throws an IllegalStateException if called when no last-offered payload exists
+
+The reason remove() is peculiar like this is because it does not advance by itself.
+for architectural reasons - advancing is considered a side effect
+Side effect: any functionality not mentioned in the method name
+
+int cursor = 0;
+
+	@Override
+	public E next() {
+		if (cursor >= size)
+			throw new NoSuchElementException(); //always thrown by containers that have no
+												//element to serve
+		canRemove = true;
+		E result = data[cursor];
+		cursor++;
+		return result;
+		// alternative: 
+		return data[cursor++];
+	}
+	
+	
+	@Override
+	public void remove() {
+		if (!canRemove) {
+			throw new IllegalStateException();
+		}
+		// copy over right-side elements 1 index to the left
+		for (in i = cursor; i < size; ++i) {
+			data[i - 1] = data[i];
+		}
+		//the above deletes the target but we have 2 copies of the LAST element
+		data[size-1] = null;
+		--size;
+		--cursor;;
+		canRemove = false;
+	}
+	
+}
+
+Done with simple array Collection
+
+
+
+---Linked List----------------------
+Previous data structure has array weaknesses:
+1. delete is O(n) for a single element
+	- if array is sorted and you delete an element, you have to shift O(n) elements
+	  (n/2 on average) to close the gap
+	- if the array is unsorted, you have to search in O(n), then O(n) (n/2 on average
+	  elements copied one index to the left)
+	- This O(n) is considered to be highly inefficient
+	
+The reason we use it a lot is because our processors are fast, and dealing with modest sized arrays
+(tens of thousands of items) is instantaneous
+
+One other reasons arrays are not discarded is they can be loaded in processor cache
+
+Cache speed is ~1000 faster than normal memory
+	
+	
+2. Also array may be mostly empty and waste memory
+
+
+-------------------------------------------
+
+
+DAY 25 (day 24 extended content)
+
+Linked list is made of custom nodes in custom locations in memory.
+Each node structure holds 2 things: a  pay load E
+and an address of another node
+
+There is a "head" node reference, which like a locomotive engine, is the start of
+a linked list, which is like a train made of nodes.
+0 .... n train cars
+
+each one has
+1. E data (which is pay load)
+2. Node next (address of next train car)
+The final node's reference is null
+
+Singly Linked Lists are the most elementary of linked lists
+Lacks many methods but has a killer application so it is used a lot in the real world
+You can implement an efficient stack with a singly-linked null-terminated list
+It is power-efficient because of the shortness of the methods
+
+The designer does not specify the address of any new node (same as with arrays)
+
+
+public class NodeDemo {
+	// private so the client does not see it
+	private class Node<E> {
+		public E data;
+		public Node next;
+		public Node(E data) {
+			this.data = data;
+		}
+	}
+	. . . (more code in modules)
+}
+
+Creating the list:
+public class SinglyLinkedcollection<E>{
+	private Node head;
+	private int size;
+
+	//create an abc list
+	SinglyLinkedcollection() {
+
+		Node head = new Node("A");
+		head.next = new Node("B");
+		head.next.next = new Node("C");
+		size = 3;
+	}
+	// Below should have a private class Node (written right before this)	
+}
+
+So theoretically can we do:
+head.next.next.next.next.next.next...
+
+Yes we can
+
+But as soon as we pass 3 nodes we should roll a loop instead, because the repetitiveness
+may cause a miscount when reading.
+
+Assume a pay load exists 513 nodes into the train
+How do we search for it?
+
+First, do a traversal with a loop:
+
+Node current = head;
+while (current != null){
+	Syso(current.data);
+	current = current.next;
+}
+
+
+Searching for a pay load, E target, e.g, string "X"
+
+String target = "X";
+Node current = head;
+while (current != null) {
+	if (current.data.equals(target)) {
+		return true;
+	}
+	current = current.next;
+}
+return false;
+
+
+How to delete a node?
+- - by making the previous node's next point to the successor node of the current node
+
+for a list
+head->A->B->C->D->null
+If we want to delete C:
+
+head.next.next = head.next.next.next
+
+Strengths of linked list?
+O(1) delete because we just retarget a next reference, like above with head.next.next = ...
+
+
+
+Weakness of linked list?
+1. We can't do anything about losing binary search. We can no longer jump to an arbitrary location
+e.g the median element
+Have to take the scenic route to get to the median element and traverse over n/2 nexts.
+2. How do we get to the previous element?
+
+Node target = current
+Node current = head;
+while (current.next != target) {
+	current = current.next;
+}
+// at the end of this loop, current contains the previous node.
+The cost is O(n), because on average we have to traverse n/2 nodes
+We can eliminate this weakness by making a bi-directional linked list.
+
+Each node will now have
+
+E data
+Node prev
+Node next
+
+
+Doubly-linked List
+
+public class DoublyLinkedCollection<E> extends AbstractCollection<E> {
+	private Node head = null;
+	private int size = 0;
+	private class Node {	
+		public E data;
+		public Node next;
+		public Node previous;
+		
+		public Node(E data, Node next, Node previous) {
+			this.data = data;
+			this.next = next;
+			this.previous = previous;
+		}
+	}
+
+
+DAY 26
+
+//we need to implement add() size() for DoublyLinkedCollection
+//also a LinkedIterator<E> which needs next(), hasNext(), remove()
+//contains() and remove() from the collection itself are trivial when we have the iterator methods
+
+//when adding at the head: 
+Node newNode = new Node("w");
+newNode.next = head;
+if (head != null)
+	head.previous = newNode;
+head = newNode.next;
+//implicitly, newNode.previous == null because it was initialized to null.
+How to delete?
+head = head.next;
+
+//By adding at the head of a list, you reverse an input sequence
+
+	@Override
+	public int size() {
+		return size;
+	}
+	
+	@Override
+	public boolean add(E item) {
+		// add at beginning because Collection and not List
+		Node newNode = new Node(item, head, null);
+		if (head != null) {
+			head.previous = newNode;
+		}
+		
+		head = newNode;
+		++size;
+		return true;
+	}
+	
+	
+	// lots of potential iterators you can make depending on the situation
+	@Override
+	public Iterator<E> {
+		return (something)
+	}
+	
+	private class (something)
+	
+		private Node cursor = head;
+		private Node pending = null;
+		
+		
+		@Override
+		public boolean hasNext() {
+			return cursor != null;
+		}
+		
+		@Override
+		public E next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			pending = cursor;
+			cursor = cursor.next;
+			return pending.data;
+			
+			////// different way
+			
+			E returnValue = cursor.data;
+			pending = cursor;
+			cursor = cursor.next;
+			return returnValue;
+			
+			///////// different way
+			
+			pending = cursor;
+			cursor = cursor.next;
+			return cursor.previous.data;
+		}
+		
+		
+		@Override
+		public void remove() {
+			if (pending == null) {
+				throw new IllegalStateException()
+			}
+			
+			//unlink pending node
+			if (pending.previous != null) {
+				pending.previous.next = pending.next;
+			}
+			
+			if (pending.next != null) {
+				pending.next.previous = pending.previous;
+			}
+			
+			// if we're deleting the head, update head reference
+			if (pending == head) {
+				head = pending.next;
+			}
+			
+			-- size;
+			pending = null;
+		}		
+}
+
+
+-------------------------------------
+
+List Interface
+
+List vs Collection vs Linked List
+
+Collection: Java interface for a bucket
+List: Java interface for an array (mostly)
+linked list: storage data structure that is not an ADT. Made up of nodes
+
+List has everything in Collection
+List's additional features:
+	index
+	bi-directional iterator
+	arbitrary initialization location for iterator, e.g., start at index 17
+
+
+DAY 27
+
+nextIndex is cursor
+previousIndex is cursor-1
+(EXAM QUESTION)
+
+1. index
+	New methods:
+	From the List Object itself:
+	
+	void add(int k, E item): Add item at index k.
+	(aa(E item) is also inherited)
+	
+	E get(int k): Return the item at index k
+	
+	// replaces an element and returns the older element
+	E set(int k, E element): Set item k to element
+	
+	E remove(int k): Remove the item at index k
+	
+	Most of these methods are easy to implement if we have an iterator
+	
+2. Iterator that can start at any index and go forward and back
+
+	Examples
+	--------
+	Note: the interface methods are somewhat strange in their assumptions
+	
+	Initially:		A B C D E
+	add(2, X) =>	A B X C D E
+		- - pushes the underlying element one index to the right,
+			which triggers a cascading shuffle one index to the right
+	
+	Initially:		A B C D E
+	set(4, Y) =>	A B C D Y (returns E)
+	
+	Initially:		A B C D E
+	remove(1) =>	A C D E (returns B)
+	
+	Initially:		A B C D E
+	remove(size() - 1) =>	A B C D (returns E)
+	
+	Initially:		A B C D E
+	add(5, Z) =>	A B C D E Z
+		- - adding at index 6 or later will trigger an IndexOutOfBoundsException
+	------
+	iterator()
+	------
+	
+	New methods()		==cursor
+	nextIndex()			==cursor - 1
+	previousIndex()
+	*hasNext()
+	*next()
+	hasPrevious()
+	previous()
+	*remove()
+	set(E item) - - can be called multiple times in sequence. Still requires a next() previously
+					executed
+	add( E item)
+	
+	Remove() and set() dpeend on iteration direction 
+	(next() or previous()).
+	
+	next()		==> remove() to the left od cursor
+	previous()	==> remove() to the right of cusor
+	
+	Example:
+	
+	Initially:		|ABCDE
+	iter.next();	A|BCDE return A
+	iter.next();	AB|CDE return B
+	iter.next();	ABC|DE return C
+	iter.previous();AB|CDE return C
+	iter.remove()	AB|DE  Bye C
+	
+	When adding to the list, it will always be to the left of the cursor
+	
+	******
+	set() cannot be used after remove() or add(), but
+	needs a next() or previous() before.
+	CAN be repeated:
+	
+----------------
+DoublyLinkedList
+----------------
+
+1. AbstractSequentialList class hierarchy
+
+2. Dummy head node tail nodes
+
+Head's node index is -1
+
+Tail's node's index is n
+Neither of them carries payloads
+
+By using dummy nodes, we avoid having to code edge cases.
+Every node is guaranteed to have both a left and a right neighbor
+
+
+3. Constructor
+	public DoublyLinkedList() {
+		head = new Node(null);
+		tail = new Node(null);
+		head.next = tail;
+		tail.previous = head;
+		size = 0;
+	}
+	
+4. Helper methods
+
+4a. Insert node after current without incrementing size:
+private void link(Node current, Node newNode) {
+	Node newNode = new Node(item);
+		
+	//Order matters here
+	newNode.ext = current.next;
+	newNode.previous = current;
+	current.next.previous = newNode;
+	current.next = newNode;
+}
+
+4b. Remove node without updating size:
+private void unlink(Node current) {
+	current.next.previous = current.previous;
+	current.previous.next = current.next;
+}
+
+4c. Find node by index:
+private Node findNodeByIndex(int pos) {
+	Node current = head.next;
+	int i = 0;
+	while (i < pos) {
+		current = current.next;
+		i++
+	}
+	return current;
+}
+
+Big-O of above 3 helper methods:
+link(), unlink() in O(1)
+findNodeByIndex in O(n)
+
+5. 
+public boolean add(E item) {
+	Node newNode = new Node(item);
+	link(tail.previous,newNode);
+	size++
+}
+
+/**
+* Add at a particular index
+*/
+public void add(int pos, E item) {
+	if (pos < 0 || pos > size) {
+		throw new IndexOutOfBoundsException();
+	}
+	Node newNode =  new Node(item);
+	Node replacementTarget = findNodeByIndex(pos);
+	link(replacementTarget.previous, newNode);
+	// if list is empty, this results in:
+	//	head <-> newNode <-> tail
+	size++
+}
+
+
+DAY 28
+
+// Exotic Iterators continued  new exotic design for our iterator
+
+6. Iterator Constructors:
+
+public ListITerator<E> listIterator() {
+	return new DoublyLinkedIterator();
+}
+
+public ListITerator<E> listIterator(int pos) {
+	return new DoublyLinkedIterator(pos);
+}
+
+private class DoublyLinkedIterator implements ListInterator<E> {
+	// direction for remove() and set()
+	//Important: behind means TOTHELEFT
+	//ahead means TOTERIGHT of cursor
+	private static final int BEHIND = -1;
+	private static final int AHEAD = 1;
+	private static final int NONE = 0;
+	private Node cursor;
+	private int index;
+	/**
+	* Acts as an "extended boolean"
+	*  with 3 possible states instead of 2.
+	*/
+	private int direction;
+}
+
+cursor points to the node returned by next() or previous
+
+index is the int position of cursor
+
+cursor is asymmetric: after a next(), it resides on a node whose element has not been returned
+BUT
+after a previous(), it resides on the node whose element was last served !!!
+
+
+public DoublyLinkedIterator() {
+	this(0)l
+}
+
+public DoublyLinkedIterator(int pos) {
+	if (pos < 0 || pos > size) {
+		throw new IndexOutOfBoundsException("");
+	}
+	cursor = FindNodeByIndex
+
+
+
+1. Visualization of iterator
+
+
+
+
+2 method code
+nextIndex() {
+	return index;
+}
+
+previousIndex() {
+	return index - 1;
+}
+
+hasNext() {
+	return index < size;
+}
+
+hasPrevious() {
+	return index > 0;
+}
+
+next()			//collection
+previous()
+add()			//ALWAYS to the LEFT
+set()
+remove()		//collection
+
+
+E next() {
+	if (!hasNext()) {
+		throw new NoSuchElementException();
+	}
+	E returnValue = cursor.data;
+	cursor = cursor.next;
+	index++;
+	direction = BEHIND;
+	return returnValue; // or cursor.prev.data
+}
+
+E previous() {
+	if (!hasNext()) {
+		throw new NoSuchElementException();
+	}
+	cursor = cursor.previous;
+	index--;
+	direction = AHEAD;
+	return cursor.data; // asymmetric
+}
+
+public void add(E item) {
+	Node newNode = new Node(item);
+	link(cursor.previous, newNode);
+	//cursor.previous<->newNode<->cursor
+	++index;
+	++size;
+	direction = NONE;
+}
+
+void set(E item) {
+	if (direction == NONE) {
+		throw new IllegalStateException();
+	} 
+	if (direction == AHEAD) {
+		cursor.data = item;
+	}
+	else if (direction == BEHIND) {
+		cursor.previous.data = item;
+	}
+}
+
+void remove(E item) {
+	if (direction == NONE) {
+		throw new IllegalStateException();
+	} 
+	if (direction == AHEAD) {
+		Node nextCursorPos = cursor.next;
+		unlink(cursor)
+		cursor = nextCursorPos;
+	}
+	else if (direction == BEHIND) {
+		unlink(cursor.previous);
+		index--;
+	}
+	size--
+	direction = NONE;
+}
+
+Big-O:				Array    LnkedList
+get(int index)		O(1)     O(n) // adv. array
+contains(E item)	O(logn)  O(n) // adv. array
+size()				O(1)	 O(1)
+add()				O(1)	 O(1)
+remove(E item)		O(n)	 O(n)
+iterator.add()		O(n)	 O(1) // adv. LL
+iterator.remove()	O(n)	 O(1) // adv. LL
+iterator.set()		O(1)	 O(1)
+Add k items:		O(nk)	 O(n+k) // adv. LL
+(batch add k items 
+to arbitrary locations)
+
+
+DAY 29 (Lecture 23)
+
+--
+Stack
+--
+Aside: Use Deque (java.util.Deque) if you need a stack and the program is not embedded.
+java.util.Stack is deprecated
+(Deque = Doubly-ended queue).
+
+A stack is a card holder that can only be accessed from the top.
+
+A stack is the second canonical way to reverse input: push the input, then pop all,
+which will result in reversed input.
+
+public interface PureStack<E> {
+	void push(E item);
+	E pop();
+	E peek();
+	boolean isEmpty();
+	int size();
+}
+
+push() - put an item on the stack
+	data[top] = item;
+	top++;
+pop() - grab the top of the stack and remove
+	return data[top--];
+peek() - get the top value without removing
+	return data[top];
+
+
+Array implementation on pg7
+Linked list implementation p8
+
+Using a List as a backing store:
+	- ArrayList or DLList
+push() ==> add()
+peek() ==> get(Size() -1)
+pop() ==> remove(size() -1)
+isEmpty() ==> isEmpty()
+size() ==> size() 
+
+------------------
+Stack Applications
+------------------
+
+Parentheses matching
+
+{[(){[]}]()} is well formed
+([)] is not well formed
+
+Formally:
+g: a string of parentheses is well formed if:
+
+g is empty OR
+g has the form:
+	(a)b
+	[a]b
+	{a}b
+		where a & b are well-formed strings
+		
+Algorithm:
+	Parse a string of parentheses left-to-right
+		1. If opening parenthesis, push on stack
+		2. If closing parenthesis, pop stack and compare
+			: if mismatch or empty, return false
+	At end of loop, if !isEmpty(), return false
+	
+public static boolean parenthesesMatch(String input) {
+	char c, c2;
+	PureStack<Character> s = new ArrayBasedStack<>();
+	for (i = 0; i < input.length(); i++) {
+		c = input.charAt(i);
+		
+		if (c == '(' || c == '[' || c == '{') {
+			s.push();
+		}
+		
+		else {
+			try {
+				c2 = s.pop();
+			} catch (NoSuchElementException e) {
+				return false;
+			}
+			
+			if ((c == ')' && c2 != '(' )
+				|| 
+				(c == ']' && c2 != '[' )
+				||
+				(c == '}' && c2 != '{' )) {
+				return false;
+			}
+		}
+	}
+	//return true if stack is empty
+	//return false if stack is not empty
+	return s.isEmpty();
+}
+
+
+DAY 30
+Finished previous code segment
+Review:
+
+Exam: Look into linked lists (all the different types and when to use them)(understand them)
+	  Maybe into collections (not likely to be a major part of the exam)
+	  Might be asked not to implement a stack but how to do it
+	  Know merge and quick and how they sort
+	  Look into Big-O (not on exam 2)
+	  Sorting stability (two same numbers are sorted in a way that preserves the original sequence)
+	  look into generic sorter  (wild card)
+	  collection - iterator, hasNext, next, remove (know how to make all methods for all flavors)
+	  	array Collection
+	  	Doubly Linked Collection iterator
+	  	List Iterator
+	  	Doubly Linked List
+	  Know Linked Lists with just a tail, etc.
+	  parenthesis matching
+
+
+DAY 31
+No Class (wed/ 11/4)
+
+
+DAY 32
+
+Stack Applications(easy)
+
+infix is our word for "normal arithmetic representation"
+operator in-between operands
+
+postfix is the representation where the operator follows the two operands/
+
+postfix2infix - the same as evaluating postfix
+
+Same algorithm that evaluates a postfix expression also converts it to infix (with parentheses)
+
+IF we have numbers as our operands, we get a single result. (postfix evaluation)
+
+If we have letters as our operands, the end result is the corresponding infix (human-readable) expression.
+
+Intuition:
+Given a string of numbers and operators:
+	go left-to-right through the tokens
+	Tokens will usually be strings themselves
+	
+	One way to convert strings is to use String.split(" ")
+	-22 - 2 will turn into -> [-22][-][2] (array of strings)
+	
+	We use a stack to evaluate. The stack will only hold numbers
+	Parsing the input left-to-right. If the current token is an integer, push(token)
+									 If the current token is an operator, pop() into rhs location
+									 									  pop() into lhs location
+									 									  push(lhs op rhs)
+									 									  If cannot pop, throw
+									 									  IllegalArgumentException
+									 At the end of the loop, if the size of the stack is not 1, throw
+									 									  IllegalArgumentException
+	Code:
+	if number, push
+	
+	
+	
+	
+	public static int postfixEval(String input) {
+		PureStack<Integer> s = new ArrayBasedStack<>();
+		
+		String[] tokens = input.split(" ");
+		for (i = 0; i < tokens.length; i++) {
+			String op;
+			String token = tokens[i];
+			int current;
+			//check if integer
+			try {
+				current = Integer.parseInt(token)
+			catch (NumberFormatException e) {
+				op = token;
+				eval = true
+			}
+			
+			if (eval)
+				s.push(calclateResult(s.pop(), s.pop(), op));
+			else
+				s.push(current);
+		}
+		
+		if (s.sze != 1)
+			throw new IllegalArgumentException();
+			
+		return s.pop();
+	}
+	
+//**technical issue:
+	//how to convert "*" to *
+	
+	private int calculateResult(int lhs, int rhs, String op) {
+		int result;
+		
+		switch(op){
+			case "+":
+			case "plus":
+				result = lhs + rhs;
+				break;
+			case "-":
+			case "minus":
+				result = lhs - rhs;
+			case "*":
+			case "multiply":
+				result = lhs * rhs;
+				break;
+			case "/":
+			case "divide":
+				result = lhs / rhs;
+				break;
+			case "%":
+			case "modulus":
+				result = lhs % rhs;
+				break
+			**// one more operator (probably parentheses?)**
+			
+			default:
+				throw new IllegalArgumentException(op+" is not a recognized operator.");
+		}
+	}
+	
+
+
+Assume we have letters instead: ten it converts from postfix to infix:
+
+(a + b) * c
+
+ab+c*
+
+Works just as well (think about it on a stack)
+
+PEMMDAS:
+() > ^ > * == / == % > + == -
+			
+Associativity:
+
+when have repeated instances of the same operator, which one is evaluated first?
+
+left-associative means left instance of the operator is evaluated first: +,-,*,/,%
+
+8-5-1 is (8-5)-1
+8/5/1 is (8/5)/1
+8%4%2 is (8%4)%2
+
+- and /  and % is left-associative
+
+Multiplication and addition are not affected by associativity. For simplicity of coding, we assume
++ and * are also left associative, because it does not make a difference to them
+
+By contrast, exponentiation is right associative, meaning
+
+2^3^4 is 2^(3^4) which is 2^81 as opposed to 8^4
+
+
+
+DAY 33
+
+We also need a check for malformed expressions
+
+All expressions should follow the pattern:
+	number operator number operator ... operator number
+- integer running tally of operators and numbers:
+- - called the rank of an expression
+- Starts at 1, must end at 1, and cannot leave the [0..1]
+Each number contributes +1
+Each operator contributes -1
+Each parentheses contributes +0
+
+Ex:		2 + 3 + 4 + 5 / 7 - 2
+Rank:	1 0 1 0 1 0 1 0 1 0 1 - pass
+
+Ex:		3 + + 4
+Rank:	1 0 -1 - fail
+
+Rank cannot account for correct parentheses
+
+Ex:		3 + 8 ) - 2
+Rank:	1 0 1 1 0 1
+
+How to deal with above problem?
+Convert to postfix and evaluate, and in the process we will catch stray parentheses
+
+
+2. Infix-to-postfix Algorithm
+Intuition:
+Single stack to hold operators
+Numbers go directly to output (the postfix expression)
+
+Going left to right,through the string tokens,
+we use 1 stack to hold operators and output numbers to the postfix expression.
+There is no processing on payload elements/numbers
+-----------------------------------
+If token is a number, append to output string
+Else: (p is also some Greek symbol)
+	p is the newly-read operator
+	while (!opStack.isEmpty() && prec(p) <= prec(opStack.peek()) {
+		sigma = opStack.pop()
+		append sigma to postfix
+	}
+	opStack.push(p)
+-----------------------------------
+At the end of parsing, pop() and append all remaining operators
+
+a * b / c + d
+=
+ab*c/d+
+
+
+public static int prec(String op, boolean fromInput) {
+	int result;
+	switch(op) {
+		case "+":
+		case "-":
+			result = 1;
+			break;
+		case "*":
+		case "/":
+		case "%":
+			result = 2;
+			break;
+		case "^":
+			if (fromInput) result = 4;
+			else result = 3;
+			break;
+		case "(":
+			if (fromInput) result = 5;
+			else result = -1;
+			break;
+		default
+			throw new IllegalArgumentException();	
+	}
+	return result;
+}
+
+
+3. Handling ^:
+Exponentiation is right-associative:
+the rightmost ^ should be evaluated FIRST.
+===>Therefore ^ should stack on the operator stack on top of each other AND on top of other operators
+
+Also, exponentiation should be evaluated first when compared to other operators
+
+We will have precedence 3 from stack and precedence 4 from input.
+
+
+4. Handling parentheses:
+Their job is to isolate subexpressions
+What we want is operators to NOT be able to pop left parentheses
+Only right parentheses should be able to pop left parentheses because that completes the evaluation
+
+d^(a+b)
+
+left parentheses cannot pop anything either!
+When from input, ( has highest precedence. == 5
+When on stack, ( has lowest precedence. == -1
+
+Closing parentheses: interpret them as a command:
+1. pop the stack until you see an open parenthesis
+2. pop and discard the open parenthesis
+	-- at this point the evaluation of the subexpression is complete
+
+
+DAY 34
+
+(Can be found on pdf)
+Queues
+	- A list with access only at its front and rear
+	
+Queue<E> interface in java.util
+- Contains all methods expected for a FIFO queue
+	- two flavors: one throws an exception, one gives 0 instead of exception
+- Can find the methods in the given pdf on the day Queues/Trees are mentioned
+
+
+Circular queue (using an array) 
+	last = (last +1) % a.length;
+	first = (first + 1) % a.length;
+effectively makes the array circular
+Empty or Full?
+if first == last
+we can't know
+
+Deque - a double-ended queue
+- allow insertion and deletion at both ends
+- construct a deque using a doubly-linked list
+
+
+Trees
+- minimally connected = T is disconnected if any edge is removed
+Maximally acyclic = T contains a cycle if an edge is added
+
+
+
+DAY 35
+
+Binary Trees
+
+Because we could not cheaply insert elements into sorted lists
+
+How to traverse trees?
+(how to get information out of them?)
+
+Four traversal methods
+three of them are recursive and one is not
+
+
+7
+ \						==> This tree can be constructed with the recursive definition of binary tree.
+  8							This is a "degenerate" tree because it does not branch
+   \
+    9
+     \
+      10
+
+Branching is information-carrying structure
+
+Three recursive traversals:
+
+Pre-order
+In-Order
+Post-order
+
+(programs can be found in the PDF files)
+
+Computing the height of a binary tree
+height of tree T is length of longest path
+if T is empty then height(T) = -1
+Otherwise, Let T_Left be the left subtree of T
+		   Let T_Right be the right subtree of T
+height(T) = 1 + max[height(T_Left + T_Right)]
+
+
+
+One non-recursive traversal:
+
+Level-order (go horizontally parallel on the binary tree(really hard to do))
+
+	8
+   / \		==> It would iterate as follows: 8 9 7
+  9   7
+
+
+**ALL BASIC CODE FOR THE TREES CAN BE FOUND IN THE PDF FILES**
+
+Expression tree construction
+- binary trees that have numbers and operators stored at the node
+ - these trees are used when a piece f code needs to understand an expression
+
+
+
+DAY 36
+
+Binary Tree cont'd:
+
+Starting with a post-fix string, we will turn it into a binary tree
+
+Exact same flow of logic as with post-fix evaluation
+
+Use a stack
+If the node is a number, push()
+If the node is an operator,
+	pop() in right subtree
+	pop() into left subtree
+	assemble a tree where the current operator is the root
+	push()
+At the end of this loop, we should have just one root node on the stack
+
+- - - - - - - - - - - - - - - - - - - - -
+
+Binary Search Tree
+
+Why binary search trees?
+	Bc searching is always accompanied by editing, and if searching were cheap, then editing was expensive.
+	
+	We want both to be cheap, and in a notn-worst-case scenario, a BST's findEntry(),
+	add(), delete() all run in O(logn)
+
+
+Binary Search Tree Property
+	At any node,
+		1. the left child is smaller than the parent
+		2. the right child is greater than the parent
+	
+	In-order traversal will give a sorted order of the items
+	
+The major weakness for BST is
+	We can generate a degenerate tree easily :(
+	
+With sorted or reverse-sorted data, building a tree will make a single limb:
+
+4
+ \
+  5				<== this is no different, performanc-wise, than a doubly-linked list
+   \
+    6
+     \
+      7
+      
+If a tree is not branching, it is called a degenerate tree. Every action this tree is O(n)
+because you start at the root and on average traverse n/2 elements
+
+In the real world, nearly-sorted data sets are common because they are usually pulled from databases
+
+The set mathematical concept:
+	a collection of unique items
+	Items may be abstract or even other sets
+	Example: some the feelings one can feel at the same time (all unique): {sad, happy} {happy}
+	
+	Subsets are like subtrees: a subset has 0..n elements of the original set
+	and unlike subtrees: a subtree must have the entirety of the nodes connected to the parent node.
+	A subset does not have any structural restrictions.
+	
+	Sets also disregard sequence (no order necessary)
+	
+	Sets of all nodes in a tree is V
+	Set of all edges is E
+	Size of a set V is |V| == n
+	
+A binary search tree can be used to represent a set. It will not accept duplicates
+
+
+Methods needed: add, remove, find
+
+-findEntry is searching
+-add also needs to find the correct location
+-remove (hard)
+-successor (hard)
+
+Worst-case is length of longest limb which is O(h) which is O(n) for a degenerate tree (h = height)
+
+Searching
+Intuition:
+
+	Starting at the root, we have a target element, which we will call key.
+	Key because all the elements are unique
+	
+	We will compare the key to the current nodes data.
+	
+	int result = key.compareTo(current.data);
+	
+	if result < 0, then key < current.data.
+		We need to traverse to the left, bc that is where the all the smaller numbers are
+	if result == 0, then we found our target
+	if result > 0, then key > current.data
+		we need to traverse o the right child
+		
+	We keep traversing until
+	1. we found target
+		or
+	2. current is null
+	
+
+find
+----
+
+protected Node findEntry( E key) {
+	Node current = root;
+	while (current != null) {
+		int result = key.compareTo(current.data)
+		
+		if (result == 0) {
+			return current;
+		.
+		.
+		
+		}
+	}
+	return null;
+
+
+Add
+---
+
+Intuition:
+	if there is no root, make the key the new root
+	
+	otherwise:
+	compare key to current.data
+	if result < 0, go left
+		if left DNE, make a new node with key as its payload
+		if left Does exist, compare against its payload
+	if == 0, we found the target we wanted to add, so we will not add
+	if result > 0, we do the same logic as for going left, except go right
+	
+code:
+
+@Override
+public boolean add(E key) {
+	if (root == null) {
+		root = new Node (key, null);
+		++size;
+		return true;
+		
+	Node current= root;
+	while (true) {
+		int result = key.data.compareTo(current);
+		if (result == 0) {
+			return false;
+		else if (comp < 0) {
+			if (current.left != null) {
+				current = current.left;
+			}
+			else {
+				current.left = new Node(key, current);
+				++size;
+				return true
+			}
+		}
+		else if (comp > 0) {
+			if (current.right != null) {
+				current = current.right;
+			}
+			else {
+				current.right = new Node(key, current);
+				++size;
+				return true
+			}
+		}
+	}
+}
+
+
+
+DAY 37
+
+Utility method: a method that we can compose from core functionality
+Helper method: a method that is a fraction of the core functionality
+Core functionality: methods that are necessary to accomplish a task
+
+remove
+successor - how to find the next largest number in the tree
+predecessor - how to find the next smallest number in the tree
+
+They use the same code
+
+
+Remove
+------
+
+Intuition:
+	There are 3 scenarios:
+	1. The node is a lead - 0 children
+	2. The node is a parent with one child
+	3. The node has two children
+	
+	
+public boolean remove(Object obj) {
+	E key = (E) obj;
+	Node n = findEntry(key);
+	if (n == null) {
+		return false
+	}
+	unlinkNode(n);
+	return true;
+	
+	
+Scenario 1:
+	search result is a leaf
+	if (result == result.parent.left)
+		result.parent.left = null;
+	else if (result == result.parent.right)
+		result.parent.right = null;
+		
+Scenario 2:
+	//check which child is present to later attach to the grandparent
+	Node replacement = null;
+	if (result.left != null)
+		replacement = result.left;
+	else if (result.right != null)
+		replacement = result.right;
+		
+	//check which child of the grandparent the parent-to-be-deleted is
+	if (result == result.parent.left)
+		result.parent.left = replacement;
+	else if (result == result.parent.right)
+		result.parent.right = replacement;
+		
+Scenario 3: what if both grand-children are present
+	Extremely helpful observation: the predecessor node and the successor node both have the exact same
+								   relationship with the rest of the tree as the result (deletion target) node
+	We replace (without loss of generality) with the successor node.
+	The resulting structure is very close to the original tree
+	BUT
+	we need to delete the original location of the successor so we do not have a duplicate payload.
+	
+	We are guaranteed that the successor (or predecessor) have at most one child
+	This means not only can we replace the original with another node; but also we will not do it recursively
+	
+	Here is how we know:
+	Where is the successor with regard to the deletion target?
+	
+	The deletion target is guaranteed to have two children, so the successor must be in the right subtree
+	The successor MUST be the smallest number in the right subtree
+	This is the LEFTMOST node in the right subtree
+	To find the successor, we make one step to the right, and 0..n steps to the left
+	
+	(basically the opposite thinking for the predecessor node)
+	
+	BECAUSE the successor is the leftmost node on the right, it is GUARNTEED to not have a left child
+	
+	We want to delete the original location of the successor, and it is either a lead or
+	a parent with a single child, so we can use scenario one or scenario two to delete that
+	
+	
+	
+	We are going to assume that successor() has been coded.
+	
+	Unlink
+	----
+	
+	protected void unlinkNode(Node n) {
+		//first convert scenario 3 to scenario 2 (or 1):
+		if (n.left != null && n.right !- null) {
+			Node s = successor(n);
+			n.data = s.data;
+			n = s; //my deletion target is now this OTHER node I searched for.
+		}
+		
+		//find the replacement node if exists
+		Node replacement = null;
+		if (n.left !- null) {
+			replacement = n.left;
+		}
+		else (n.right != null) {
+			replacement = n.right;
+		}
+		
+		//check for root replacement
+		if (n.parent == null) {
+			root = replacement;
+		}
+		else { //find the direction for replacement
+			if (n == n.parent.left) {
+				n.parent.left = replacement;
+			}
+			else {
+				n.parent.right = replacement;
+			}
+		}
+		
+		//re-target the parent link
+		if (replacement != null) {
+			replacement.parent = n.parent;
+		}
+		
+		--size;
+		
+	}
+
+
+DAY 38
+
+
+Successor
+---------
+
+Find the next largest number no matter where you are in the tree
+
+Predecessor != ancestor because predecessor means "next smaller number than current"
+Ancestor means "a node that is at least a parent and is higher up in the tree"
+
+Predecessor() and successor() are mirror images of the same code
+left is replace by right and vice versa
+
+Successor node: one step to the right then 0..n steps to the left (if have right child)
+Predecessor node: one step to the left then 0..n steps to the right (if have left child)
+
+Two scenarios for successor:
+Scenario 1: the current node has a right child. Then the successor is as above
+
+Scenario 2: the current node does not have a right child
+			In this world, the ancestor is the first ancestor to the right, which means 
+			the original current node is in it left subtree
+			
+			How do we find it? It is located as many steps necessary to the left and upward,
+			until we find a step to the right and up
+			
+Scenario 3: the current node does not have a right child and is also the rightmost node in the tree
+			then it is the largest element and successor is null
+			
+			
+			
+	Code intuition:
+	
+	When a right subtree exists, go right and then left as many times as necessary
+	When a right subtree is absent, keep climbing te parent nodes until there is a parent node to the right
+		We can check this by asking "which direction is current attached to: left or right"
+		
+		while (current == current.parent.right)
+			current = parent;
+
+
+Code:
+protected Node successor(Node n) {
+	if (n == null) {
+		return null;
+	}
+	else if (n.right != null) {
+		Node current = n.right;
+		while (current.left != null) {
+			current = current.left;
+		}
+		return current;
+	}
+	 else if (n.right == null) {
+	 	// set current to be the first parent
+	 	Node current = n.parent
+	 	Node child = n;
+	 	while (current != null && current.right == child) {
+	 		child = current;
+	 		current = current.parent;
+	 	}
+	 	
+	 	return current;
+	 	
+	 	// Node current = n
+	 	// while (current.parent != null && current.parent.right == current) {
+	 	// 		current = current.parent
+	 	// }
+	 	// return current.parent;
+	 }
+
+
+
+Splay trees
+-----------
+
+BSTs have a massive problem with worst-case-scenario: degenerate tree being not uncommon
+	This is because most datasets in the real world were taken from a database,
+	and so a big proportion of them is sorted or nearly sorted
+	
+What is the solution? Self-balancing trees.
+	These are BSTs that have extra code to rearrange themselves to prevent worst-case-scenarios
+In 228 we will only discuss splay trees
+
+For BSTs, O(h) is the critical parameter, so we are only interested in height-balanced trees
+
+Splay trees guaranteed O(logn)* performance: "Amortized O(logn)"
+meaning "Any individual operation may take longer, but a batch of n operations will execute in O(nlogn)"
+In the real world, splay trees are very quick
+
+Splay tree basic reconfiguration step is called "the zig"
+	
+zig
+
+    y       x					x
+  x  C    A B  y		->    A    y
+ AB             C 				  B C
+
+2 steps:
+1. make the child the parent
+2. re-attach the inner subtree
+
+
+
+DAY 39
+
+Binary search trees are unreliable in the sense that the worst-case scenario:
+degenerate tree - occurs regularly because many data sets in the real world are nearly sorted
+All operations are O(n)
+
+Self-balancing trees perform extra operations to ensure they are not in the worst-case scenario
+
+Splay trees
+O(logn)*
+n operations are guaranteed to perform in O(nlogn)
+
+A splay operation is flattening operation: making the tree short and wide.
+
+Splaying a node means promoting it to root through a bunch of
+zig-zigs, zig-zags, and an optional final zig (if path to root is odd).
+
+What is zig:
+	A zig promotes a child to become a parent
+	To complete the operation, attach the inner subtree to the newly demoted node
+	
+	
+zig-zigs and zig-zags are two zig rotations in some combination
+
+zig-zig:
+	a) Parent y of x is not the root (x has grandparent z)
+	b) x and y are both left or both right children
+	Symmetric rotations when x and y are both right children
+	
+	Note-version:
+		zig-zigs are used when both immediate ancestors are in the same direction
+	
+zig-zag:
+	a) Parent of y of x is not the root (x has grandparent z
+	b) x is a left child and y is right child or vice versa
+	
+	Note-version:
+		zig-zags are used when the ancestors are in opposite directions
+		
+		Two steps to a zig-zag:
+			1. Promote the grand-child to be the parent of both ancestors, creating a 
+			   lambda-formation
+			2. Migrate any subtrees to the ancestor in their respective direction (left to left ancestor etc)
+			
+			
+Delete in splay trees:
+1. Remove the node
+2. Splay the rightmost node in the left subtree.
+	It is now a root with no right child
+3. Attach the right subtree to this replacement rot
+4. Attach it to the grandparent
+5. Splay on the grandparent
+			
+**Check Splay Tree notes to see visual of how it works to understand it
+			
+
+
+DAY 40
+
+Hash Tables
+
+Maps are the natural way we use storage:
+labels attached to the actual items
+
+Map: an unordered collection of key-value pairs
+	LinkedHashMap<K, V> myDefinitions = new LinkedHashMap<>();
+	
+k is key - a String word
+V is value - a List<String> definitions
+
+Back end options:
+	Array - delete will be O(n)
+	LinkedList - searching will be O(n)
+	Tree - O(logn) but it cannot use non-comparable keys, e.g., finger prints
+	
+	
+	Hash Tables have none of these drawbacks.
+	In there average case: 
+	O(1) everything
+	
+	
+	The crunch method, called the hash function, does not need comparable parameters.
+	
+	It will create a very big integer:
+		1. shades - Expresses more shades of differential between the original objects.
+		2. overlap - large numbers minimize overlap when we try to compare signatures,
+					 because statistically they are less likely to overlap after applying
+					 modulo arithmetic, eg. % 1024
+					 
+					 
+Theoretically, if we had access to unlimited memory and we had a big-integer function
+- - takes an object as a parameter and produces a big integer
+
+O(1) add, remove, find because we can look up a a large number as an array index in O(1)
+Only relative down-side is empty memory
+
+
+Hashing is about having a budget array:
+1024 slots. Every big number that we compute we will % 1024
+
+When two or more hash values overlap after being passed through modulo,
+we have something that is called a collision
+
+
+This becomes a worst-case scenario when a fraction of all numbers map to the same index in the backing array
+Then, lookup, add, remove for these key-value pairs is O(n)
+
+
+How to live with collisions and continue working? 
+Two approaches (with a bonus third NOT on exam)
+
+1. Condo living, aka chaining
+	- the key-value pairs live together
+	- performance (Big-O) is not degraded if a few collisions have occurred
+	
+2. Overbooked hotel, aka linear probing
+	- one element per index only.
+	- if another element maps to the same index (collision), we start probing for an empty
+	  index sequentially after the current index.
+	  We end the search when
+	  	1. We found an empty location
+	  	2. We wrapped around the search and reached the previous index
+
+Deletions make finding elements harder, because
+	after you delete an element, you interrupt searches for elements that are
+	far away from the original location
+
+**Not on exam**
+"Tombstone" hashing solves this problem by inserting a placeholder "tombstone"
+value so a search does not terminate after a number has been deleted
+
+we do't know how to clean up our tombstones
+so we don'r end up with a graveyard
+****
+
+
+In the real world, linear probing vs chaining
+	Linear probing is extremely fast (wins every time)
+	This is because of processor caching.
+	
+	Hash tables are arrays and can be loaded into cache,
+	where they can check several thousand indices for the cost of one memory access.
+
+- - - - - - - - - - -
+Bonus accomodation technique:
+use quadratic probing instead of linear probing:
+	use indices with quadratic form:
+		if hash_index is unavailable, probe +1, +4, +9, +16, +25
+			-- solves saturation problem where one part of the array
+			   is completely booked while other parts are empty
+- - - - - - - - - - -
+
+Two ways to mitigate collisions
+
+1. Have a quality hash function
+
+2. Expand the hash table if it is getting saturated
+
+
+Example hash function:
+
+private int hash(Key key) {
+	return (key.hashCode() & 0x7ffffffff) % arr.length;
+	//bitwise and for a 32-bit signed integer,
+	//converting it to a 31-bit unsigned integer
+}
+
+Example of BAD hash functions for a string-->hash integer:
+
+1. Sum of the ascii values of the characters of the key
+	- - anagrams will map to the same index
+
+2. Take the first 3 characters of the string, 
+	and make them the labels of each bucket
+	
+	[aaa][aab][aac]...
+	 - some prefixes, such as xzq, will stay empty
+	 - others (such as pre) will be overpopulated
+	 
+	 
+Properties of a good hash function
+1. Has to be deterministic (cannot use random(), even if we fix the seed number)
+2. Has to compute in O(1)
+3. Has to result in a uniform distribution (pg. 8 from 33.pdf)
+4. Has to utilize all the information in the key (to differentiate them better)
+
+
+
+DAY 41
+
+Example of good Hash function:
+String.hashCode() in Java
+
+public int hashCode() {
+	int hash = 0;
+	for (int i = 0; i < length(); i++) {
+		hash = (hash * 31) + charAt(i);
+	}
+	return hash;
+}
+
+-> every character participates at its own level of significance (power of 31),
+   so sequence is accounted for
+-> 31 is a Mersenne Prime (127 also)
+		a. it is a prime number, so least likely of all integers to partake in patterns,
+		   and result in collisions
+		b. Mersenne means it is of the form 2^p - 1, which facilitates bit-shift operations
+		   for computing arithmetic
+-> every piece of information contributes to the final value
+
+
+How do we hash any arbitrary primitive?
+	a variety of rules such as floatToInBits() and X0R for real numbers
+	
+How do we hash any arbitrary object?
+	e.g employee
+	public int hashCode() {
+		int hash = 0;
+		for each field f in the object that contributes to equals()** {
+			hash = (hash * 31) + hashCode(f);
+		}
+		return hash;
+	}
+
+	**a field in our case is a variable value which contributes to the uniqueness of an object
+	  and is therefore part of the equal() methods
+-----------------=--
+Resizing hash tables
+ - keeps hash tables performing optimally because we do not allow elements to
+   grow beyond a certain ratio
+   ratio:
+   load factor = # of elements / # of indices
+   					(length of backing array)
+   in Java, this ration is 0.75
+
+	As soon as the above ratio is seen, the container size will be doubles
+	and every element will be rehashed to a new location
+	
+	(if the ratio falls below 0.25, we also shrink by half)
+	
+	This extra rehashing does not worsen the efficiency, but it does
+	convert the runtime complexity to O(1)* "amortized" for adds, meaning
+	an addition may take longer to complete, but n additions complete in O(n) 
+
+
+
+
+
+Heaps
+-----
+
+Priority Queues:
+A structure optimized for repeat removals of either the minimum element or the maximum element (not both)
+
+Handles duplicates properly
+
+This is not possible with a hash table
+
+Many real-world applications:
+1. Air traffic control: decide which service requests to fulfill,
+   based on time stamp: repeatedly extract the minimum time stamp request from a priority queue
+2. Any simulation that has asynchronous events, e.g Real-time strategy game
+	-service time stamped events by repeatedly extracting the minimum time stamp from the priority queue
+3. Copy business:
+   How to service requests?
+   1. Order by time stamp, and repeatedly extract minimum
+   2. Order by $ value, servicing the largest dollar value purchase first
+
+- - - -  - - -
+Set of methods is analogous to stack:
+- add()
+- peek() == min() == max()
+- removeMin() == removeMax() - - - remove()
+
+Heap: A binary tree that is the perfect back-end to a priority queue
+
+2 properties:
+1. The tree is a perfect tree, which means all children are present other than
+   optionally some leaves on the right side of the last row
+2. At each node, for a minHeap, the parents is smaller or equal to either child
+
+Because ALL children are represent, we can represent the tree without using a Node class!
+
+We can use an array to store our elements, and the tree is conceptual!
+
+advantages:
+1. We do not have to write code for Node
+2. It has a smaller memory footprint and faster access to any tree node
+3. It can be loaded into processor cache, meaning the operations will be extremely fast
+
+We use index arithmetic to locate parent and children in this tree
+
+For any parent node i,
+1. The left child is at index 2i + 1
+2. The right child is at index 2i + 2
+
+the parent is at (i-1)/2 integer arithmetic
+
+
+
+DAY 42
+
+O(logn) methods because the tree branches as much as possible
+
+used in add():
+percolateUp(data, current)
+	parent = (current - 1) / 2
+	while (current > 0 && data[current] < data[current])
+		swap data[current] and data[parent]
+		current = parent
+		parent = 
+
+remove() - O(height) complexity 
+- always removes the root. Have to take the last leaf and bring it to the root position
+	- percolateDown() if needed
+		- always swap with the smaller of the two children
+		
+		
+	percolateDown(data, current)
+		child = 2 * current + 1
+		
+		while (child < size)
+			if (child +1 < size)
+				if data[child] > data[child+1]
+					child = child +1
+			if data[current] > data[child]
+				swap data[current] and data[child]
+			current = child
+			child = 2 * current + 1
+			
+
+Building a heap fast: not by using add(), but by taking an arbitrary array and heapifying it
+
+Faster approach compared to add():
+
+heapify()
+
+Intuiion:
+Starting at the last parent and going backwards toward the root, percolateDown() as necessary
+
+This is the same as level-order traverals in reverse, starting at the last parent, whose index is 
+(size/2)-1 -> integer division
+
+O(n) time complexity for heapifying:
+
+We have n/4 parents at most:
+n/8 grandparents
+
+The parents can take at most 1 swap to percolate down
+Grandparents: 2 swaps
+.
+.
+.
+etc.
+
+Total count of swaps:
+(n/4 * 1) + (n/8 * 2) + ...
+
+The total number of swaps is in O(n)
+
+
+heapify(data, current)
+	current = size/2 - 1;
+	while (current >- 0)
+		percolateDown(data, current)
+		--current
+		[find code in pdf]
+		
+		
+
+Heap sort:
+Given an arbitrary array:
+Heapify it in O(n)
+removeMin() n times in O(nlogn)
+
+You can perform the above in place if you use a max-heap
+
+Heapify into a max heap, where the root is the largest number
+
+Then, when the removeMax() command completes, the root has been taken from arr[0],
+the heap has shrunk, and we can put the root in arr[n-1]
+
+
+
+Graphs
+
+undirected graph - traversable from both directions
+directed graph - edges are ordered pairs - need two edges to go back and forth
+
+
+
+DAY 43
+
+**take a look at the pdfs**
+
+
+Two primitive operations we want to perform with graphs:
+1. Find if two nodes have an edge
+2. Find all neighbors of a node
+
+Two ways to store graphs:
+
+Adjacency matrix and adjacency list
+
+Adjacency matrix:
+A[i][j] = true if (i,j) element of E(G), false otherwise
+Storage: O(|V|^2) - num vertices squared)
+Preferred when the graph is small or dense
+	dense - meaning most of all possible edges exist
+	small - can load matrix into cache, making lookups really fast
+
+Adjacency matrix representation:
+	find if common edge in O(1)
+	find all neighbors in O(V)
+
+
+Adjacency list:
+array of vertices with a list of chained neighbors hanging from each vertex
+
+Finding it two nodes u and v are neighbors of V: 
+	check each linked list in parallel: one node from each list is considered before we increment
+	O(min(degree(u),degree(v))
+
+We can upgrade adjacency list to a hashmap of hash sets:
+	O(1) to retrieve all neighbors of a node:
+	O(1) to check if the other node is part of the hash set that is all neighbors
+
+Finding all neighbors of V: O(degree(V))
+
+
+
+
+
+
+
+
+
+
+DAY 44
+
+
+
+
+
+
+
+Potential Final Exam Question:
+1. Infix/Postfix: Given a 20+ character expression, convert it to the other
+	- or asked to create some part of the program (one of the for loops in particular)
+2. Know the four binary tree traversal methods (pre-order, post-order, in-order, level-order) (know queues)
+3. Know how to code predecessor and successor replacement for exam (know unlinkNode (line 3408))
+4. Splay Tree operations likely to be on the exam
+	Given a tree, figure out what operations are happening when you rearrange
+	Given 15 nodes, find something, then tell the depth of the tree (find then splay,else splay on parent)
+5. Chaining and Linear Probing for hash tables (Know difference between linear and quadratic probing)
+6. Hash tables and heaps
+	- know methods for heap (add, , peek, remove, sort)
+	- Know how to write heapSort in java (maybe found in pdfs? (not basic version))
+7. Connected component graph question WILL be on the exam
+8.
+
+
+
+
+
+
+
+
+

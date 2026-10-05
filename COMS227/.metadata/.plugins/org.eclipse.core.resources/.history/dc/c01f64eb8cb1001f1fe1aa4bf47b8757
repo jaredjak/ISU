@@ -1,0 +1,69 @@
+package edu.iastate.cs2280.hw4;
+
+
+/**
+ * @author Jared Krug
+ */
+
+public class MsgTree {
+
+	/**
+	 * 
+	 */
+	public char payloadChar;
+	
+	/**
+	 * 
+	 */
+	public MsgTree left;
+	
+	/**
+	 * 
+	 */
+	public MsgTree right;
+	
+	/**
+	 * 
+	 */
+	private static int staticCharIdx = 0;
+	
+	
+	
+	
+	/**
+	 * Constructor that constructs a MsgTree object using the given string
+	 * 
+	 * 
+	 * 
+	 * @param encodingString
+	 */
+	public MsgTree(String encodingString) {
+		
+		char current = encodingString.charAt(staticCharIdx++); //gets current char from encodingString
+		
+		if (current == '^') { //internal node
+			this.payloadChar = current;
+			this.left = new MsgTree(encodingString); //recursively constructs left subtree
+			this.right = new MsgTree(encodingString); //recursively constructs right subtree
+		}
+		else { //leaf node
+			this.payloadChar = current;
+			this.left = null;
+			this.right = null;
+		}
+	}
+	
+	/**
+	 * Constructor for a single node with null children
+	 * @param payloadChar - character to set to this.payloadChar
+	 */
+	public MsgTree(char payloadChar) {
+		this.payloadChar = payloadChar;
+		this.left = null;
+		this.right = null;
+	}
+	
+	public static void printCodes(MsgTree root, String code) {}
+	
+	
+}

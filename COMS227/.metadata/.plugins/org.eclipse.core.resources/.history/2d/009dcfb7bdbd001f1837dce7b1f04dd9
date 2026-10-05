@@ -1,0 +1,323 @@
+Q1:
+Convert the following infix expression to postfix: (A + B) * (C - D)
+
+AB+CD-*
+
+
+
+Q2:
+Evaluate the postfix expression: 5 6 + 2 * 3 -
+
+56+  =>  5+6   => 11
+2*   =>  11*2  => 22
+3-   =>  22-3  => 19
+
+
+
+Q3:
+Insert the following keys into an empty Binary Search Tree (BST) in the given order:
+50, 30, 70, 20, 40, 60, 80. Draw the resulting BST
+
+		50
+	   /  \
+	 30    70
+	/ \    / \
+   20 40  60 80
+
+
+
+Q4:
+Delete the node with key 50 from BST created in Question 3. 
+Indicate the in-order successor used for replacement.
+Draw the resulting BST
+
+The in-order successor is 60.
+
+		60
+	   /  \
+	 30    70
+	/ \    / \
+   20 40     80
+
+
+
+Q5:
+a) A hash table uses linear probing for collision resolution. Show the hash table after inserting the
+   keys 10, 22, 31, 4, 15, 28, 17 into a table of size 11 using the hash function h(k) = k mod 11
+   
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+   
+   
+b) Retrieve the key 31 from the hash table created above. Show the probing sequence
+
+31 % 11
+
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+									  ^^
+									  
+Retrieve the key 15 from the hash table
+
+15 % 11
+
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+               ^^
+
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+					^^
+					
+**If item not found, continue to next index until a blank node is found (I think)
+
+
+Q6:
+Insert the following elements into a max heap: 10, 20, 15, 30, 40, 50. Draw the resulting heap and 
+explain the inserting process.
+
+10
+20 10
+20 10 15
+30 20 15 10
+40 30 15 10 20
+50 30 40 10 20 15
+
+			    50
+			   / \
+			 30   40
+			/ \   / \
+		   10 20 15
+
+Explanation:
+
+
+Q7:
+Remove the maximum element from the heap created in Question 6. Show the resulting heap.
+
+			    15
+			   / \
+			 30   40
+			/ \   / \
+		   10 20 50
+
+
+			    40
+			   / \
+			 30   15
+			/ \   / \
+		   10 20 
+
+
+
+Splay Tree Question:
+N/A (it was really easy)
+
+
+
+Other:
+
+- Look into pre, post, in, and level order implementations (brief, should have decent understanding)
+- Know implementation for find(), add(), remove(), unlink(), successor(), and predecessor() for BSTs
+- Know add(), percolateUp(), remove(), percolateDown(), heapSort9), heapify() for heaps
+
+
+-------------------------------------------------------------------------------------------------
+
+BINARY SEARCH TREE METHODS:
+
+Successor Code:
+- Finds the successor of a given node n
+
+protected Node successor(Node n) {
+	if (n == null) {
+		return null;
+	}
+	else if (n.right != null) {
+		Node current = n.right;
+		while (current.left != null) {
+			current = current.left;
+		}
+		return current;
+	}
+	 else if (n.right == null) {
+	 	// set current to be the first parent
+	 	Node current = n.parent
+	 	Node child = n;
+	 	while (current != null && current.right == child) {
+	 		child = current;
+	 		current = current.parent;
+	 	}
+	 	
+	 	return current;
+	 }
+	 
+
+Predecessor Code:
+
+protected Node successor(Node n) {
+	if (n == null) {
+		return null;
+	}
+	else if (n.left != null) {
+		Node current = n.left;
+		while (current.right != null) {
+			current = current.right;
+		}
+		return current;
+	}
+	 else if (n.right == null) {
+	 	// set current to be the first parent
+	 	Node current = n.parent
+	 	Node child = n;
+	 	while (current != null && current.left == child) {
+	 		child = current;
+	 		current = current.parent;
+	 	}
+	 	return current;
+	 }
+
+
+Find Code:
+- Compare node to current data to find the desired node
+
+protected Node findEntry( E key) {
+	Node current = root;
+	while (current != null) {
+		int result = key.compareTo(current.data)
+		
+		if (result == 0) {
+			return current;
+		.
+		.
+		
+		}
+	}
+	return null;
+	
+	
+Add Code:
+- Adds the key
+- if no root, key becomes the root
+
+@Override
+public boolean add(E key) {
+	if (root == null) {
+		root = new Node (key, null);
+		++size;
+		return true;
+		
+	Node current= root;
+	while (true) {
+		int result = key.data.compareTo(current);
+		if (result == 0) {
+			return false;
+		else if (comp < 0) {
+			if (current.left != null) {
+				current = current.left;
+			}
+			else {
+				current.left = new Node(key, current);
+				++size;
+				return true
+			}
+		}
+		else if (comp > 0) {
+			if (current.right != null) {
+				current = current.right;
+			}
+			else {
+				current.right = new Node(key, current);
+				++size;
+				return true
+			}
+		}
+	}
+}
+
+
+Remove Code:
+- Boolean to decide if the node gets removed
+
+public boolean remove(Object obj) {
+	E key = (E) obj;
+	Node n = findEntry(key);
+	if (n == null) {
+		return false
+	}
+	unlinkNode(n);
+	return true;
+
+
+Unlink Node:
+- Used for the deletion method for trees
+- Specifically, converts a node with 2 children problem into a node with 1 or 0 children problem.
+
+protected void unlinkNode(Node n) {
+	// first, convert the 2 children problem into a 1 or 0 children problem
+	if (n.left != null && n.right != null) {
+		Node s = successor(n);
+		n.data = s.data;
+		n = s; // deletion target is now the OTHER node searched for
+	}
+	
+	// Find the replacement node if it exists
+	Node replacement = null;
+	if (n.left != null) {
+		replacement = n.left;
+	}
+	else if (n.right != null) {
+		replacement = n.right;
+	}
+	
+	// Check for root replacement
+	if (n.parent == null) {
+		root = replacement;
+	}
+	else {
+		// Find the direction of the replacement
+		if (n == n.parent.left) {
+			n.parent.left = replacement;
+		}
+		else {
+			n.parent.right = replacement;
+		}
+	}
+	
+	// Re-target the parent link
+	if (replacement != null) {
+		replacement.parent = n.parent;
+	}
+	
+	--size;
+	
+} 
+
+-------------------------------------------------------------------------------------------------
+
+
+
+
+HEAP METHODS:
+
+
+percolateUp(data, current)
+	parent = (current - 1) / 2
+	while (current > 0 && data[current] < data[current])
+		swap data[current] and data[parent]
+		current = parent
+		parent = (current - 1) / 2
+		
+percolateDown(data, current)
+	child = 2 * current + 1
+		
+	while (child < size)
+		if (child +1 < size)
+			if data[child] > data[child+1]
+				child = child +1
+		if data[current] > data[child]
+			swap data[current] and data[child]
+		current = child
+		child = 2 * current + 1
+
+
+
+
+
+

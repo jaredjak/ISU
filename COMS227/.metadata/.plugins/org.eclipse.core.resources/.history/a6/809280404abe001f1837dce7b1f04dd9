@@ -1,0 +1,409 @@
+package examFinalReview.Questions;
+
+//public class BinarySearchTree {
+//
+//}
+
+//BINARY SEARCH TREE METHODS:
+//
+//Successor Code:
+//- Finds the successor of a given node n
+//
+//protected Node successor(Node n) {
+//	if (n == null) {
+//		return null;
+//	}
+//	else if (n.right != null) {
+//		Node current = n.right;
+//		while (current.left != null) {
+//			current = current.left;
+//		}
+//		return current;
+//	}
+//	 else if (n.right == null) {
+//	 	// set current to be the first parent
+//	 	Node current = n.parent
+//	 	Node child = n;
+//	 	while (current != null && current.right == child) {
+//	 		child = current;
+//	 		current = current.parent;
+//	 	}
+//	 	
+//	 	return current;
+//	 }
+//	 
+
+//my attempt:
+protected Node Successor(Node n) {
+	if (n == null) {
+		return null;
+	}
+	else if (n.right != null) {
+		Node current = n.right;
+		while (current.left != null) {
+			current = current.left;
+		}
+		return current;
+	}
+	else if (n.right == null) {
+		Node current = n.parent;
+		Node child = n;
+		while (current != null && current.right == child) {
+			child = current;
+			current = current.parent;
+		}
+		return current;
+	}
+}
+
+//attempt predecessor before looking
+protected Predecessor(Node n) {
+	if (n == null) {
+		return null;
+	}
+	else if (n.left != null) {
+		Node current = n.left;
+		while (current.right != null) {
+			current = current.right;
+		}
+		return current;
+	}
+	else if (n.left == null) {
+		Node current = n.parent;
+		node child = n;
+		while (current != null && current.left == child) {
+			child = current;
+			current = current.parent;
+		}
+		return current;
+	}
+}
+
+
+
+//
+//Predecessor Code:
+//
+//protected Node successor(Node n) {
+//	if (n == null) {
+//		return null;
+//	}
+//	else if (n.left != null) {
+//		Node current = n.left;
+//		while (current.right != null) {
+//			current = current.right;
+//		}
+//		return current;
+//	}
+//	 else if (n.right == null) {
+//	 	// set current to be the first parent
+//	 	Node current = n.parent
+//	 	Node child = n;
+//	 	while (current != null && current.left == child) {
+//	 		child = current;
+//	 		current = current.parent;
+//	 	}
+//	 	return current;
+//	 }
+//
+
+
+
+
+
+
+
+
+
+
+//
+//Find Code:
+//- Compare node to current data to find the desired node
+//
+//protected Node findEntry( E key) {
+//	Node current = root;
+//	while (current != null) {
+//		int result = key.compareTo(current.data)
+//		
+//		if (result == 0) {
+//			return current;
+//		}
+//		else if (result > 0) {
+//			current = current.left;
+//		}
+//		else {
+//			current = current.right;
+//		}
+//	}
+//	return null;
+//}
+//	
+
+protected Node findEntry(E key) {
+	Node current = root; 
+	while (current != null) {
+		int result = key.compareto(current.data);
+		
+		if (result == 0) {
+			return current;
+		}
+		else if (result > 0) {
+			current = current.left;
+		}
+		else if (result < 0) {
+			current = current.right;
+		}
+	}
+	return null;
+}
+
+protected Node findEntry(E key) {
+	Node current = root;
+	while (current != null) {
+		int result = key.compareto(current.data);
+		
+		if (result == 0) {
+			return current;
+		}
+		else if (result > 0) {
+			current = current.left;
+		}
+		else if (result < 0) {
+			current = current.right;
+		}
+	}
+	return null;
+}
+
+protected Node findEntry(E key) {
+	Node current = root;
+	while (current != null) {
+		int result = key.compareTo(current.data);
+		
+		if (result == 0) {
+			return current;
+		}
+		else if (result > 0) {
+			current = current.left;
+		}
+		else if (result < 0) {
+			current = current.right;
+		}
+	}
+	return null;
+}
+
+
+
+
+
+
+//Add Code:
+//- Adds the key
+//- if no root, key becomes the root
+//
+//@Override
+//public boolean add(E key) {
+//	if (root == null) {
+//		root = new Node(key, null);
+//		++size;
+//		return true;
+//		
+//	Node current = root;
+//	while (true) {
+//		int result = key.data.compareTo(current);
+//		if (result == 0) {
+//			return false;
+//		else if (result < 0) {
+//			if (current.left != null) {
+//				current = current.left;
+//			}
+//			else {
+//				current.left = new Node(key, current);
+//				++size;
+//				return true
+//			}
+//		}
+//		else if (result > 0) {
+//			if (current.right != null) {
+//				current = current.right;
+//			}
+//			else {
+//				current.right = new Node(key, current);
+//				++size;
+//				return true
+//			}
+//		}
+//	}
+//}
+//
+
+
+
+
+
+
+
+
+//
+//Remove Code:
+//- Boolean to decide if the node gets removed
+//
+//public boolean remove(Object obj) {
+//	E key = (E) obj;
+//	Node n = findEntry(key);
+//	if (n == null) {
+//		return false
+//	}
+//	unlinkNode(n);
+//	return true;
+//
+
+
+
+
+
+
+
+
+
+
+//
+//Unlink Node:
+//- Used for the deletion method for trees
+//- Specifically, converts a node with 2 children problem into a node with 1 or 0 children problem.
+//
+//protected void unlinkNode(Node n) {
+//	// first, convert the 2 children problem into a 1 or 0 children problem
+//	if (n.left != null && n.right != null) {
+//		Node s = successor(n);
+//		n.data = s.data;
+//		n = s; // deletion target is now the OTHER node searched for
+//	}
+//	
+//	// Find the replacement node if it exists
+//	Node replacement = null;
+//	if (n.left != null) {
+//		replacement = n.left;
+//	}
+//	else if (n.right != null) {
+//		replacement = n.right;
+//	}
+//	
+//	// Check for root replacement
+//	if (n.parent == null) {
+//		root = replacement;
+//	}
+//	else {
+//		// Find the direction of the replacement
+//		if (n == n.parent.left) {
+//			n.parent.left = replacement;
+//		}
+//		else {
+//			n.parent.right = replacement;
+//		}
+//	}
+//	
+//	// Re-target the parent link
+//	if (replacement != null) {
+//		replacement.parent = n.parent;
+//	}
+//	
+//	--size;
+//	
+//} 
+
+
+
+
+
+
+
+
+
+
+
+//Heapify()
+//- Max Heap
+//
+//public static void heapify(int[] arr, int n, int i) {
+//	int largest = i;
+//	int left = 2 * i + 1;
+//	int right = 2 * i + 2;
+//	
+//	if (left < n && arr[left] > arr[largest]) {
+//		largest = left;
+//	}
+//	
+//	if (right < n && arr[right] > arr[largest]) {
+//		largest = right;
+//	}
+//	
+//	if (largest != i) {
+//		int temp = arr[i];
+//		arr[i] = arr[largest];
+//		arr[largest] = temp;
+//		
+//		heapify(arr, n, largest);
+//	}
+//}
+
+
+
+
+
+
+
+
+
+
+//Heapify()
+//- Min Heap
+//
+//public static void heapify(int[] arr, int n, int i) {
+//	int smallest = i;
+//	int left = 2 * i + 1;
+//	int right = 2 * i + 2;
+//	
+//	if (left < n && arr[left] < arr[smallest]) {
+//		smallest = left;
+//	}
+//	
+//	if (right < n && arr[right] < arr[smallest]) {
+//		smallest = right;
+//	}
+//	
+//	if (smallest != i) {
+//		int temp = arr[i];
+//		arr[i] = arr[smallest];
+//		arr[smallest] = temp;
+//		
+//		heapify(arr, n, smallest);
+//	}
+//}
+
+
+
+
+
+
+
+
+//heapSort()
+//- Builds the heap
+//
+//public static void heapSort(int[] arr) {
+//	int n = arr.length;
+//	
+//	for (int i = n/2-1; i >= 0; i--) {
+//		heapify(arr, n, i);
+//	}
+//	
+//	for (int i = n - 1; i > 0; i--) {
+//		int temp = arr[0];
+//		arr[0] = arr[i];
+//		arr[i] = temp;
+//		
+//		heapify(arr, i, 0);
+//	}
+//}

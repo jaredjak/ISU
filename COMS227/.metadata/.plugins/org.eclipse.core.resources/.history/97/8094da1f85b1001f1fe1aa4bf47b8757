@@ -1,0 +1,10 @@
+package edu.iastate.cs2280.hw4;
+
+public class MsgTree {
+
+	public char payloadChar;
+	public MsgTree left;
+	public MsgTree right;
+	
+	
+}

@@ -1,0 +1,14 @@
+package exam1Review;
+
+public class selectionSort {
+
+	public static void selectionSort(int[] arr) {
+		
+	}
+
+
+	public static void main(String[] args) {
+		int[] given = {1,4,5,2,3};
+		selectionSort(given);
+	}
+}

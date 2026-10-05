@@ -1,0 +1,142 @@
+E16:
+
+Q1.
+1. example part
+| A B C D E		no output
+
+2.
+A B C D E X		no output
+
+3.
+A B | C D E
+A | B C D E //cursor points to B
+A | C D E
+print -> 0  //
+
+4.
+A B C D E |
+A B C D | E //cursor points to E
+A B C D E | //cursor points to E
+outputs E
+A B C D | E
+A B C | D E //points to D
+A B C D | E //points to D
+outputs D
+A B C | D E
+A B | C D E //points to C
+A B C | D E //points to C
+outputs C
+A B | C D E
+A | B C D E //points to B
+A B | C D E //points to B
+outputs B
+A | B C D E
+| A B C D E //points to A
+A | B C D E //points to A
+outputs A
+| A B C D E
+
+5.
+A B C D E
+| B C D E
+B | C D E //points to B
+X | C D E //points to X
+| C D E   //points to no elements
+throws IllegalStateException
+no output
+
+6.
+| A \ B C D E // \=iter2
+
+A | \ B C D E // | points to A
+B | B \ C D E // | points to 1B, \ points to 2B
+| B B \ C D E // | points to 1B, \ points to 2B
+outputs B
+B | B \ C D E // | points to 1B, \ points to 2B
+C | B \ C D E // | points to C, \ points to C
+| C B \ C D E // | points to C, \ points to C
+outputs C
+process...
+D B C D E
+outputs D
+process...
+E B C D E
+outputs E
+
+7.
+A B C | D E //points to no element
+A B | C D E //points to C
+A B | D E   //points to no element
+A | B D E   //points to B
+A | D E		//points to no element
+| A D E		//points to A
+| D E		//points to no element
+throws NoSuchElementException
+no output
+
+
+Q2.
+
+
+
+
+
+E18:
+
+Q4.
+Blank 1: Comparator<? super E>
+
+// 1. Initialization
+if (cur1 && cur2 != null) {
+	if (comp.compare(cur1.data, cur2.data) <= 0) {
+		list3.head = new Node(cur2.data, null);
+		cur1 = cur2.next;
+	} else {
+		~~~~
+	}
+} else if(cur1 != null) {
+	list3.head = new Node(cur1.data, null)
+} else if (cur2 != null) {
+	~~~
+}
+
+
+// 2. Merging
+Node cur3 = list3.head // variable used for generating nodes of list3
+
+while (cur1 && cur2 != null) {
+	if (comp.compare(cur1.data, cur2.data) <= 0) {
+		cur3.next = new Node(cur1.data, null);
+	} else {
+		cur3.next = new Node(cur2.data, null);
+	}
+	cur3 = cur3.next;
+}
+
+*Know remove or add with and without index
+
+
+
+E24:
+
+4. Stable Sorting
+Name Year
+
+Provide ascending sorted order for names by year
+Example:
+Heyy 2030
+Hey 2030
+Hi 2031
+What 2040
+huh 2030
+
+Ordered List would be:
+What 2020
+Heyy 2030
+Hey 2030
+huh 2030
+What 2040
+
+
+
+

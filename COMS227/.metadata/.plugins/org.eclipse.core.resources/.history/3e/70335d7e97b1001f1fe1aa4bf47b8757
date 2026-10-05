@@ -1,0 +1,115 @@
+package edu.iastate.cs2280.hw4;
+
+
+/**
+ * @author Jared Krug
+ */
+
+public class MsgTree {
+
+	/**
+	 * character stored in this node
+	 */
+	public char payloadChar;
+	
+	/**
+	 * left child/subtree
+	 */
+	public MsgTree left;
+	
+	/**
+	 * right child/subtree
+	 */
+	public MsgTree right;
+	
+	/**
+	 * index used to iterate through encoded string
+	 */
+	private static int staticCharIdx = 0;
+	
+	
+	
+	
+	/**
+	 * Constructor that constructs a MsgTree object using the given encodingString
+	 * @param encodingString - Encoded string used to build up the MsgTree
+	 */
+	public MsgTree(String encodingString) {
+		
+		char current = encodingString.charAt(staticCharIdx++); //gets current char from encodingString
+		
+		if (current == '^') { //internal node
+			this.payloadChar = current;
+			this.left = new MsgTree(encodingString); //recursively constructs left subtree
+			this.right = new MsgTree(encodingString); //recursively constructs right subtree
+		}
+		else { //leaf node
+			this.payloadChar = current;
+			this.left = null;
+			this.right = null;
+		}
+	}
+	
+	/**
+	 * Constructor for a single node with null children
+	 * @param payloadChar - character to set to this.payloadChar
+	 */
+	public MsgTree(char payloadChar) {
+		this.payloadChar = payloadChar;
+		this.left = null;
+		this.right = null;
+	}
+	
+	
+	/**
+	 * Recursively prints the binary codes in a MsgTree
+	 * @param root - root of MsgTree
+	 * @param code - binary code for current node
+	 */
+	public static void printCodes(MsgTree root, String code) {
+		//base case
+		if (root == null) {
+			return;
+		}
+		
+		if (root.payloadChar != '^') {
+			System.out.println("\t" + root.payloadChar + "\t\t" + code);
+		}
+		
+		printCodes(root.left, code + "0"); //recursively traverse left subtree, append 0
+		printCodes(root.right, code + "1"); //recursively traverse right subtree, append 1
+	}
+	
+	/**
+	 * Method that decodes a binary message using the given MsgTree
+	 * @param codes - MsgTree for decoding
+	 * @param msg - binary string to be decoded
+	 */
+	public void decode(MsgTree codes, String msg) {
+		MsgTree currNode = codes; //node at the root of MsgTree
+		
+		System.out.println("MESSAGE");
+		
+		for (char digit : msg.toCharArray()) {
+			if (digit == '0') { //move left for 0
+				currNode = currNode.left; 
+			}
+			else if (digit == '1') { //move right for 1
+				currNode = currNode.right;
+			}
+			
+			if (currNode.left == null && currNode.right == null) { //checks for leaf node
+				System.out.print(currNode.payloadChar);
+				currNode = codes; //resets to root of MsgTree
+			}
+			
+			System.out.println();
+		}
+	}
+	
+	public static void main(String[] args) {
+		
+	}
+	
+	
+}

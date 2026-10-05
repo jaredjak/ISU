@@ -1,0 +1,104 @@
+Q1:
+Convert the following infix expression to postfix: (A + B) * (C - D)
+
+AB+CD-*
+
+
+
+Q2:
+Evaluate the postfix expression: 5 6 + 2 * 3 -
+
+56+  =>  5+6   => 11
+2*   =>  11*2  => 22
+3-   =>  22-3  => 19
+
+
+
+Q3:
+Insert the following keys into an empty Binary Search Tree (BST) in the given order:
+50, 30, 70, 20, 40, 60, 80. Draw the resulting BST
+
+		50
+	   /  \
+	 30    70
+	/ \    / \
+   20 40  60 80
+
+Q4:
+Delete the node with key 50 from BST created in Question 3. Indicate the in-order successor used for replacement.
+Draw the resulting BST
+
+The in-order successor is 60.
+
+		60
+	   /  \
+	 30    70
+	/ \    / \
+   20 40     80
+
+
+
+
+
+Q5:
+a) A hash table uses linear probing for collision resolution. Show the hash table after inserting the
+   keys 10, 22, 31, 4, 15, 28, 17 into a table of size 11 using the hash function h(k) = k mod 11
+   
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+   
+   
+b) Retrieve the key 31 from the hash table created above. Show the probing sequence
+
+31 % 11
+
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+									  ^^
+									  
+Retrieve the key 15 from the hash table
+
+15 % 11
+
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+               ^^
+
+| 22 |  |  |  | 4 | 15 | 28 | 17 |  | 31 | 10 |
+					^^
+					
+**If item not found, continue to next index until a blank node is found (I think)
+
+Q6:
+Insert the following elements into a max heap: 10, 20, 15, 30, 40, 50. Draw the resulting heap and 
+explain the inserting process.
+
+10
+20 10
+20 10 15
+30 20 15 10
+40 30 15 10 20
+50 40 30 10 20 15
+
+			    50
+			   / \
+			 40   30
+			/ \   / \
+		   10 20 15
+
+
+Q7:
+Remove the maximum element from the heap created in Question 6. Show the resulting heap.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Q8:

@@ -1,0 +1,43 @@
+package exam1Review;
+
+public class insertionSort {
+
+	
+	/**
+	 * Start by iterating at index 1 to end of array
+	 * Declare target (index at i) and also j (which will represent the int at the index before i)
+	 * Then, while j is more than 0 and the target is less than the int at j
+	 * 	make the element at the element after j = to j and subtract j.
+	 * outside of the while loop, make the element after j = to target
+	 * 
+	 */
+	
+	public static void insertionSort(int[] arr) {
+		for (int i = 1; i < arr.length; i++) {
+			int target = arr[i];
+			int j = i - 1;
+			while (j >= 0 && target < arr[j]) {
+				arr[j+1] = arr[j];
+				--j;
+			}
+			arr[j+1] = target;
+			
+			// Test how it prints out
+			for (int k = 0; k < arr.length; k++) {
+				System.out.print(arr[k] + " ");
+			}
+			System.out.println();
+		}
+	}
+	
+	public static void main(String[] args) {
+//		int[] arr1 = {4,3,2,1};
+//		insertionSort(arr1);
+
+//		int[] arr2 = {4,3,5,1,2};
+//		insertionSort(arr2);
+		
+		int[] arr3 = {1,6,4,7,0,5,3,2};
+		insertionSort(arr3);
+	}
+}

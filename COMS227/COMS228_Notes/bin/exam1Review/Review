@@ -1,0 +1,79 @@
+
+Review
+
+
+Q1:
+
+Interface:
+get
+set
+
+
+
+1. 4.25
+
+2. 3000.00
+
+3. Illegal argument exception
+
+4. Savings: kelsi_Nielsen: 3
+
+5. Compiler error - method DNE
+
+6. Compiler error - type mismatch
+
+7. 1.125
+
+8. Compiler Error - 
+
+9. 
+
+
+Q2a:
+return c;
+
+return null;
+
+
+Q2b:
+if (this == o) {
+	return true;
+}
+if (o == null || this.getClone() != o.getClass()) {
+	return false;
+}
+ComplexTuple ct = (ComplexTuple).o;
+
+if (this.c1.equals(ct.c1) && this.c2.equals(ct.c2) {
+	return true;
+} else {
+	return false
+}
+
+
+Q3a:
+i. O(n)
+ii. O(n)
+iii. O(n^2)
+
+Q3b.
+i. O(log(n))
+ii. O(n^2)
+iii. O(n^2 log(n))
+iv. O(n^3)
+
+Q3c.
+i. O(n)
+ii. O(n)
+
+
+
+
+
+
+
+
+
+
+
+

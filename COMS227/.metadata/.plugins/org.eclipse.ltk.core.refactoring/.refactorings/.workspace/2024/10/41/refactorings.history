@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;edu.iastate.coms2280.hw2&apos; to &apos;HW2_JaredKrug&apos;" description="Rename resource &apos;edu.iastate.coms2280.hw2&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/edu.iastate.coms2280.hw2" name="HW2_JaredKrug" stamp="1728609245995" updateReferences="true"/>
+</session>
