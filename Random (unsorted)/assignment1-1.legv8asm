@@ -1,0 +1,297 @@
+// COMS 3210 - Program Assignment 1
+// Members (1): Jared Krug (jared10@iastate.edu)
+
+// Ran with these parameters in the emulator:
+// -m 8192 -s 1024
+main:
+    ADDI X1, XZR, #512
+
+    SUBI SP, SP, #80
+    ADD X0, SP, XZR
+
+    SUBI SP, SP, #16
+    STUR X0, [SP, #0]
+    STUR X1, [SP, #8]
+    BL fill
+
+    // Check sorted (should be false)
+    LDUR X1, [SP, #8]
+    LDUR X0, [SP, #0]
+    BL is_sorted
+
+    // Sort it
+    LDUR X1, [SP, #8]
+    LDUR X0, [SP, #0]
+    BL stoopid_sort
+
+    // Check sorted again (should be true)
+    LDUR X1, [SP, #8]
+    LDUR X0, [SP, #0]
+    BL is_sorted
+
+    LDUR X1, [SP, #8]
+    LDUR X0, [SP, #0]
+    ADDI SP, SP, #16
+
+    HALT
+
+fill:
+    SUBI SP, SP, #8
+    STUR X30, [SP, #0]
+
+    // X2 = i = n - 1
+    SUBI X2, X1, #1
+
+fill_loop:
+    SUB X10, X1, X2
+    SUBI X10, X10, #1
+    LSL X10, X10, #3
+    ADD X10, X0, X10
+    STUR X2, [X10, #0]
+
+    SUBIS X2, X2, #1 // i--
+    B.LT fill_return
+
+    B fill_loop // repeat loop
+
+fill_return:
+    LDUR X30, [SP, #0]
+    ADDI SP, SP, #8
+    BR LR
+
+is_sorted:
+    SUBI SP, SP, #8
+    STUR X30, [SP, #0]
+
+    // X0 = a, X1 = size
+    ADDI X2, XZR, #1 // i = 1
+
+is_sorted_loop:
+    SUB X9, X2, X1
+    CBZ X9, is_sorted_true
+
+    LSL X10, X2, #3 // X10 = i * 8
+    ADD X11, X0, X10 // X11 = address of a[i]
+    LDUR X12, [X11, #0] // X12 = a[i]
+
+    SUBI X10, X10, #8 // X10 = (i - 1) * 8
+    ADD X11, X0, X10 // X11 = address of a[i - 1]
+    LDUR X13, [X11, #0] // X13 = a[i - 1]
+
+    SUBS X9, X12, X13 // a[i] - a[i-1]
+    B.LT is_sorted_false
+
+    ADDI X2, X2, #1 // i++
+    B is_sorted_loop // Repeat loop
+
+is_sorted_false:
+    ADDI X0, XZR, #0 // return 0 (false)
+    PRNT X0
+    B is_sorted_return
+
+is_sorted_true:
+    ADDI X0, XZR, #1 // return 1 (true)
+    PRNT X0
+
+is_sorted_return:
+    LDUR X30, [SP, #0]
+    ADDI SP, SP, #8
+    BR LR
+
+stoopid_sort:
+    SUBI SP, SP, #40
+    STUR X22, [SP, #32]
+    STUR X19, [SP, #24]
+    STUR X20, [SP, #16]
+    STUR X21, [SP, #8]
+    STUR X30, [SP, #0]
+
+    // X0 = a (pointer), X1 = size
+    ADDI X19, XZR, #0 // i = 0
+    ADD X20, X0, XZR
+    ADD X21, X1, XZR
+
+stoopid_sort_loop:
+    SUBI X10, X21, #1 // X10 = size - 1
+    SUBS XZR, X21, X19
+    B.LE stoopid_sort_return
+
+    SUB X3, X21, X19 // size - i
+    SUBI X22, X3, #1 // size - i - 1
+
+    // n = find_largest(a, 0, size - i)
+    ADD X0, X20, XZR
+    ADDI X1, XZR, #0
+    ADD X2, X3, XZR
+    //SUBI X2, X2, #1 // temporary
+    BL find_largest
+    ADD X5, X0, XZR // n = result of find_largest
+
+    // swap(a, n, size - i - 1)
+    ADD X0, X20, XZR
+    ADD X1, X5, XZR
+    ADD X2, X22, XZR
+    BL swap
+
+    ADDI X19, X19, #1 // i++
+    B stoopid_sort_loop // repeat loop
+
+stoopid_sort_return:
+    LDUR X30, [SP, #0]
+    LDUR X21, [SP, #8]
+    LDUR X20, [SP, #16]
+    LDUR X19, [SP, #24]
+    LDUR X22, [SP, #32]
+    ADDI SP, SP, #40
+    //ADDI SP, SP, #32
+
+    BR LR
+
+find_largest:
+    //COMMENTED ALL OUT BECAUSE IT DOES NOT WORK. REMAKING IT
+    //SUBI SP, SP, #32
+    //STUR X19, [SP, #24]
+    //STUR X20, [SP, #16]
+    //STUR X21, [SP, #8]
+    //STUR X30, [SP, #0]
+
+    //ADD X20, X0, XZR
+
+    //SUBIS XZR, X2, #1
+    //B.LE find_largest_basecase
+
+    //LSR X3, X2, #1
+    //SUB X4, X2, X3
+
+    //temp
+    //ADD X5, X1, XZR
+    //ADD X6, X2, XZR
+
+    // recursive call 1: find_largest(a, start, size / 2)
+    //ADD X0, X20, XZR
+    //ADD X1, X5, XZR
+    //ADD X2, X3, XZR
+    //BL find_largest
+    //ADD X19, X0, XZR
+
+    // recursive call 2: find_largest(a, start + size / 2, (size + 1) / 2)
+    //ADD X0, X20, XZR
+    //ADD X1, X5, X3
+    //ADD X2, X4, XZR
+    //BL find_largest
+    //ADD X21, X0, XZR
+
+    //ADD X0, X20, XZR // a
+    //ADD X1, X19, XZR // first result
+    //ADD X2, X21, XZR // second result
+    //BL max_index
+
+    //B find_largest_return
+
+    //ATTEMPT 2 - hey it works
+    SUBI SP, SP, #80
+    STUR X19, [SP, #72]
+    STUR X20, [SP, #64]
+    STUR X21, [SP, #56]
+    STUR X22, [SP, #48]
+    STUR X23, [SP, #40]
+    STUR X24, [SP, #32]
+    STUR X25, [SP, #24]
+    STUR X30, [SP, #16]
+
+    ADD X21, X0, XZR   // X21 = a
+    ADD X19, X1, XZR   // X19 = start
+    ADD X20, X2, XZR   // X20 = size
+
+    SUBIS XZR, X20, #1
+    B.LE find_largest_basecase
+
+    LSR X22, X20, #1      // X22 = mid = size/2
+    SUB X23, X20, X22     // X23 = rem = size - mid
+
+    // first recursive call: find_largest(a, start, mid)
+    ADD X0, X21, XZR      // X0 = base
+    ADD X1, X19, XZR      // X1 = start
+    ADD X2, X22, XZR      // X2 = mid
+    BL find_largest
+    ADD X24, X0, XZR      // X24 = left
+
+    // Second recursive call: find_largest(a, start + mid, rem)
+    ADD X0, X21, XZR      // X0 = base
+    ADD X1, X19, X22      // X1 = start + mid 
+    ADD X2, X23, XZR      // X2 = rem
+    BL find_largest
+    ADD X25, X0, XZR      // X25 = right
+
+    ADD X0, X21, XZR      // a
+    ADD X1, X24, XZR      // n = left
+    ADD X2, X25, XZR      // m = right
+    BL max_index          // returns index in X0
+
+find_largest_return:
+    LDUR X30, [SP, #16]
+    LDUR X25, [SP, #24]
+    LDUR X24, [SP, #32]
+    LDUR X23, [SP, #40]
+    LDUR X22, [SP, #48]
+    LDUR X21, [SP, #56]
+    LDUR X20, [SP, #64]
+    LDUR X19, [SP, #72]
+    ADDI SP, SP, #80
+
+    BR LR
+
+find_largest_basecase:
+    ADD X0, X19, XZR
+    B find_largest_return
+
+max_index:
+    SUBI SP, SP, #16
+    STUR X19, [SP, #8]
+    STUR X30, [SP, #0]
+
+    // X0 = a, X1 = n, X2 = m
+    LSL X19, X1, #3 // X19 = n * 8
+    ADD X19, X0, X19 // X19 = addr of a[n]
+    LDUR X3, [X19, #0] // X3 = a[n]
+
+    LSL X19, X2, #3 // X19 = m * 8
+    ADD X19, X0, X19 // X19 = addr of a[m]
+    LDUR X4, [X19, #0] // X4 = a[m]
+
+    SUBS X19, X3, X4 // a[n] - a[m]
+    B.LE max_index_m // if a[n] <= a[m]
+    ADD X0, XZR, X1 // else
+
+    //ADD X0, XZR, X2 // otherwise, X0 = m
+    B max_index_return
+
+max_index_m:
+    ADD X0, XZR, X2 // X0 = m
+
+max_index_return:
+    LDUR X30, [SP, #0]
+    LDUR X19, [SP, #8]
+    ADDI SP, SP, #16
+
+    BR LR
+
+swap:
+    SUBI SP, SP, #8
+    STUR X30, [SP, #0]
+
+    // X0 = a, X1 = i, X2 = j
+    LSL X9, X1, #3 // X9 = i * 8 (offset)
+    ADD X9, X0, X9 // X9 = address of a[i]
+    LDUR X3, [X9, #0] // X3 = a[i] (tmp)
+
+    LSL X10, X2, #3 // X10 = j * 8 (offset)
+    ADD X10, X0, X10 // X10 = address of a[j]
+    LDUR X4, [X10, #0] // X4 = a[j]
+
+    STUR X4, [X9, #0] // a[i] = a[j]
+    STUR X3, [X10, #0] // a[j] = tmp
+
+    LDUR X30, [SP, #0]
+    ADDI SP, SP, #8
+    BR LR
