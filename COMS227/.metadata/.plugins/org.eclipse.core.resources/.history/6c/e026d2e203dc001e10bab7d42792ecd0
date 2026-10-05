@@ -1,0 +1,24 @@
+package lab5;
+
+import java.util.Scanner;
+
+public class Initials {
+	
+	public static String findInitials(String fullName) {
+		String initials = "";
+		Scanner in = new Scanner(fullName);
+		
+		while (in.hasNext()) {
+			String name = in.next();
+			initials = initials + name.charAt(0);
+		}
+		return initials; 
+	}
+
+	public static int 
+	
+	public static void main(String [] args) {
+		String name = "Bartholomew Jacobieu Polymorph The Third";
+		System.out.println("Expected: BJPTT" + " | Actual: " + findInitials(name));
+	}
+}

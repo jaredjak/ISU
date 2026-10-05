@@ -1,0 +1,23 @@
+package files;
+
+import java.io.File;
+
+public class FileExamples {
+
+	public static void main(String[] args) {
+		File file = new File("./resources/scores.txt");
+		
+		
+		
+		
+//		double number = 2/3.0;
+//		System.out.println(number);
+//		System.out.printf("Our number is %f\n", number);
+//		
+//		System.out.printf("A fun number is: %7.2f\n", 28.0);
+//		System.out.printf("A fun number is: %7.2f\n", 24.0);
+//		System.out.printf("A fun number is: %7.2f\n", Math.PI);
+//		System.out.printf("A fun number is: %7.2f\n", Math.E);
+	}
+
+}

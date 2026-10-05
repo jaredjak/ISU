@@ -1,0 +1,10 @@
+package arrayList;
+
+public class ArrayListExamples {
+
+	public static void main(String[] args) {
+		Arraylist names = new Arraylist();
+
+	}
+
+}

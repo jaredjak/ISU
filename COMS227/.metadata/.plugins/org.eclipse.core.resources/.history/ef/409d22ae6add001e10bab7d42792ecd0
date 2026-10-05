@@ -1,0 +1,15 @@
+package files;
+
+public class FileExamples {
+
+	public static void main(String[] args) {
+		
+		
+		
+		double number = 2/3.0;
+		System.out.println(number);
+		System.out.printf("Our number is %f\n", number);
+
+	}
+
+}

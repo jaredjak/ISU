@@ -1,0 +1,37 @@
+package files;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class FileExamples {
+
+	public static void main(String[] args) {
+		File file = new File("./resources/scores.txt");
+		if (file.exists()) {
+			System.out.println("File exists!");
+		} else { 
+			System.out.println("File does not exist...");
+		}
+		
+		try {
+			Scanner scnr = new Scanner(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		
+		
+		
+//		double number = 2/3.0;
+//		System.out.println(number);
+//		System.out.printf("Our number is %f\n", number);
+//		
+//		System.out.printf("A fun number is: %7.2f\n", 28.0);
+//		System.out.printf("A fun number is: %7.2f\n", 24.0);
+//		System.out.printf("A fun number is: %7.2f\n", Math.PI);
+//		System.out.printf("A fun number is: %7.2f\n", Math.E);
+	}
+
+}

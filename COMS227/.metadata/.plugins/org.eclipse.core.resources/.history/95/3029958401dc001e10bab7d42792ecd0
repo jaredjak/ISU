@@ -1,0 +1,16 @@
+package lab5;
+
+import java.util.Scanner;
+
+public class Initials {
+	
+	public static String nameInitials(String fullName) {
+		String initials = "";
+		Scanner in = new Scanner(fullName);
+		
+		while ()
+		
+		return intials; 
+	}
+
+}

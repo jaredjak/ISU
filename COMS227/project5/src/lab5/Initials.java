@@ -1,0 +1,41 @@
+package lab5;
+
+import java.util.Scanner;
+
+public class Initials {
+	
+	public static String findInitials(String fullName) {
+		String initials = "";
+		Scanner scnr = new Scanner(fullName);
+		
+		while (scnr.hasNext()) {
+			String name = scnr.next();
+			initials = initials + name.charAt(0);
+		}
+		return initials; 
+	}
+
+	public static int findFirstVowel(String text) {
+		String vowels = "aeiouAeiou";
+		
+		for (int i = 0; i < text.length(); i++) {
+			for (int j = 0; j < vowels.length(); j++) {
+				if (text.charAt(i) == vowels.charAt(j)) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+	
+	public static void main(String [] args) {
+		// For findInitials method
+		String name = "Edna del Humboldt von der Schooch";
+		System.out.println("Expected: EdHvdS" + " | Actual: " + findInitials(name));
+		
+		
+		// For findFirstVowel method
+		String str = "Hello, World!";
+		System.out.println("Expected: 1 | Actual: " + findFirstVowel(str));
+	}
+}

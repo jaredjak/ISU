@@ -1,0 +1,13 @@
+package vehicle;
+
+public class GasTank {
+	
+	private int capacity;
+	private int level;
+	
+	public GasTank(int takeCapacity) {
+		this.capacity = takeCapacity;
+		this.level = 0;
+	}
+
+}

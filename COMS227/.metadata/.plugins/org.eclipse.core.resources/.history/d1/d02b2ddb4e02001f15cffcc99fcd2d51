@@ -1,0 +1,11 @@
+package vehicle;
+
+public class ElectricCar extends Car implements Chargeable {
+
+	@Override
+	public void charge(int hours) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

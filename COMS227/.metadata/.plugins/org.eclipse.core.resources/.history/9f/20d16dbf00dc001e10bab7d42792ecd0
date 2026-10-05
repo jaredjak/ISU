@@ -1,0 +1,11 @@
+package lab5;
+
+public class Initials {
+	
+	public static String nameInitials(String fullName) {
+		String initials = "";
+		
+		return intials; 
+	}
+
+}

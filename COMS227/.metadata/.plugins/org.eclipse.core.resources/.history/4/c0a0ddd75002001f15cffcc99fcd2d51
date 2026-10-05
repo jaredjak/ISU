@@ -1,0 +1,10 @@
+package vehicle;
+
+public class Phone implements Chargeable {
+
+	@Override
+	public void charge(int hours) {
+		
+	}
+
+}

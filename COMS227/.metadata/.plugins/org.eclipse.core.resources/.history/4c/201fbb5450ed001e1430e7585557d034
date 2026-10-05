@@ -1,0 +1,37 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
+
+import api.BodySegment;
+import api.Cell;
+import hw3.Lizard;
+
+public class testing {
+	public static void main(String[] args) {
+		test1();
+		test2();
+	}
+	
+	public static void test1() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> expectedSegments = new ArrayList<BodySegment>();
+		liz.setSegments(expectedSegments);
+		ArrayList<BodySegment> actualSegments = liz.getSegments();
+		System.out.println("e: " + expectedSegments + " a: " + actualSegments);
+	}
+	
+	public static void test2() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		BodySegment tail = new BodySegment(liz, new Cell(1,2));
+		BodySegment inner = new BodySegment(liz, new Cell(2,2));
+		BodySegment head = new BodySegment(liz, new Cell(3,2));
+		segments.add(tail);
+		segments.add(inner);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(head, liz.getHeadSegment());
+		System.out.println("e: " + liz.getHeadSegment() + " a: " + head);
+	}
+
+}

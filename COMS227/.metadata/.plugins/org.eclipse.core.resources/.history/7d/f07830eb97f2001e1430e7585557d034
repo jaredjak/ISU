@@ -1,0 +1,483 @@
+package hw3;
+
+
+import static api.Direction.DOWN;
+import static api.Direction.LEFT;
+import static api.Direction.RIGHT;
+import static api.Direction.UP;
+
+import java.util.ArrayList;
+
+import api.BodySegment;
+import api.Cell;
+import api.Direction;
+import api.Exit;
+import api.ScoreUpdateListener;
+import api.ShowDialogListener;
+import api.Wall;
+
+/**
+ * Class that models a game.
+ */
+public class LizardGame {
+	private ShowDialogListener dialogListener;
+	private ScoreUpdateListener scoreListener;
+	private int width;
+	private int height;
+	
+	private ArrayList<Lizard> lizards;
+	private ArrayList<Cell> grid;
+
+	/**
+	 * Constructs a new LizardGame object with given grid dimensions.
+	 * 
+	 * @param width  number of columns
+	 * @param height number of rows
+	 */
+	public LizardGame(int width, int height) {
+		
+		this.width = width;
+		this.height = height;
+		lizards = new ArrayList<Lizard>();
+		grid = new ArrayList<Cell>();
+		
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				Cell cell = new Cell(i,j);
+				grid.add(cell);
+			}
+		}
+	}
+
+	/**
+	 * Get the grid's width.
+	 * 
+	 * @return width of the grid
+	 */
+	public int getWidth() {
+		return width;
+	}
+
+	/**
+	 * Get the grid's height.
+	 * 
+	 * @return height of the grid
+	 */
+	public int getHeight() {
+		return height;
+	}
+
+	/**
+	 * Adds a wall to the grid.
+	 * <p>
+	 * Specifically, this method calls placeWall on the Cell object associated with
+	 * the wall (see the Wall class for how to get the cell associated with the
+	 * wall). This class assumes a cell has already been set on the wall before
+	 * being called.
+	 * 
+	 * @param wall to add
+	 */
+	public void addWall(Wall wall) {
+		wall.getCell().placeWall(wall);
+	}
+
+	/**
+	 * Adds an exit to the grid.
+	 * <p>
+	 * Specifically, this method calls placeExit on the Cell object associated with
+	 * the exit (see the Exit class for how to get the cell associated with the
+	 * exit). This class assumes a cell has already been set on the exit before
+	 * being called.
+	 * 
+	 * @param exit to add
+	 */
+	public void addExit(Exit exit) {
+		exit.getCell().placeExit(exit);
+	}
+
+	/**
+	 * Gets a list of all lizards on the grid. Does not include lizards that have
+	 * exited.
+	 * 
+	 * @return lizards list of lizards
+	 */
+	public ArrayList<Lizard> getLizards() {
+		return lizards;
+	}
+
+	/**
+	 * Adds the given lizard to the grid.
+	 * <p>
+	 * The scoreListener to should be updated with the number of lizards.
+	 * 
+	 * @param lizard to add
+	 */
+	public void addLizard(Lizard lizard) {
+//		System.out.println(lizard);
+//		System.out.println(lizard.getSegments());
+//		lizards.add(lizard);
+		for (int r = 0; r < getHeight(); r++) {
+			for (int c = 0; c < getWidth(); c++) {
+				Cell checkCell = getCell(c, r);
+				for (int i = 0; i < lizard.getSegments().size(); i++) {
+					// Checks if the given cell of a body segment equals checkCell and if the cell is empty
+					if (lizard.getSegments().get(i).getCell().equals(checkCell) && checkCell.isEmpty()) {
+						checkCell.placeLizard(lizard);
+					}
+				}
+			}
+		}
+		lizards.add(lizard);
+		if (scoreListener != null) {
+			scoreListener.updateScore(lizards.size());
+		}
+	}
+
+	/**
+	 * Removes the given lizard from the grid. Be aware that each cell object knows
+	 * about a lizard that is placed on top of it. It is expected that this method
+	 * updates all cells that the lizard used to be on, so that they now have no
+	 * lizard placed on them.
+	 * <p>
+	 * The scoreListener to should be updated with the number of lizards using
+	 * updateScore().
+	 * 
+	 * @param lizard to remove
+	 */
+	public void removeLizard(Lizard lizard) {
+//		lizards.remove(lizard);
+		for (int r = 0; r < getHeight(); r++) {
+			for (int c = 0; c < getWidth(); c++) {
+				Cell checkCell = getCell(c, r);
+				if (checkCell.getLizard() == lizard) {
+					checkCell.removeLizard();
+				}
+			}
+		}
+		lizards.remove(lizard);
+		if (scoreListener != null) {
+			scoreListener.updateScore(lizards.size());
+		}
+	}
+
+	/**
+	 * Gets the cell for the given column and row.
+	 * <p>
+	 * If the column or row are outside of the boundaries of the grid the method
+	 * returns null.
+	 * 
+	 * @param col column of the cell
+	 * @param row of the cell
+	 * @return the cell or null
+	 */
+	public Cell getCell(int col, int row) {
+		// I tried like 500 different things just to get this simple answer.
+		for (Cell cell : grid) {
+			if (cell.getRow() == row && cell.getCol() == col) {
+				return cell;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the cell that is adjacent to (one over from) the given column and row,
+	 * when moving in the given direction. For example (1, 4, UP) returns the cell
+	 * at (1, 3).
+	 * <p>
+	 * If the adjacent cell is outside of the boundaries of the grid, the method
+	 * returns null.
+	 * 
+	 * @param col the given column
+	 * @param row the given row
+	 * @param dir the direction from the given column and row to the adjacent cell
+	 * @return the adjacent cell or null
+	 */
+	public Cell getAdjacentCell(int col, int row, Direction dir) {
+		Cell cell = null;
+		
+		if (dir == UP) {
+			cell = getCell(col, row - 1);
+		}
+		else if (dir == DOWN) {
+			cell = getCell(col, row + 1);
+		}
+		else if (dir == LEFT) {
+			cell = getCell(col - 1, row);
+		}
+		else if(dir == RIGHT) {
+			cell = getCell(col + 1, row);
+		}
+		
+		if (cell == null) {
+			return null;
+		}
+		
+		return cell;
+	}
+
+	/**
+	 * Resets the grid. After calling this method the game should have a grid of
+	 * size width x height containing all empty cells. Empty means cells with no
+	 * walls, exits, etc.
+	 * <p>
+	 * All lizards should also be removed from the grid.
+	 * 
+	 * @param width  number of columns of the resized grid
+	 * @param height number of rows of the resized grid
+	 */
+	public void resetGrid(int width, int height) {
+		// Hopefully this is just meant to be a copy of the constructor
+		
+		this.width = width;
+		this.height = height;
+		lizards = new ArrayList<Lizard>();
+		grid = new ArrayList<Cell>();
+		
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				Cell cell = new Cell(i,j);
+				grid.add(cell);
+			}
+		}
+	}
+
+	/**
+	 * Returns true if a given cell location (col, row) is available for a lizard to
+	 * move into. Specifically the cell cannot contain a wall or a lizard. Any other
+	 * type of cell, including an exit is available.
+	 * 
+	 * @param row of the cell being tested
+	 * @param col of the cell being tested
+	 * @return true if the cell is available, false otherwise
+	 */
+	public boolean isAvailable(int col, int row) {
+		Cell cell = getCell(col, row);
+		if (cell.getLizard() == null && cell.getWall() == null) {
+			return true;
+		}
+		return false;
+	}
+
+	
+	/**
+	 * HELPER METHOD
+	 * Checks to see if the following conditions are met:
+	 * 1. The current cell in the move method exists within the grid
+	 * 2. The cell to move to exists within the grid
+	 * 3. There is a lizard on the current cell
+	 * @param curr current cell being moved
+	 * @param move cell to be moved to
+	 * @return true if passes the above criteria or false if it does not
+	 */
+	private boolean checkExists(Cell curr, Cell move) {
+		// checks if the current cell exists within the board
+		if (curr.getRow() >= 0 && curr.getRow() < grid.size() &&
+				curr.getCol() >= 0 && curr.getCol() < grid.size()) {
+			// checks if the cell being moved to exists
+			if (move.getRow() >= 0 && move.getRow() < grid.size() &&
+					move.getCol() >= 0 && move.getCol() < grid.size()) {
+				// checks to see if there is a lizard on the current cell
+				if (curr.getLizard() != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * HELPER METHOD
+	 * This method will initialize the new segments for the lizard and move lizard based on head movement
+	 * @param col column
+	 * @param row row
+	 * @param dir direction to go to
+	 * @param segs original segments for lizard
+	 * @param newSegs new segments for lizard
+	 * @param lizzie lizard
+	 */
+	private void moveHead(int col, int row, Direction dir, ArrayList<BodySegment> segs, ArrayList<BodySegment> newSegs, Lizard lizzie) {
+		for (int i = 0; i < segs.size() -1; i++) {
+			newSegs.add(segs.get(i + 1));
+		}
+		
+		if (dir == UP) {
+			newSegs.add(new BodySegment(lizzie, getCell(col, (row - 1))));
+		}
+		else if (dir == DOWN) {
+			newSegs.add(new BodySegment(lizzie, getCell(col, (row + 1))));
+		}
+		else if (dir == LEFT) {
+			newSegs.add(new BodySegment(lizzie, getCell(col - 1, (row))));
+		}
+		else if (dir == RIGHT) {
+			newSegs.add(new BodySegment(lizzie, getCell(col + 1, (row))));
+		}
+		System.out.println(newSegs);
+	}
+	
+	/**
+	 * HELPER METHOD
+	 * This method will initialize the new segments for the lizard and move lizard based on tail movement
+	 * @param col column
+	 * @param row row
+	 * @param dir direction to go to
+	 * @param segs original segments for lizard
+	 * @param newSegs new segments for lizard
+	 * @param lizzie lizard
+	 */
+	private void moveTail(int col, int row, Direction dir, ArrayList<BodySegment> segs, ArrayList<BodySegment> newSegs, Lizard lizzie) {
+		
+		
+		// Fix the for loop to 
+		
+		
+		for (int i = 0; i > 0; i--) {
+			newSegs.add(segs.get(i - 1));
+		}
+		
+		if (dir == UP) {
+			newSegs.add(new BodySegment(lizzie, getCell(col, (row - 1))));
+		}
+		else if (dir == DOWN) {
+			newSegs.add(new BodySegment(lizzie, getCell(col, (row + 1))));
+		}
+		else if (dir == LEFT) {
+			newSegs.add(new BodySegment(lizzie, getCell(col - 1, (row))));
+		}
+		else if (dir == RIGHT) {
+			newSegs.add(new BodySegment(lizzie, getCell(col + 1, (row))));
+		}
+	}
+	
+	
+	/**
+	 * Move the lizard specified by its body segment at the given position (col,
+	 * row) one cell in the given direction. The entire body of the lizard must move
+	 * in a snake like fashion, in other words, each body segment pushes and pulls
+	 * the segments it is connected to forward or backward in the path of the
+	 * lizard's body. The given direction may result in the lizard moving its body
+	 * either forward or backward by one cell.
+	 * <p>
+	 * The segments of a lizard's body are linked together and movement must always
+	 * be "in-line" with the body. It is allowed to implement movement by either
+	 * shifting every body segment one cell over or by creating a new head or tail
+	 * segment and removing an existing head or tail segment to achieve the same
+	 * effect of movement in the forward or backward direction.
+	 * <p>
+	 * If any segment of the lizard moves over an exit cell, the lizard should be
+	 * removed from the grid.
+	 * <p>
+	 * If there are no lizards left on the grid the player has won the puzzle the
+	 * the dialog listener should be used to display (see showDialog) the message
+	 * "You win!".
+	 * <p>
+	 * It is possible that the given direction is not in-line with the body of the
+	 * lizard (as described above), in that case this method should do nothing.
+	 * <p>
+	 * It is possible that the given column and row are outside the bounds of the
+	 * grid, in that case this method should do nothing.
+	 * <p>
+	 * It is possible that there is no lizard at the given column and row, in that
+	 * case this method should do nothing.
+	 * <p>
+	 * It is possible that the lizard is blocked and cannot move in the requested
+	 * direction, in that case this method should do nothing.
+	 * <p>
+	 * <b>Developer's note: You may have noticed that there are a lot of details
+	 * that need to be considered when implement this method method. It is highly
+	 * recommend to explore how you can use the public API methods of this class,
+	 * Grid and Lizard (hint: there are many helpful methods in those classes that
+	 * will simplify your logic here) and also create your own private helper
+	 * methods. Break the problem into smaller parts are work on each part
+	 * individually.</b>
+	 * 
+	 * @param col the given column of a selected segment
+	 * @param row the given row of a selected segment
+	 * @param dir the given direction to move the selected segment
+	 */
+	public void move(int col, int row, Direction dir) {
+		
+		Cell currCell = getCell(col, row);
+		Cell moveCell = getAdjacentCell(col, row, dir);
+		
+		if (checkExists(currCell, moveCell)) {
+			// getting all the necessary information to move the lizard
+			Lizard lizzie = currCell.getLizard();
+			BodySegment head = lizzie.getHeadSegment();
+			BodySegment tail = lizzie.getTailSegment();
+			ArrayList<BodySegment> segs = lizzie.getSegments();
+			// this is for the new segments of the lizard (set later)
+			ArrayList<BodySegment> newSegs = new ArrayList<BodySegment>();
+			
+			// checks if the current cell equals the head segment
+			if (currCell.getRow() == head.getCell().getRow() && 
+					currCell.getCol() == head.getCell().getCol()) {
+				
+				// checks for availability of the the cell being moved to. moves head if true
+				if (isAvailable(moveCell.getCol(), moveCell.getRow())) { 
+					// moves the lizard to the desired location
+					System.out.println(segs);
+					moveHead(col, row, dir, segs, newSegs, lizzie);
+				}
+				
+				// checks if dir equals the direction to the segment behind the head. moves tail if true
+				else if (dir == lizzie.getDirectionToSegmentBehind(head)) {
+					moveTail(tail.getCell().getCol(), tail.getCell().getRow(), dir, segs, newSegs, lizzie);
+				}
+				
+				// if all else fails, do nothing
+				else {
+					return;
+				}
+				
+				segs.clear();
+			}
+		}
+		
+		
+		
+	}
+
+	/**
+	 * Sets callback listeners for game events.
+	 * 
+	 * @param dialogListener listener for creating a user dialog
+	 * @param scoreListener  listener for updating the player's score
+	 */
+	public void setListeners(ShowDialogListener dialogListener, ScoreUpdateListener scoreListener) {
+		this.dialogListener = dialogListener;
+		this.scoreListener = scoreListener;
+	}
+
+	/**
+	 * Load the game from the given file path
+	 * 
+	 * @param filePath location of file to load
+	 */
+	public void load(String filePath) {
+		GameFileUtil.load(filePath, this);
+	}
+
+	@Override
+	public String toString() {
+		String str = "---------- GRID ----------\n";
+		str += "Dimensions:\n";
+		str += getWidth() + " " + getHeight() + "\n";
+		str += "Layout:\n";
+		for (int y = 0; y < getHeight(); y++) {
+			if (y > 0) {
+				str += "\n";
+			}
+			for (int x = 0; x < getWidth(); x++) {
+				str += getCell(x, y);
+			}
+		}
+		str += "\nLizards:\n";
+		for (Lizard l : getLizards()) {
+			str += l;
+		}
+		str += "\n--------------------------\n";
+		return str;
+	}
+}

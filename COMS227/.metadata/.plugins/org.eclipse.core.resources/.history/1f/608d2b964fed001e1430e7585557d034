@@ -1,0 +1,17 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
+
+import api.BodySegment;
+import hw3.Lizard;
+
+public class Tests {
+	public void test1() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> expectedSegments = new ArrayList<BodySegment>();
+		liz.setSegments(expectedSegments);
+		ArrayList<BodySegment> actualSegments = liz.getSegments();
+		System.out.println("e: " + expectedSegments + " a: " + actualSegments);
+	}
+
+}

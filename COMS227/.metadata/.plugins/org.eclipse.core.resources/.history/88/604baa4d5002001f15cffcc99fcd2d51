@@ -1,0 +1,12 @@
+package vehicle;
+
+import java.util.ArrayList;
+
+public class VehicleTest {
+
+	public static void main(String[] args) {
+		ArrayList<Chargeable> chargeableThings = new ArrayList<>();
+
+	}
+
+}

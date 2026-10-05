@@ -1,0 +1,15 @@
+package vehicle;
+
+public class ElectricTruck extends Truck implements Chargeable{
+
+	private Battery battery;
+	
+	public ElectricTruck(int kwh) {
+		this.battery = new Battery(kwh);
+	}
+	
+	@Override
+	public void charge(int hours) {
+		this.battery.charge(hours);
+	}
+}

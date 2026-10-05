@@ -1,0 +1,317 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Review {
+
+	
+	public static void main(String[] args) {
+//		double[] test1A = {1.0, 3.5, 4.7, 8.9};
+//		System.out.println(averageOfDoubles(test1A));
+//		
+//		String test1B = "How is it going everyone?";
+//		System.out.println(findLongestWord(test1B));
+//		
+//		String test1C = "Wakanda Forever  .;4278553";
+//		System.out.println(replaceNonAlphabet(test1C));
+//		
+//		Double test1Drate = 5.0;
+//		Double balance = 200.0;
+//		System.out.println("Time for balance to double: " + doubleTime(test1Drate, balance));
+//		
+//		ArrayList<Integer> test1E = new ArrayList<>();
+//		test1E.add(3);
+//		test1E.add(4);
+//		test1E.add(5);
+//		test1E.add(3);
+//		System.out.println(incOrder(test1E));
+//		
+//		String test1F = "Fret";
+//		System.out.println("e: 2 a: " + firstVowelIndex(test1F));
+//		
+//		String test1G = "abcdefghihklmnopqrstuvwxyza";
+//		System.out.println("e: true a: " + twoPlusLetters(test1G));
+//		
+//		int[] test1H = {1, 2, 3, 4, 5};
+//		reverse(test1H);
+//		System.out.print("e: 54321 a: ");
+//		for (int i = 0; i < test1H.length; i++) {
+//			System.out.print(test1H[i]);
+//		}
+//		
+//		int[] test1I = {1,2,3,4,5,6,7,3};
+//		System.out.println("e: false a: " + isPermutation(test1I));
+		
+//		diagonalStars(5);
+		
+		
+		
+
+		
+		
+		int[] prob4test = {1,2,3,4};
+		int[][] prob4 = rightShifts(prob4test);
+		for (int i = 0; i < prob4.length; i++) {
+			for (int j = 0; j < prob4.length; j++) {
+				System.out.print(prob4[i][j]);
+			}
+			System.out.println();
+		}
+		
+		int[] prob4test2 = {1,2,3,4};
+		leftShifts(prob4test2);
+		
+		String word = "this is a word";
+		System.out.println(blankVowelsV2(word));
+		
+		int[] test = {6,7,4,3,5,2,7,9,8};
+		whatever(test);
+		
+		System.out.println();
+		System.out.println(getPassword());
+		
+	}
+	
+	// Problem 1a
+	// Given an array of doubles, return the average
+	public static double averageOfDoubles(double[] arr) {
+		double avg = 0;
+		for (int i = 0; i < arr.length; i++) {
+			avg += arr[i];
+		}
+		avg = avg/arr.length;
+		return avg;
+	}
+	
+	// Problem 1b
+	// Given a sentence, find and return the longest word
+	public static String findLongestWord(String str) {
+		String longest = "";
+		str.replaceAll("[.]", "");
+		String[] words = str.split(" ");
+		
+		longest = words[0];
+		for (int i = 0; i < words.length; i++) {
+			if (words[i].length() > longest.length()) {
+				longest = words[i];
+			}
+		}
+		return longest;
+	}
+	
+	// Problem 1c
+	// Given a string, return the string with all spaces and non-alphabetic characters replaced
+	// by the character '#'
+	public static String replaceNonAlphabet(String str) {
+		for (int i = 0; i < str.length() ; i++) {
+			char c = str.charAt(i);
+			if (!Character.isAlphabetic(c)) {
+				str = str.replace(c, '#');
+
+			}
+		}
+		return str;
+	}
+	
+	// Problem 1d
+	// Interest is added to the balance of a savings account each month. Write a method that, given an annual interest rate
+	// and an initial balance, determines how many months it takes for the balance to double;
+	public static int doubleTime(double rate, double balance) {
+		int month = 0;
+		double tempBalance = balance;
+		
+		while (balance * 2 >= tempBalance) {
+			tempBalance += tempBalance*(rate/100);
+			month++;
+		}
+		return month;
+	}
+	
+	// Problem 1e
+	// Given an ArrayList of integers, determine whether they are in increasing order
+	public static boolean incOrder(ArrayList<Integer> arr) {
+		for (int i = 1; i < arr.size(); i++) {
+			if (arr.get(i) < arr.get(i-1)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	// Problem 1f
+	// Given a string, return the index of the first vowel (or -1 if there are more)
+	public static int firstVowelIndex(String str) {
+		String vowels = "AEIOUaeiou";
+		
+		for (int i = 0; i < str.length(); i++) {
+			if (vowels.contains(str.substring(i, i+1))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	// Problem 1g
+	// Given a string, determine whether any letter appears two or more times
+	public static boolean twoPlusLetters(String str) {
+		String[] arr = str.split("");
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = i+1; j < arr.length; j++) {
+				if (arr[i].equals(arr[j])) {
+//					System.out.println(arr[i]);
+//					System.out.println(arr[j]);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	// Problem 1h
+	// Given an array of ints, reverse its contents
+	// must modify the array and return void
+	public static void reverse(int[] arr) {
+		int[] temp = new int[arr.length];
+		
+		for (int i = 0; i < arr.length; i++) {
+			temp[i] = arr[arr.length - i - 1];
+		}
+
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = temp[i];
+		}
+//		System.out.println(arr[0]);
+	}
+	
+	// Problem 1i
+	// Given an array of ints. determine whether the array is a permutation of the numbers 0 through n - 1, 
+	// where n is the length of the array.
+	public static boolean isPermutation(int[] arr) {
+		for (int i = 0; i < arr.length; i++) {
+			for (int j = i+1; j < arr.length; j++ ) {
+				if (arr[i] == arr[j]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	// Problem 1j
+	// Given a number n, print out  reverse diagonal line of stars
+	public static void diagonalStars(int n) {
+		while (n > 0) {
+			String[] stars = new String[n];
+			for (int i = 0; i < n; i++) {
+				stars[i] ="*";
+			}
+			
+			for (int i = 0; i < n; i++) {
+				System.out.print(stars[i] + " ");
+			}
+			n--;
+			System.out.println();
+		}
+	}
+	
+	// Problem 1k
+	// Given a 2D array of double, return a 1D array whose ith entry is average of the ith column
+//	public static double[] avg1D(double[][] arr) {
+//		double[] avgArr = new double[arr[0].length];
+//		
+//		for (int i = 0; i < avgArr.length; i++) {
+//			
+//		}
+//	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public static int[][] rightShifts(int[] arr) {
+		int n = arr.length;
+		int[][] shiftTable = new int[n][n];
+		
+		for (int i = 0; i < n; i++) {
+			for (int j = i; j < n; j++) {
+				int index = j - i;
+				shiftTable[i][j] = arr[index];
+			}
+		}
+		return shiftTable;
+	}
+	
+	public static int[][] leftShifts(int[] arr) {
+		int n = arr.length;
+		int[][] shiftTable = new int[n][n];
+		
+		for (int i = 0; i < n; i++) {
+			for (int j = i; j < n; j++) {
+				int index = j + i;
+				if (index >= n) {
+					index-= n;
+				}
+				shiftTable[i][j] = arr[index];
+			}
+		}
+		return shiftTable;
+	}
+	
+	public static String blankVowelsV2(String str) {
+		String newWord = "";
+		String vowels = "AEIOUaeiou";
+		for (int i =0; i < str.length(); i++) {
+			String temp = str.substring(i, i +1);
+			if (vowels.contains(temp)) {
+				newWord += "_";
+			} else {
+				newWord += temp;
+			}
+		}
+		return newWord;
+	}
+	
+	public static void whatever(int[] arr) {
+		int i = 0;
+		for (int count = 0; count < arr.length; count++) {
+			if (arr[i] % 2 != 0) {
+				for (int j = i; j < arr.length - 1; j++) {
+					arr[j] = arr[j+1];
+				}
+				arr[arr.length -1] = 0;
+			}
+			else {
+				i+= 1;
+			}
+		}
+	
+		for (int ok = 0; ok < arr.length; ok++) {
+			System.out.print(arr[ok] + " ");
+		}
+	}
+	
+	public static String getPassword() {
+		String pass1;
+		String pass2 = "";
+		
+		Scanner scnr = new Scanner(System.in);
+		
+		System.out.print("Please enter your passsword: ");
+		pass1 = scnr.next();
+		System.out.println();
+		
+		while (!pass1.equals(pass2)) {
+			System.out.print("Please re-enter your password: ");
+			pass2 = scnr.next();
+		}
+		
+		scnr.close();
+		return pass1;
+		
+	}
+	
+}
+

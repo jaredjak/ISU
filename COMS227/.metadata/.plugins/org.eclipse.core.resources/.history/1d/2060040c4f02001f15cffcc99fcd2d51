@@ -1,0 +1,14 @@
+package vehicle;
+
+public class Battery implements Chargeable{
+	private int kwh;
+	private int charge;
+
+	@Override
+	public void charge(int hours) {
+		
+	}
+	
+	
+
+}

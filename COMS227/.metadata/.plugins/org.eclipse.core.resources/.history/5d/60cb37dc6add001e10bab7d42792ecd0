@@ -1,0 +1,19 @@
+package files;
+
+public class FileExamples {
+
+	public static void main(String[] args) {
+		
+		double number = 2/3.0;
+		System.out.println(number);
+		System.out.printf("Our number is %f\n", number);
+		
+		System.out.printf("A fun number is: %7.2f", 28);
+		System.out.printf("A fun number is: %7.2f", 24);
+		System.out.printf("A fun number is: %7.2f", Math.PI());
+		System.out.printf("A fun number is: %7.2f", Math.E());
+		
+		
+	}
+
+}

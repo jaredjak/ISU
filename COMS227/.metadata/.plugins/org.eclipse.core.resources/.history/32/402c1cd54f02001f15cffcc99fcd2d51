@@ -1,0 +1,20 @@
+package vehicle;
+
+public class GasTruck extends Truck implements Fillable {
+
+`private GasTank gasTank;
+	
+	public GasTruck(int capacity) {
+		this.gasTank = new GasTank(capacity);
+	}
+	
+	@Override
+	public void fill(int amount) {
+		gasTank.fill(amount);
+	}
+
+	@Override
+	public void fillToTop() {
+		gasTank.fillToTop();
+	}
+}

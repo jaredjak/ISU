@@ -1,0 +1,247 @@
+package hw3;
+
+import static api.Direction.*;
+
+import java.util.ArrayList;
+
+import api.BodySegment;
+import api.Cell;
+import api.Direction;
+
+/**
+ * Represents a Lizard as a collection of body segments.
+ */
+public class Lizard {
+	
+	/**
+	 * ArrayList of all of the segments of the given lizard
+	 */
+	private ArrayList<BodySegment> lizardSegments;
+	
+	
+	/**
+	 * Constructs a Lizard object.
+	 */
+	public Lizard() {
+		lizardSegments = new ArrayList<BodySegment>();
+	}
+
+	/**
+	 * Sets the segments of the lizard. Segments should be ordered from tail to
+	 * head.
+	 * 
+	 * @param segments list of segments ordered from tail to head
+	 */
+	public void setSegments(ArrayList<BodySegment> segments) {
+		lizardSegments = segments;
+	}
+
+	/**
+	 * Gets the segments of the lizard. Segments are ordered from tail to head.
+	 * 
+	 * @return a list of segments ordered from tail to head
+	 */
+	public ArrayList<BodySegment> getSegments() {
+		return lizardSegments;
+	}
+
+	/**
+	 * Gets the head segment of the lizard. Returns null if the segments have not
+	 * been initialized or there are no segments.
+	 * 
+	 * @return the head segment
+	 */
+	public BodySegment getHeadSegment() {
+		if (lizardSegments.isEmpty()) {
+			return null;
+		}
+		return lizardSegments.get(lizardSegments.size() - 1);
+	}
+
+	/**
+	 * Gets the tail segment of the lizard. Returns null if the segments have not
+	 * been initialized or there are no segments.
+	 * 
+	 * @return the tail segment
+	 */
+	public BodySegment getTailSegment() {
+		if (lizardSegments.isEmpty()) {
+			return null;
+		}
+		return lizardSegments.get(0);
+	}
+
+	/**
+	 * Gets the segment that is located at a given cell or null if there is no
+	 * segment at that cell.
+	 * 
+	 * @param cell to look for lizard
+	 * @return the segment that is on the cell or null if there is none
+	 */
+	public BodySegment getSegmentAt(Cell cell) {
+		for (int i = 0; i < lizardSegments.size(); i++) {
+			if (lizardSegments.get(i).toString().equals(cell.toString())) {
+				return lizardSegments.get(i);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get the segment that is in front of (closer to the head segment than) the
+	 * given segment. Returns null if there is no segment ahead.
+	 * 
+	 * @param segment the starting segment
+	 * @return the segment in front of the given segment or null
+	 */
+	public BodySegment getSegmentAhead(BodySegment segment) {
+		int check = lizardSegments.indexOf(segment);
+		if (check == lizardSegments.size() - 1 || check == -1) {
+			return null;
+		}
+		return lizardSegments.get(check + 1);
+	}
+
+	/**
+	 * Get the segment that is behind (closer to the tail segment than) the given
+	 * segment. Returns null if there is not segment behind.
+	 * 
+	 * @param segment the starting segment
+	 * @return the segment behind of the given segment or null
+	 */
+	public BodySegment getSegmentBehind(BodySegment segment) {
+		int check = lizardSegments.indexOf(segment);
+		if (check == lizardSegments.size() - lizardSegments.size() || check == -1) {
+			return null;
+		}
+		return lizardSegments.get(check - 1);
+	}
+	
+	/**
+	 * HELPER METHOD - finding direction
+	 * Finds the direction of one segment to segment2
+	 * @param segment the beginning segment
+	 * @param segment2 the segment being compared to the beginning segment
+	 * @return direction of segment2 from segment or null
+	 */
+	private Direction directions(BodySegment segment, BodySegment segment2) {
+		Direction dir = null;
+		
+		int rowNum = segment2.getCell().getRow() - segment.getCell().getRow();
+		int colNum = segment2.getCell().getCol() - segment.getCell().getCol();
+		
+		// Thought this first one would be DOWN and vice versa for the second if statement
+		// But I'll just do what simpleTests says is right.
+		if (rowNum == -1 && colNum == 0) {
+			return dir = UP;
+		}
+		else if (rowNum == 1 && colNum == 0) {
+			return dir = DOWN;
+		}
+		else if(rowNum == 0 && colNum == -1) {
+			return dir = LEFT;
+		}
+		else if (rowNum == 0 && colNum == 1) {
+			return dir = RIGHT;
+		}
+		return dir;
+	}
+	
+	/**
+	 * Gets the direction from the perspective of the given segment point to the
+	 * segment ahead (in front of) of it. Returns null if there is no segment ahead
+	 * of the given segment.
+	 * 
+	 * @param segment the starting segment
+	 * @return the direction to the segment ahead of the given segment or null
+	 */
+	public Direction getDirectionToSegmentAhead(BodySegment segment) {
+		int check = lizardSegments.indexOf(segment);
+		if (check == lizardSegments.size() - 1 || check == -1) {
+			return null;
+		}
+		return directions(segment, lizardSegments.get(check+1));
+	}
+
+	/**
+	 * Gets the direction from the perspective of the given segment point to the
+	 * segment behind it. Returns null if there is no segment behind of the given
+	 * segment.
+	 * 
+	 * @param segment the starting segment
+	 * @return the direction to the segment behind of the given segment or null
+	 */
+	public Direction getDirectionToSegmentBehind(BodySegment segment) {
+		int check = lizardSegments.indexOf(segment);
+		if (check == lizardSegments.size() - lizardSegments.size() || check == -1) {
+			return null;
+		}
+		return directions(segment, lizardSegments.get(check-1));
+	}
+
+	/**
+	 * Gets the direction in which the head segment is pointing. This is the
+	 * direction formed by going from the segment behind the head segment to the
+	 * head segment. A lizard that does not have more than one segment has no
+	 * defined head direction and returns null.
+	 * 
+	 * @return the direction in which the head segment is pointing or null
+	 */
+	public Direction getHeadDirection() {
+		BodySegment behindHead;
+		int check = lizardSegments.size() - 2;
+		// Prevents the program from breaking if there is less than 1 cell for a lizard.
+		if (check < 1) {
+			return null;
+		}
+		behindHead = lizardSegments.get(lizardSegments.size() - 2);
+		return getDirectionToSegmentAhead(behindHead);
+		
+		
+//		BodySegment behindHead;
+//		
+//		if (!lizardSegments.get(lizardSegments.size() - 2).equals(null)) {
+//			behindHead = lizardSegments.get(lizardSegments.size() - 2);
+//			return getDirectionToSegmentAhead(behindHead);
+//		}
+//		return null;
+	}
+
+	/**
+	 * Gets the direction in which the tail segment is pointing. This is the
+	 * direction formed by going from the segment ahead of the tail segment to the
+	 * tail segment. A lizard that does not have more than one segment has no
+	 * defined tail direction and returns null.
+	 * 
+	 * @return the direction in which the tail segment is pointing or null
+	 */
+	public Direction getTailDirection() {
+		BodySegment aheadTail;
+		int check = lizardSegments.size();
+		// Prevents the program from breaking if there is less than 1 cell for a lizard.
+		if (check < 1) {
+			return null;
+		}
+		aheadTail = lizardSegments.get(1);
+		return getDirectionToSegmentBehind(aheadTail);
+		
+		
+		
+//		BodySegment aheadTail;
+//		
+//		if (!lizardSegments.get(0+1).equals(null)) {
+//			aheadTail = lizardSegments.get(0+1);
+//			return getDirectionToSegmentBehind(aheadTail);
+//		}
+//		return null;
+	}
+
+	@Override
+	public String toString() {
+		String result = "";
+		for (BodySegment seg : getSegments()) {
+			result += seg + " ";
+		}
+		return result;
+	}
+}

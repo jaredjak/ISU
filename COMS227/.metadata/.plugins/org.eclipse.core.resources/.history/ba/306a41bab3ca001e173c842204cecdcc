@@ -1,0 +1,70 @@
+package lab3;
+import balloon2.Balloon;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.junit.Before;
+
+public class BalloonTests {
+	private Balloon b;
+	
+	@Before
+	public void setup() {
+		b = new Balloon(10);
+	}
+	
+	@Test
+	public void testInitial() {
+		assertEquals(false, b.isPopped());
+	}
+	@Test
+	public void testInitialRadius() {
+		assertEquals(0, b.getRadius());
+	}
+	@Test
+	public void testBlowandDeflate() {
+		b.blow(5);
+		assertEquals(5, b.getRadius());
+		b.deflate();
+		assertEquals(0, b.getRadius());
+	}
+	
+	@Test
+	public void testIfPopped1() {
+		b.blow(4);
+		assertEquals(false, b.isPopped());
+		assertEquals(4, b.getRadius());
+		b.blow(7);
+		assertEquals(true, b.isPopped());
+		assertEquals(0, b.getRadius());
+		// balloon1 fails because even when it reaches it's maximum radius it does not pop
+		// and returns false for isPopped (never pops)
+	}
+
+	@Test
+	public void testBlowMethod() {
+		b.deflate();
+		b.blow(1);
+		assertEquals(1, b.getRadius());
+		assertEquals(false, b.isPopped());
+		b.blow(1);
+		assertEquals(2, b.getRadius());
+		// balloon3 fails because it sets the given number for blow as the radius instead of 
+		// adding the blow to the current radius
+		
+		// balloon4 fails because whenever the balloon's radius is 0, whether the balloon the balloon was popped 
+		// or not, the balloon is considered popped
+	}
+
+	@Test
+	public void testPop() {
+		assertEquals(false, b.isPopped());
+		b.pop();
+		assertEquals(true, b.isPopped());
+		assertEquals(0, b.getRadius());
+		b.blow(5);
+		assertEquals(0, b.getRadius());
+		// balloon2 fails because even though the balloon is popped
+		// it still adds to the radius
+	}
+
+}

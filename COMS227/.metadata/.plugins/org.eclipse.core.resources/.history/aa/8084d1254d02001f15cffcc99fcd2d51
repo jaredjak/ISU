@@ -1,0 +1,5 @@
+package vehicle;
+
+public class GasCar extends Car implements Fillable {
+
+}

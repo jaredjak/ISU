@@ -1,0 +1,27 @@
+package vehicle;
+
+public class GasTank implements Fillable{
+	
+	private int capacity;
+	private int level;
+	
+	public GasTank(int takeCapacity) {
+		this.capacity = takeCapacity;
+		this.level = 0;
+	}
+
+	@Override
+	public void fill(int amount) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void fillToTop() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+}

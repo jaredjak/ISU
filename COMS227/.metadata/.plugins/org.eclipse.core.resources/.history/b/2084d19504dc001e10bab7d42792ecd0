@@ -1,0 +1,40 @@
+package lab5;
+
+import java.util.Scanner;
+
+public class Initials {
+	
+	public static String findInitials(String fullName) {
+		String initials = "";
+		Scanner in = new Scanner(fullName);
+		
+		while (in.hasNext()) {
+			String name = in.next();
+			initials = initials + name.charAt(0);
+		}
+		return initials; 
+	}
+
+	public static int findVowel(String text) {
+		String vowels = "aeiouAeiou";
+		
+		for (int i = 0; i < text.length(); i++) {
+			for (int j = 0; j < vowels.length(); j++) {
+				if (text.charAt(i) == vowels.charAt(j)) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+	
+	public static void main(String [] args) {
+		// For findInitials method
+		String name = "Bartholomew Jacobieu Polymorph The Third";
+		System.out.println("Expected: BJPTT" + " | Actual: " + findInitials(name));
+		
+		// For findVowel method
+		String str = "LLLLiPPPP";
+		System.out.println("Expected: 4 | Actual: " + findVowel(str));
+	}
+}

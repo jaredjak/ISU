@@ -1,0 +1,42 @@
+package arrays2d;
+
+import java.util.Arrays;
+
+public class ArraysExamples {
+
+	public static void main(String[] args) {
+		int[][] arr = new int[3][3];
+		arr[0][2] = 10;
+		
+//		// The copy changes with the original
+//		int[][] copyArr = Arrays.copyOf(arr, arr.length);
+//		copyArr[0][2] = 7;
+		
+		
+		System.out.println(arr[0][2]);
+		System.out.println(copyArr[0][2]);
+		
+		
+//		int [][] arr = {{1,2,3}, {4,5,6}};
+//		
+//		int[] row0 = {9,9,9,9,9};
+//		int[] row1 = {3,3,3,3,3,3,3};
+//		
+//		arr[0] = row0;
+//		arr[1] = row1;
+//		
+//		for (int i = 0; i < arr.length; i++) {
+//			for (int j = 0; j < arr[i].length; j++) {
+//				System.out.print(arr[i][j] + " ");
+//			}
+//			System.out.println();
+//		}
+//		
+//		// Prints the amount of rows in the array
+//		System.out.println(arr.length);
+//		// Prints the amount of columns at the given row
+//		System.out.println(arr[0].length);
+
+	}
+
+}

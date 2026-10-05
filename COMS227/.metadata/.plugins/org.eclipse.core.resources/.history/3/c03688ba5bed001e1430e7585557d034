@@ -1,0 +1,227 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static api.Direction.*;
+
+import java.util.ArrayList;
+
+import api.BodySegment;
+import api.Cell;
+import hw3.Lizard;
+
+public class testing {
+	public static void main(String[] args) {
+//		test1();
+//		test2();
+//		test3();
+//		test4();
+//		test5();
+//		test6();
+//		test7();
+		test8();
+//		test9();
+//		test10();
+//		test11();
+//		test12();
+//		test13();
+//		test14();
+//		test15();
+//		test16();
+//		test17();
+//		test18();
+//		test19();
+//		test20();
+		
+	}
+	
+	public static void test1() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> expectedSegments = new ArrayList<BodySegment>();
+		liz.setSegments(expectedSegments);
+		ArrayList<BodySegment> actualSegments = liz.getSegments();
+		System.out.println("e: " + expectedSegments + " a: " + actualSegments);
+	}
+	
+	public static void test2() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		BodySegment tail = new BodySegment(liz, new Cell(1,2));
+		BodySegment inner = new BodySegment(liz, new Cell(2,2));
+		BodySegment head = new BodySegment(liz, new Cell(3,2));
+		segments.add(tail);
+		segments.add(inner);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(head, liz.getHeadSegment());
+		System.out.println("e:" + liz.getHeadSegment() + " a:" + head);
+	}
+	
+	public static void test3() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		BodySegment tail = new BodySegment(liz, new Cell(1,2));
+		BodySegment inner = new BodySegment(liz, new Cell(2,2));
+		BodySegment head = new BodySegment(liz, new Cell(3,2));
+		segments.add(tail);
+		segments.add(inner);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(tail, liz.getTailSegment());
+		System.out.println("e:" + liz.getTailSegment() + " a:" + tail);
+	}
+	
+	public static void test4() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		Cell tailCell = new Cell(1,2);
+		Cell innerCell = new Cell(2,2);
+		Cell headCell = new Cell(3,2);
+		Cell unusedCell = new Cell(3,3);
+		BodySegment tail = new BodySegment(liz, tailCell);
+		BodySegment inner = new BodySegment(liz, innerCell);
+		BodySegment head = new BodySegment(liz, headCell);
+		segments.add(tail);
+		segments.add(inner);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(inner, liz.getSegmentAt(innerCell));
+		assertEquals(head, liz.getSegmentAt(headCell));
+		assertEquals(null, liz.getSegmentAt(unusedCell));
+		System.out.println("e:" + inner + " a:" + liz.getSegmentAt(innerCell));
+		System.out.println("e:" + head + " a:" + liz.getSegmentAt(headCell));
+		System.out.println("e:" + null + " a:" + liz.getSegmentAt(unusedCell));
+	}
+	
+	public static void test5() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		Cell tailCell = new Cell(1,2);
+		Cell innerCell = new Cell(2,2);
+		Cell headCell = new Cell(3,2);
+		BodySegment tail = new BodySegment(liz, tailCell);
+		BodySegment inner = new BodySegment(liz, innerCell);
+		BodySegment head = new BodySegment(liz, headCell);
+		segments.add(tail);
+		segments.add(inner);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(inner, liz.getSegmentAhead(tail));
+		assertEquals(head, liz.getSegmentAhead(inner));
+		assertEquals(null, liz.getSegmentAhead(head));
+		System.out.println("e:" + inner + " a:" + liz.getSegmentAhead(tail));
+		System.out.println("e:" + head + " a:" + liz.getSegmentAhead(inner));
+		System.out.println("e:" + null + " a:" + liz.getSegmentAhead(head));
+	}
+	
+	public static void test6() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		Cell tailCell = new Cell(1,2);
+		Cell innerCell = new Cell(2,2);
+		Cell headCell = new Cell(3,2);
+		BodySegment tail = new BodySegment(liz, tailCell);
+		BodySegment inner = new BodySegment(liz, innerCell);
+		BodySegment head = new BodySegment(liz, headCell);
+		segments.add(tail);
+		segments.add(inner);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(inner, liz.getSegmentBehind(head));
+		assertEquals(tail, liz.getSegmentBehind(inner));
+		assertEquals(null, liz.getSegmentBehind(tail));
+		System.out.println("e:" + inner + " a:" + liz.getSegmentBehind(head));
+		System.out.println("e:" + tail + " a:" + liz.getSegmentBehind(inner));
+		System.out.println("e:" + null + " a:" + liz.getSegmentBehind(tail));
+	}
+	
+	public static void test7() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		Cell tailCell = new Cell(1,2);
+		Cell innerCell1 = new Cell(2,2);
+		Cell innerCell2 = new Cell(2,1);
+		Cell headCell = new Cell(1,1);
+		BodySegment tail = new BodySegment(liz, tailCell);
+		BodySegment inner1 = new BodySegment(liz, innerCell1);
+		BodySegment inner2 = new BodySegment(liz, innerCell2);
+		BodySegment head = new BodySegment(liz, headCell);
+		segments.add(tail);
+		segments.add(inner1);
+		segments.add(inner2);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(RIGHT, liz.getDirectionToSegmentAhead(tail));
+		assertEquals(UP, liz.getDirectionToSegmentAhead(inner1));
+		assertEquals(LEFT, liz.getDirectionToSegmentAhead(inner2));
+		assertEquals(null, liz.getDirectionToSegmentAhead(head));
+		System.out.println("e:" + RIGHT + " a:" + liz.getDirectionToSegmentAhead(tail));
+		System.out.println("e:" + UP + " a:" + liz.getDirectionToSegmentAhead(inner1));
+		System.out.println("e:" + LEFT + " a:" + liz.getDirectionToSegmentAhead(inner2));
+		System.out.println("e:" + null + " a:" + liz.getDirectionToSegmentAhead(head));
+	}
+	
+	public static void test8() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		Cell tailCell = new Cell(1,2);
+		Cell innerCell1 = new Cell(2,2);
+		Cell innerCell2 = new Cell(2,1);
+		Cell headCell = new Cell(1,1);
+		BodySegment tail = new BodySegment(liz, tailCell);
+		BodySegment inner1 = new BodySegment(liz, innerCell1);
+		BodySegment inner2 = new BodySegment(liz, innerCell2);
+		BodySegment head = new BodySegment(liz, headCell);
+		segments.add(tail);
+		segments.add(inner1);
+		segments.add(inner2);
+		segments.add(head);
+		liz.setSegments(segments);
+		assertEquals(RIGHT, liz.getDirectionToSegmentBehind(head));
+		assertEquals(DOWN, liz.getDirectionToSegmentBehind(inner2));
+		assertEquals(LEFT, liz.getDirectionToSegmentBehind(inner1));
+		assertEquals(LEFT, liz.getDirectionToSegmentBehind(tail));
+		System.out.println("e:" + RIGHT + " a:" + liz.getDirectionToSegmentBehind(head));
+		System.out.println("e:" + DOWN + " a:" + liz.getDirectionToSegmentBehind(inner2));
+		System.out.println("e:" + LEFT + " a:" + liz.getDirectionToSegmentBehind(inner1));
+		System.out.println("e:" + UP + " a:" + liz.getDirectionToSegmentBehind(tail));
+	}
+	
+//	public static void test9() {
+//		Lizard liz = new Lizard();
+//		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+//		Cell tailCell = new Cell(1,2);
+//		Cell innerCell1 = new Cell(2,2);
+//		Cell innerCell2 = new Cell(2,1);
+//		Cell headCell = new Cell(1,1);
+//		BodySegment tail = new BodySegment(liz, tailCell);
+//		BodySegment inner1 = new BodySegment(liz, innerCell1);
+//		BodySegment inner2 = new BodySegment(liz, innerCell2);
+//		BodySegment head = new BodySegment(liz, headCell);
+//		segments.add(tail);
+//		segments.add(inner1);
+//		segments.add(inner2);
+//		segments.add(head);
+//		liz.setSegments(segments);
+//		assertEquals(LEFT, liz.getHeadDirection());
+//		System.out.println("e:" + LEFT + " a:" + liz.getHeadDirection());
+//	}
+	
+	public static void test9() {
+		Lizard liz = new Lizard();
+		ArrayList<BodySegment> segments = new ArrayList<BodySegment>();
+		Cell tailCell = new Cell(1,2);
+//		Cell innerCell1 = new Cell(2,2);
+//		Cell innerCell2 = new Cell(2,1);
+		Cell headCell = new Cell(1,1);
+		BodySegment tail = new BodySegment(liz, tailCell);
+//		BodySegment inner1 = new BodySegment(liz, innerCell1);
+//		BodySegment inner2 = new BodySegment(liz, innerCell2);
+		BodySegment head = new BodySegment(liz, headCell);
+		segments.add(tail);
+//		segments.add(inner1);
+//		segments.add(inner2);
+		segments.add(head);
+		liz.setSegments(segments);
+//		assertEquals(LEFT, liz.getHeadDirection());
+		System.out.println("e:" + LEFT + " a:" + liz.getHeadDirection());
+	}
+
+}

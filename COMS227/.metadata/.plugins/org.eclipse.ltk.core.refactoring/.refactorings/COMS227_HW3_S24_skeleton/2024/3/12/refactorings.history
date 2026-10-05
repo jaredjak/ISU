@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Extract local variable &apos;cell2&apos; from expression &apos;cell&apos;&#x0D;&#x0A;- Original project: &apos;COMS227_HW3_S24_skeleton&apos;&#x0D;&#x0A;- Variable name: &apos;cell2&apos;&#x0D;&#x0A;- Destination method: &apos;hw3.Lizard.getSegmentAt(...)&apos;&#x0D;&#x0A;- Variable expression: &apos;cell&apos;&#x0D;&#x0A;- Replace occurrences of expression with variable" description="Extract local variable &apos;cell2&apos;" final="false" id="org.eclipse.jdt.ui.extract.temp" input="/src&lt;hw3{Lizard.java" name="cell2" replace="true" replaceAllInThisFile="false" selection="1801 4" stamp="1711230648029" varType="false" version="1.0"/>
+</session>
